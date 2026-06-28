@@ -1,0 +1,102 @@
+<UserControl x:Class="WPF.Views.StyleGuideView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="StyleGuideCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="22" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource StyleGuideCardStyle}" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="Dialog buttons"
+                               FontFamily="{StaticResource AppDisplayFont}"
+                               FontSize="22"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Use these actions to preview the shared button hierarchy and DialogService message patterns."
+                               Margin="0,10,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                    <WrapPanel Margin="0,22,0,0">
+                        <Button Content="Info Dialog"
+                                Command="{Binding ShowInfoDialogCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="Warning Dialog"
+                                Command="{Binding ShowWarningDialogCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Confirm Dialog"
+                                Command="{Binding ShowConfirmDialogCommand}"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Margin="0,0,0,0" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource StyleGuideCardStyle}" Padding="24" Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="Input preview"
+                                   FontFamily="{StaticResource AppDisplayFont}"
+                                   FontSize="22"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <TextBlock Text="Search keyword" Margin="0,18,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Room status" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <ComboBox ItemsSource="{Binding RoomStatuses}"
+                                  SelectedItem="{Binding SelectedRoomStatus}" />
+
+                        <TextBlock Text="Planned check-in" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <DatePicker SelectedDate="{Binding PlannedCheckIn}" />
+
+                        <TextBlock Text="Notes" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 Height="110"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+
+                        <Button Content="Reset Preview"
+                                Command="{Binding ResetPreviewCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,22,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource StyleGuideCardStyle}" Padding="24" Margin="12,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Shared table style"
+                                   FontFamily="{StaticResource AppDisplayFont}"
+                                   FontSize="22"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="Preview rows that later booking, room and billing screens can reuse."
+                                   Margin="0,10,0,0"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+
+                        <DataGrid ItemsSource="{Binding PreviewRows}" Margin="0,22,0,0" Height="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="*" />
+                                <DataGridTextColumn Header="Guest" Binding="{Binding GuestName}" Width="2*" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                                <DataGridTextColumn Header="Nights" Binding="{Binding Nights}" Width="80" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:C}}" Width="110" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,131 @@
+<UserControl x:Class="WPF.Views.SessionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="SessionCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="22" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Background="{StaticResource HeroBrush}" CornerRadius="24" Padding="28">
+                <StackPanel>
+                    <TextBlock Text="Session foundation"
+                               Foreground="{StaticResource TextInverseBrush}"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Use the demo role buttons below to validate CurrentSession, header state and role-aware navigation before building the real login flow."
+                               Margin="0,12,0,0"
+                               Foreground="#E3F1F7"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource SessionCardStyle}" Padding="24" Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="Current Session"
+                                   FontFamily="{StaticResource AppDisplayFont}"
+                                   FontSize="22"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <Grid Margin="0,18,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="State" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding SessionState}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" />
+
+                            <TextBlock Grid.Row="1" Text="Display name" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,12,0,0" Text="{Binding DisplayName}" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <TextBlock Grid.Row="2" Text="Username" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,12,0,0" Text="{Binding Username}" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <TextBlock Grid.Row="3" Text="Role" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,12,0,0" Text="{Binding RoleDisplay}" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <TextBlock Grid.Row="4" Text="Logged in at" Margin="0,12,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Margin="0,12,0,0" Text="{Binding LoggedInAtDisplay}" Foreground="{StaticResource TextPrimaryBrush}" />
+                        </Grid>
+
+                        <Button Content="Show Summary Dialog"
+                                Command="{Binding ShowSessionSummaryCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,24,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource SessionCardStyle}" Padding="24" Margin="12,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Accessible Areas"
+                                   FontFamily="{StaticResource AppDisplayFont}"
+                                   FontSize="22"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <ItemsControl ItemsSource="{Binding AccessibleAreas}" Margin="0,18,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,12"
+                                            Padding="14,10"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            BorderBrush="{StaticResource SurfaceBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="16">
+                                        <TextBlock Text="{Binding}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource SessionCardStyle}" Padding="24" Margin="0,24,0,0">
+                <StackPanel>
+                    <TextBlock Text="Demo role switcher"
+                               FontFamily="{StaticResource AppDisplayFont}"
+                               FontSize="22"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="These buttons intentionally simulate later auth output so the team can validate shell behavior before `M1-AUTH-001` is complete."
+                               Margin="0,10,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+
+                    <WrapPanel Margin="0,22,0,0">
+                        <Button Content="Use Admin Session"
+                                Command="{Binding UseAdminSessionCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="Use Manager Session"
+                                Command="{Binding UseManagerSessionCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Use Receptionist Session"
+                                Command="{Binding UseReceptionistSessionCommand}"
+                                Style="{StaticResource GhostButtonStyle}" />
+                        <Button Content="Clear Session"
+                                Command="{Binding ClearSessionCommand}"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Margin="0,0,0,0" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

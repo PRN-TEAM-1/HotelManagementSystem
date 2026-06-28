@@ -1,9 +1,30 @@
-﻿<Application x:Class="WPF.App"
+<Application x:Class="WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:WPF"
-             StartupUri="MainWindow.xaml">
+             xmlns:viewModels="clr-namespace:WPF.ViewModels"
+             xmlns:views="clr-namespace:WPF.Views">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Buttons.xaml" />
+                <ResourceDictionary Source="Resources/TextBoxes.xaml" />
+                <ResourceDictionary Source="Resources/Tables.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+            <DataTemplate DataType="{x:Type viewModels:SectionViewModel}">
+                <views:SectionView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:SessionViewModel}">
+                <views:SessionView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:StyleGuideViewModel}">
+                <views:StyleGuideView />
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
