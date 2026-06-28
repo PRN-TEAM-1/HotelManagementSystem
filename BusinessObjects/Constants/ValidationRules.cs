@@ -1,5 +1,7 @@
 namespace BusinessObjects.Constants;
 
+//Ae trong quá trình làm có thể bổ sung thêm chớ đừng xóa nhé
+
 public static class ValidationRules
 {
     public const int DefaultPageNumber = 1;
