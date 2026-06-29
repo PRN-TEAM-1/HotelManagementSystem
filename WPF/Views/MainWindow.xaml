@@ -45,10 +45,10 @@
                         Background="#12314A"
                         CornerRadius="18">
                     <StackPanel>
-                        <TextBlock Text="CORE-004 foundation"
+                        <TextBlock Text="M1-AUTH-001 online"
                                    Foreground="{StaticResource TextInverseBrush}"
                                    FontWeight="SemiBold" />
-                        <TextBlock Text="Shared navigation, dialogs, styles and session state are centralized here for the feature teams."
+                        <TextBlock Text="This shell is now unlocked by real login, backed by EF Core and ready for the remaining vertical slices."
                                    Margin="0,8,0,0"
                                    Foreground="#C2D5E6"
                                    FontSize="12"
@@ -143,8 +143,8 @@
                         <Button Content="Back"
                                 Command="{Binding GoBackCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}" />
-                        <Button Content="Clear Session"
-                                Command="{Binding ClearSessionCommand}"
+                        <Button Content="Logout"
+                                Command="{Binding LogoutCommand}"
                                 Style="{StaticResource GhostButtonStyle}"
                                 Margin="0,0,0,0" />
                     </StackPanel>

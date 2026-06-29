@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessObjects;
 
@@ -7,6 +8,7 @@ public static class DbContextFactory
     private const string AppSettingsFileName = "appsettings.json";
     private const string ConnectionStringsSectionName = "ConnectionStrings";
     private const string DefaultConnectionName = "DefaultConnection";
+    private const string LegacyDefaultConnectionName = "DefaultConnectionString";
     private const string WpfFolderName = "WPF";
     private const int SearchDepthLimit = 8;
 
@@ -29,10 +31,11 @@ public static class DbContextFactory
                 $"The '{ConnectionStringsSectionName}' section was not found in '{appSettingsPath}'.");
         }
 
-        if (!connectionStringsSection.TryGetProperty(connectionName, out var connectionStringElement))
+        if (!TryGetConnectionStringElement(connectionStringsSection, connectionName, out var connectionStringElement))
         {
             throw new InvalidOperationException(
-                $"The connection string '{connectionName}' was not found in '{appSettingsPath}'.");
+                $"The connection string '{connectionName}' was not found in '{appSettingsPath}'. " +
+                $"Supported keys: '{DefaultConnectionName}' and '{LegacyDefaultConnectionName}'.");
         }
 
         var connectionString = connectionStringElement.GetString();
@@ -44,6 +47,13 @@ public static class DbContextFactory
         }
 
         return connectionString.Trim();
+    }
+
+    public static HotelManagementContext CreateDbContext(string connectionName = DefaultConnectionName)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<HotelManagementContext>();
+        optionsBuilder.UseSqlServer(GetConnectionString(connectionName));
+        return new HotelManagementContext(optionsBuilder.Options);
     }
 
     public static string GetAppSettingsPath()
@@ -86,5 +96,28 @@ public static class DbContextFactory
 
             currentDirectory = currentDirectory.Parent;
         }
+    }
+
+    private static bool TryGetConnectionStringElement(
+        JsonElement connectionStringsSection,
+        string connectionName,
+        out JsonElement connectionStringElement)
+    {
+        if (connectionStringsSection.TryGetProperty(connectionName, out connectionStringElement))
+        {
+            return true;
+        }
+
+        if (string.Equals(connectionName, DefaultConnectionName, StringComparison.OrdinalIgnoreCase))
+        {
+            return connectionStringsSection.TryGetProperty(LegacyDefaultConnectionName, out connectionStringElement);
+        }
+
+        if (string.Equals(connectionName, LegacyDefaultConnectionName, StringComparison.OrdinalIgnoreCase))
+        {
+            return connectionStringsSection.TryGetProperty(DefaultConnectionName, out connectionStringElement);
+        }
+
+        return false;
     }
 }

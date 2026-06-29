@@ -1,4 +1,6 @@
 using System.Windows;
+using Services.Implements;
+using Services.Interfaces;
 using WPF.Helpers;
 using WPF.ViewModels;
 using WPF.Views;
@@ -7,64 +9,177 @@ namespace WPF;
 
 public partial class App : Application
 {
-    private CurrentSession _currentSession = null!;
+    private ICurrentUserService _currentUserService = null!;
+    private IAuthService _authService = null!;
     private DialogService _dialogService = null!;
     private NavigationService _navigationService = null!;
+    private MainWindow? _shellWindow;
+    private LoginWindow? _loginWindow;
+    private bool _isTransitioningWindows;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        _currentSession = new CurrentSession();
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        _currentUserService = new CurrentUserService();
+        _authService = new AuthService();
         _dialogService = new DialogService();
         _navigationService = new NavigationService();
+        _currentUserService.SessionChanged += OnSessionChanged;
 
+        BuildShellWindow();
+        ShowLoginWindow();
+    }
+
+    private void BuildShellWindow()
+    {
         var workspaceViewModel = CreateWorkspaceViewModel();
-        var sessionViewModel = new SessionViewModel(_currentSession, _dialogService);
+        var sessionViewModel = new SessionViewModel(_currentUserService);
         var administrationViewModel = CreateAdministrationViewModel();
         var operationsViewModel = CreateOperationsViewModel();
         var reportsViewModel = CreateReportsViewModel();
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);
-        _navigationService.Register(NavigationTargets.SessionSandbox, () => sessionViewModel);
+        _navigationService.Register(NavigationTargets.Session, () => sessionViewModel);
         _navigationService.Register(NavigationTargets.Administration, () => administrationViewModel);
         _navigationService.Register(NavigationTargets.Operations, () => operationsViewModel);
         _navigationService.Register(NavigationTargets.Reports, () => reportsViewModel);
         _navigationService.Register(NavigationTargets.StyleGuide, () => styleGuideViewModel);
+        _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
 
         var mainWindowViewModel = new MainWindowViewModel(
             _navigationService,
-            _currentSession,
+            _currentUserService,
             _dialogService);
 
-        _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
-
-        MainWindow = new MainWindow
+        _shellWindow = new MainWindow
         {
             DataContext = mainWindowViewModel
         };
 
-        MainWindow.Show();
+        _shellWindow.Closed += OnShellWindowClosed;
+    }
+
+    private void ShowLoginWindow()
+    {
+        if (_loginWindow is not null)
+        {
+            if (!_loginWindow.IsVisible)
+            {
+                _loginWindow.Show();
+            }
+
+            _loginWindow.Activate();
+            MainWindow = _loginWindow;
+            return;
+        }
+
+        var loginViewModel = new LoginViewModel(_authService, _currentUserService);
+        _loginWindow = new LoginWindow
+        {
+            DataContext = loginViewModel
+        };
+
+        _loginWindow.Closed += OnLoginWindowClosed;
+        MainWindow = _loginWindow;
+        _loginWindow.Show();
+    }
+
+    private void OnSessionChanged(object? sender, EventArgs e)
+    {
+        if (_currentUserService.IsAuthenticated)
+        {
+            ShowShellWindow();
+            return;
+        }
+
+        ShowLoginAfterLogout();
+    }
+
+    private void ShowShellWindow()
+    {
+        _isTransitioningWindows = true;
+
+        try
+        {
+            if (_loginWindow is not null)
+            {
+                _loginWindow.Closed -= OnLoginWindowClosed;
+                _loginWindow.Close();
+                _loginWindow = null;
+            }
+
+            _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
+
+            if (_shellWindow is not null && !_shellWindow.IsVisible)
+            {
+                _shellWindow.Show();
+            }
+
+            MainWindow = _shellWindow;
+            _shellWindow?.Activate();
+        }
+        finally
+        {
+            _isTransitioningWindows = false;
+        }
+    }
+
+    private void ShowLoginAfterLogout()
+    {
+        _isTransitioningWindows = true;
+
+        try
+        {
+            _shellWindow?.Hide();
+            ShowLoginWindow();
+        }
+        finally
+        {
+            _isTransitioningWindows = false;
+        }
+    }
+
+    private void OnLoginWindowClosed(object? sender, EventArgs e)
+    {
+        if (_isTransitioningWindows || _currentUserService.IsAuthenticated)
+        {
+            return;
+        }
+
+        Shutdown();
+    }
+
+    private void OnShellWindowClosed(object? sender, EventArgs e)
+    {
+        if (_isTransitioningWindows)
+        {
+            return;
+        }
+
+        Shutdown();
     }
 
     private static SectionViewModel CreateWorkspaceViewModel()
     {
         return new SectionViewModel(
             "Core Workspace",
-            "Shared MVVM shell for the Hotel Management System. This is the hand-off point for every feature team before wiring real service-backed screens.",
-            "CORE-004",
+            "Authenticated entry point for every upcoming vertical slice after the new login flow is completed.",
+            "CORE-004 + M1-AUTH-001",
             [
                 "`WPF View -> ViewModel -> Service -> Repository -> DAO` remains the only allowed call chain.",
-                "`DbContextFactory` already centralizes `appsettings.json` discovery, so UI code stays configuration-only.",
-                "`CurrentSession`, `NavigationService` and `RelayCommand` are ready for the upcoming auth and role-based menu flow."
+                "`DbContextFactory` centralizes `appsettings.json` discovery, so UI code stays configuration-only.",
+                "Auth now reaches SQL Server through EF Core and populates `CurrentUserService` with the logged-in staff account."
             ],
             [
                 "Add a view model, add a view, then register that pair once in `App.xaml.cs` to join the shell.",
                 "Keep repositories and DAOs out of `WPF`; feature view models should only depend on service interfaces.",
                 "Reuse the shared button, input and table styles so forms from different members still feel like one product."
             ],
-            ["MVVM", "Shell", "Navigation", "Session", "Styles"]);
+            ["MVVM", "Shell", "Navigation", "Auth", "Styles"]);
     }
 
     private static SectionViewModel CreateAdministrationViewModel()
@@ -76,7 +191,7 @@ public partial class App : Application
             [
                 "User management will plug into this area after `M1-USERMGMT-001`.",
                 "Room type, room and service catalog pages can share the same form and table styles from `CORE-004`.",
-                "Role-aware visibility is already prepared so this area stays hidden outside Admin sessions."
+                "Role-aware visibility is already enforced from the authenticated session."
             ],
             [
                 "Feature teams can replace the placeholder with a real dashboard or nested navigation later.",
@@ -94,7 +209,7 @@ public partial class App : Application
             "Reception Flow",
             [
                 "This section matches the end-to-end business flow documented in `README.md` and `Database-Ver2.0.md`.",
-                "Navigation already supports role-gated access for Receptionist and Admin demo sessions.",
+                "Navigation supports role-gated access for Receptionist and Admin accounts after real login.",
                 "The shared shell is ready for task slices like booking creation, room map and billing screens."
             ],
             [
@@ -112,7 +227,7 @@ public partial class App : Application
             "Home for dashboard metrics, occupancy reports, revenue summaries and service analytics aimed at Admin and Manager roles.",
             "Insights",
             [
-                "Role-based navigation already exposes this zone only to Manager/Admin sessions.",
+                "Role-based navigation exposes this zone only to Manager/Admin sessions.",
                 "The shared `DataGrid` styling is ready for KPI tables and export preview screens.",
                 "Future charts or summary cards can live inside the same shell without changing the navigation infrastructure."
             ],
