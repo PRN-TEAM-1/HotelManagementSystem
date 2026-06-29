@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using BusinessObjects.Enums;
+using Services.Interfaces;
 using WPF.Commands;
 using WPF.Helpers;
 
@@ -8,40 +9,40 @@ namespace WPF.ViewModels;
 public sealed class MainWindowViewModel : BaseViewModel
 {
     private readonly NavigationService _navigationService;
-    private readonly CurrentSession _currentSession;
+    private readonly ICurrentUserService _currentUserService;
     private readonly DialogService _dialogService;
     private readonly RelayCommand _goBackCommand;
-    private readonly RelayCommand _clearSessionCommand;
+    private readonly RelayCommand _logoutCommand;
     private readonly RelayCommand<NavigationItemViewModel> _navigateCommand;
 
     private BaseViewModel? _currentViewModel;
     private string _currentPageTitle = "Hotel Management System";
-    private string _currentPageDescription = "Shared WPF shell";
+    private string _currentPageDescription = "Role-aware operations shell";
     private string _sessionDisplayName = "No active session";
     private string _sessionRoleDisplay = "Public";
     private string _authenticationState = "Signed out";
 
     public MainWindowViewModel(
         NavigationService navigationService,
-        CurrentSession currentSession,
+        ICurrentUserService currentUserService,
         DialogService dialogService)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-        _currentSession = currentSession ?? throw new ArgumentNullException(nameof(currentSession));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
         NavigationItems = new ObservableCollection<NavigationItemViewModel>(CreateNavigationItems());
 
         _navigateCommand = new RelayCommand<NavigationItemViewModel>(NavigateTo, item => item?.IsVisible == true);
         _goBackCommand = new RelayCommand(GoBack, () => _navigationService.CanGoBack);
-        _clearSessionCommand = new RelayCommand(ClearSession, () => _currentSession.IsAuthenticated);
+        _logoutCommand = new RelayCommand(Logout, () => _currentUserService.IsAuthenticated);
 
         NavigateCommand = _navigateCommand;
         GoBackCommand = _goBackCommand;
-        ClearSessionCommand = _clearSessionCommand;
+        LogoutCommand = _logoutCommand;
 
         _navigationService.NavigationChanged += OnNavigationChanged;
-        _currentSession.SessionChanged += OnSessionChanged;
+        _currentUserService.SessionChanged += OnSessionChanged;
 
         RefreshNavigationVisibility();
         SyncShellState();
@@ -49,7 +50,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
     public string AppTitle => "Hotel Management System";
 
-    public string AppSubtitle => "Shared MVVM foundation for the week 1 fullstack slices";
+    public string AppSubtitle => "Role-aware operations shell powered by EF Core auth";
 
     public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }
 
@@ -57,7 +58,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
     public RelayCommand GoBackCommand { get; }
 
-    public RelayCommand ClearSessionCommand { get; }
+    public RelayCommand LogoutCommand { get; }
 
     public BaseViewModel? CurrentViewModel
     {
@@ -115,9 +116,9 @@ public sealed class MainWindowViewModel : BaseViewModel
                 "Core Workspace",
                 "Architecture handoff and integration notes"),
             new NavigationItemViewModel(
-                NavigationTargets.SessionSandbox,
-                "Session Sandbox",
-                "Validate CurrentSession and role-based visibility"),
+                NavigationTargets.Session,
+                "Current Session",
+                "Authenticated user profile and access summary"),
             new NavigationItemViewModel(
                 NavigationTargets.Administration,
                 "Administration",
@@ -171,22 +172,22 @@ public sealed class MainWindowViewModel : BaseViewModel
         }
     }
 
-    private void ClearSession()
+    private void Logout()
     {
-        if (!_currentSession.IsAuthenticated)
+        if (!_currentUserService.IsAuthenticated)
         {
             return;
         }
 
-        if (_dialogService.Confirm("Clear the current demo session from the shell header?", "Clear Session"))
+        if (_dialogService.Confirm("Sign out of the current account and return to the login window?", "Logout"))
         {
-            _currentSession.Clear();
+            _currentUserService.Clear();
         }
     }
 
     private void RefreshNavigationVisibility()
     {
-        var roleName = _currentSession.User?.RoleName;
+        var roleName = _currentUserService.User?.RoleName;
 
         foreach (var item in NavigationItems)
         {
@@ -217,9 +218,9 @@ public sealed class MainWindowViewModel : BaseViewModel
         CurrentViewModel = _navigationService.CurrentViewModel;
         CurrentPageTitle = CurrentViewModel?.Title ?? AppTitle;
         CurrentPageDescription = CurrentViewModel?.Description ?? AppSubtitle;
-        SessionDisplayName = _currentSession.DisplayName;
-        SessionRoleDisplay = _currentSession.RoleDisplay;
-        AuthenticationState = _currentSession.IsAuthenticated ? "Demo session active" : "Foundation-only access";
+        SessionDisplayName = _currentUserService.DisplayName;
+        SessionRoleDisplay = _currentUserService.RoleDisplay;
+        AuthenticationState = _currentUserService.IsAuthenticated ? "Signed in" : "Signed out";
 
         foreach (var item in NavigationItems)
         {
@@ -228,6 +229,6 @@ public sealed class MainWindowViewModel : BaseViewModel
 
         _navigateCommand.RaiseCanExecuteChanged();
         _goBackCommand.RaiseCanExecuteChanged();
-        _clearSessionCommand.RaiseCanExecuteChanged();
+        _logoutCommand.RaiseCanExecuteChanged();
     }
 }
