@@ -27,4 +27,11 @@ public static class ErrorMessages
     public const string BookingConflict = "The selected room already has an active booking in the chosen date range.";
     public const string DuplicateInvoice = "This booking already has an invoice.";
     public const string PaymentExceedsRemainingAmount = "Payment amount cannot exceed the remaining invoice amount.";
+
+    // Additional error messages for service operations
+    public const string SystemError = "A system error occurred. Please try again.";
+    public const string InvalidInput = "Invalid input provided.";
+    public const string NotFound = "Record not found.";
+    public const string BusinessRuleViolation = "Business rule violation.";
+    public const string DuplicateKey = "Duplicate record found.";
 }

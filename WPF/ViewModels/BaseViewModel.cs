@@ -19,6 +19,11 @@ public abstract class BaseViewModel : INotifyPropertyChanged
     {
     }
 
+    public virtual async Task InitializeAsync()
+    {
+        await Task.CompletedTask;
+    }
+
     protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
     {
         if (EqualityComparer<T>.Default.Equals(storage, value))

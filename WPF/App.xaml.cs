@@ -38,7 +38,24 @@ public partial class App : Application
         var workspaceViewModel = CreateWorkspaceViewModel();
         var sessionViewModel = new SessionViewModel(_currentUserService);
         var administrationViewModel = CreateAdministrationViewModel();
-        var operationsViewModel = CreateOperationsViewModel();
+
+        // Register Member 3 ViewModels and Services
+        var checkInService = new CheckInService();
+        var checkoutService = new CheckoutService();
+        var serviceCatalogService = new ServiceCatalogService();
+        var serviceOrderService = new ServiceOrderService();
+
+        var checkInViewModel = new CheckInViewModel(checkInService, _currentUserService);
+        var checkoutViewModel = new CheckoutViewModel(checkoutService, _currentUserService);
+        var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
+        var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
+
+        var operationsViewModel = new OperationsViewModel(
+            checkInViewModel,
+            checkoutViewModel,
+            serviceManagementViewModel,
+            serviceOrderViewModel);
+
         var reportsViewModel = CreateReportsViewModel();
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
@@ -48,6 +65,7 @@ public partial class App : Application
         _navigationService.Register(NavigationTargets.Operations, () => operationsViewModel);
         _navigationService.Register(NavigationTargets.Reports, () => reportsViewModel);
         _navigationService.Register(NavigationTargets.StyleGuide, () => styleGuideViewModel);
+
         _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
 
         var mainWindowViewModel = new MainWindowViewModel(

@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:WPF.ViewModels"
-             xmlns:views="clr-namespace:WPF.Views">
+             xmlns:views="clr-namespace:WPF.Views"
+             xmlns:converters="clr-namespace:WPF.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -13,6 +14,9 @@
             </ResourceDictionary.MergedDictionaries>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+            <converters:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />
 
             <DataTemplate DataType="{x:Type viewModels:SectionViewModel}">
                 <views:SectionView />
@@ -24,6 +28,26 @@
 
             <DataTemplate DataType="{x:Type viewModels:StyleGuideViewModel}">
                 <views:StyleGuideView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:OperationsViewModel}">
+                <views:OperationsView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:CheckInViewModel}">
+                <views:CheckInView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:CheckoutViewModel}">
+                <views:CheckoutView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:ServiceManagementViewModel}">
+                <views:ServiceManagementView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:ServiceOrderViewModel}">
+                <views:ServiceOrderView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
