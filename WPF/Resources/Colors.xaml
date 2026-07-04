@@ -14,12 +14,18 @@
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#16768E" />
     <SolidColorBrush x:Key="AccentPressedBrush" Color="#125E73" />
     <SolidColorBrush x:Key="AccentSoftBrush" Color="#D8F1F5" />
+    <SolidColorBrush x:Key="ButtonPrimaryBrush" Color="#1E8BA5" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#237A57" />
     <SolidColorBrush x:Key="WarningBrush" Color="#B5701B" />
     <SolidColorBrush x:Key="DangerBrush" Color="#B24E56" />
     <SolidColorBrush x:Key="SidebarHoverBrush" Color="#17364E" />
     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#1A4666" />
     <SolidColorBrush x:Key="TableHeaderBrush" Color="#EAF1F7" />
+
+    <!-- Aliases used by Checkout / ServiceManagement / ServiceOrder views -->
+    <SolidColorBrush x:Key="TextBrush" Color="#102033" />
+    <SolidColorBrush x:Key="ButtonSecondaryBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ButtonSuccessBrush" Color="#237A57" />
 
     <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#0E1C2F" Offset="0" />
