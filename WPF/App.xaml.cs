@@ -37,7 +37,11 @@ public partial class App : Application
     {
         var workspaceViewModel = CreateWorkspaceViewModel();
         var sessionViewModel = new SessionViewModel(_currentUserService);
-        var administrationViewModel = CreateAdministrationViewModel();
+        var userManagementService = new UserManagementService();
+        var administrationViewModel = new UserManagementViewModel(
+            userManagementService,
+            _currentUserService,
+            _dialogService);
 
         // Register Member 3 ViewModels and Services
         var checkInService = new CheckInService();
@@ -198,25 +202,6 @@ public partial class App : Application
                 "Reuse the shared button, input and table styles so forms from different members still feel like one product."
             ],
             ["MVVM", "Shell", "Navigation", "Auth", "Styles"]);
-    }
-
-    private static SectionViewModel CreateAdministrationViewModel()
-    {
-        return new SectionViewModel(
-            "Administration",
-            "Reserved for admin-focused slices such as user management, room catalog, room types and service catalog maintenance.",
-            "Admin Only",
-            [
-                "User management will plug into this area after `M1-USERMGMT-001`.",
-                "Room type, room and service catalog pages can share the same form and table styles from `CORE-004`.",
-                "Role-aware visibility is already enforced from the authenticated session."
-            ],
-            [
-                "Feature teams can replace the placeholder with a real dashboard or nested navigation later.",
-                "Any command in this area should continue to delegate business logic to `Services` only.",
-                "Dialog confirmations here can reuse `DialogService` for lock/unlock, status change and delete flows."
-            ],
-            ["Users", "Rooms", "Room Types", "Services"]);
     }
 
     private static SectionViewModel CreateOperationsViewModel()
