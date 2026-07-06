@@ -53,6 +53,14 @@
             <DataTemplate DataType="{x:Type viewModels:ServiceOrderViewModel}">
                 <views:ServiceOrderView />
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:InvoiceViewModel}">
+                <views:InvoiceView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:InvoiceDetailViewModel}">
+                <views:InvoiceDetailView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

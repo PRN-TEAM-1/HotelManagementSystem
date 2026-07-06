@@ -8,6 +8,7 @@ public sealed class OperationsViewModel : BaseViewModel
     private readonly CheckoutViewModel _checkoutViewModel;
     private readonly ServiceManagementViewModel _serviceManagementViewModel;
     private readonly ServiceOrderViewModel _serviceOrderViewModel;
+    private readonly InvoiceViewModel _invoiceViewModel;
 
     private BaseViewModel _currentViewModel;
 
@@ -15,12 +16,14 @@ public sealed class OperationsViewModel : BaseViewModel
         CheckInViewModel checkInViewModel,
         CheckoutViewModel checkoutViewModel,
         ServiceManagementViewModel serviceManagementViewModel,
-        ServiceOrderViewModel serviceOrderViewModel)
+        ServiceOrderViewModel serviceOrderViewModel,
+        InvoiceViewModel invoiceViewModel)
     {
         _checkInViewModel = checkInViewModel ?? throw new ArgumentNullException(nameof(checkInViewModel));
         _checkoutViewModel = checkoutViewModel ?? throw new ArgumentNullException(nameof(checkoutViewModel));
         _serviceManagementViewModel = serviceManagementViewModel ?? throw new ArgumentNullException(nameof(serviceManagementViewModel));
         _serviceOrderViewModel = serviceOrderViewModel ?? throw new ArgumentNullException(nameof(serviceOrderViewModel));
+        _invoiceViewModel = invoiceViewModel ?? throw new ArgumentNullException(nameof(invoiceViewModel));
 
         _currentViewModel = checkInViewModel;
     }
@@ -37,6 +40,8 @@ public sealed class OperationsViewModel : BaseViewModel
 
     public ServiceOrderViewModel ServiceOrderViewModel => _serviceOrderViewModel;
 
+    public InvoiceViewModel InvoiceViewModel => _invoiceViewModel;
+
     public BaseViewModel CurrentViewModel
     {
         get => _currentViewModel;
@@ -49,7 +54,8 @@ public sealed class OperationsViewModel : BaseViewModel
             _checkInViewModel.InitializeAsync(),
             _checkoutViewModel.InitializeAsync(),
             _serviceManagementViewModel.InitializeAsync(),
-            _serviceOrderViewModel.InitializeAsync()
+            _serviceOrderViewModel.InitializeAsync(),
+            _invoiceViewModel.InitializeAsync()
         );
     }
 }
