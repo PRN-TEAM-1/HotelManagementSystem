@@ -8,6 +8,7 @@ namespace WPF.ViewModels;
 public sealed class InvoiceViewModel : BaseViewModel
 {
     private readonly IInvoiceService _invoiceService;
+    private readonly IPaymentService _paymentService;
     private readonly ICurrentUserService _currentUserService;
     private readonly DialogService _dialogService;
 
@@ -16,6 +17,8 @@ public sealed class InvoiceViewModel : BaseViewModel
     private InvoiceCandidateDto? _selectedCandidate;
     private InvoiceSummaryDto? _selectedInvoice;
     private InvoiceDetailViewModel _invoiceDetail = new();
+    private PaymentViewModel _paymentView;
+    private PaymentHistoryViewModel _paymentHistory;
     private string _invoiceSearchTerm = string.Empty;
     private string _discountAmountText = "0";
     private string _taxAmountText = "0";
@@ -27,12 +30,17 @@ public sealed class InvoiceViewModel : BaseViewModel
 
     public InvoiceViewModel(
         IInvoiceService invoiceService,
+        IPaymentService paymentService,
         ICurrentUserService currentUserService,
         DialogService dialogService)
     {
         _invoiceService = invoiceService ?? throw new ArgumentNullException(nameof(invoiceService));
+        _paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+        _paymentView = new PaymentViewModel(_paymentService, _currentUserService);
+        _paymentHistory = new PaymentHistoryViewModel(_paymentService, _currentUserService);
+        _paymentView.PaymentRecorded += OnPaymentRecorded;
 
         RefreshCommand = new AsyncRelayCommand(RefreshAsync, CanExecuteWhenIdle);
         SearchInvoicesCommand = new AsyncRelayCommand(SearchInvoicesAsync, CanExecuteWhenIdle);
@@ -101,6 +109,18 @@ public sealed class InvoiceViewModel : BaseViewModel
     {
         get => _invoiceDetail;
         private set => SetProperty(ref _invoiceDetail, value);
+    }
+
+    public PaymentViewModel PaymentView
+    {
+        get => _paymentView;
+        private set => SetProperty(ref _paymentView, value);
+    }
+
+    public PaymentHistoryViewModel PaymentHistory
+    {
+        get => _paymentHistory;
+        private set => SetProperty(ref _paymentHistory, value);
     }
 
     public string InvoiceSearchTerm
@@ -309,13 +329,14 @@ public sealed class InvoiceViewModel : BaseViewModel
 
             SelectedCandidate = null;
             SelectedInvoice = null;
-            InvoiceDetail = new InvoiceDetailViewModel();
+            ClearSelectedInvoiceDetail();
         }
         catch (Exception ex)
         {
             ErrorMessage = $"Error loading invoices: {ex.Message}";
             InvoiceCandidates = new();
             Invoices = new();
+            ClearSelectedInvoiceDetail();
         }
         finally
         {
@@ -340,18 +361,19 @@ public sealed class InvoiceViewModel : BaseViewModel
                 ErrorMessage = invoiceResult.Errors.FirstOrDefault() ?? invoiceResult.Message;
                 Invoices = new();
                 SelectedInvoice = null;
-                InvoiceDetail = new InvoiceDetailViewModel();
+                ClearSelectedInvoiceDetail();
                 return;
             }
 
             Invoices = invoiceResult.Data ?? new();
             SelectedInvoice = null;
-            InvoiceDetail = new InvoiceDetailViewModel();
+            ClearSelectedInvoiceDetail();
         }
         catch (Exception ex)
         {
             ErrorMessage = $"Error searching invoices: {ex.Message}";
             Invoices = new();
+            ClearSelectedInvoiceDetail();
         }
         finally
         {
@@ -434,7 +456,7 @@ public sealed class InvoiceViewModel : BaseViewModel
 
         if (!createdInvoiceId.HasValue)
         {
-            InvoiceDetail = new InvoiceDetailViewModel();
+            ClearSelectedInvoiceDetail();
             return;
         }
 
@@ -479,11 +501,59 @@ public sealed class InvoiceViewModel : BaseViewModel
         if (result.IsFailure)
         {
             ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
-            InvoiceDetail = new InvoiceDetailViewModel();
+            ClearSelectedInvoiceDetail();
             return;
         }
 
         InvoiceDetail = new InvoiceDetailViewModel(result.Data);
+        PaymentView.SetInvoice(result.Data);
+
+        if (result.Data is null)
+        {
+            PaymentHistory.Clear();
+            return;
+        }
+
+        await PaymentHistory.LoadAsync(result.Data.InvoiceId);
+    }
+
+    private async void OnPaymentRecorded(object? sender, PaymentResultDto result)
+    {
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+
+        try
+        {
+            await ReloadAfterPaymentAsync(result.InvoiceId);
+            SuccessMessage = $"Payment #{result.PaymentId} recorded successfully. Remaining amount: {result.RemainingAmount:C}.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Payment was recorded, but invoice refresh failed: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ReloadAfterPaymentAsync(int invoiceId)
+    {
+        var invoiceResult = await _invoiceService.GetInvoicesAsync(
+            _currentUserService.User,
+            InvoiceSearchTerm);
+
+        Invoices = invoiceResult.Data ?? new();
+        SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == invoiceId);
+        await LoadInvoiceDetailAsync(invoiceId);
+    }
+
+    private void ClearSelectedInvoiceDetail()
+    {
+        InvoiceDetail = new InvoiceDetailViewModel();
+        PaymentView.ClearInvoice();
+        PaymentHistory.Clear();
     }
 
     private void ClearMessages()

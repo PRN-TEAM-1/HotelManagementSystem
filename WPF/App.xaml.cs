@@ -49,12 +49,13 @@ public partial class App : Application
         var serviceCatalogService = new ServiceCatalogService();
         var serviceOrderService = new ServiceOrderService();
         var invoiceService = new InvoiceService();
+        var paymentService = new PaymentService();
 
         var checkInViewModel = new CheckInViewModel(checkInService, _currentUserService);
         var checkoutViewModel = new CheckoutViewModel(checkoutService, _currentUserService);
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
         var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
-        var invoiceViewModel = new InvoiceViewModel(invoiceService, _currentUserService, _dialogService);
+        var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
 
         var operationsViewModel = new OperationsViewModel(
             checkInViewModel,

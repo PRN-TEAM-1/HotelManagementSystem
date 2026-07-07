@@ -61,6 +61,14 @@
             <DataTemplate DataType="{x:Type viewModels:InvoiceDetailViewModel}">
                 <views:InvoiceDetailView />
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:PaymentViewModel}">
+                <views:PaymentView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:PaymentHistoryViewModel}">
+                <views:PaymentHistoryView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

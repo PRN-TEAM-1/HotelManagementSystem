@@ -173,24 +173,6 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <TextBlock Text="Payments"
-                               Margin="0,18,0,8"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <DataGrid ItemsSource="{Binding Invoice.Payments}"
-                              Height="120"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              IsReadOnly="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="130" />
-                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='{}{0:C}'}" Width="120" />
-                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="150" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-                            <DataGridTextColumn Header="Transaction" Binding="{Binding TransactionCode}" Width="150" />
-                        </DataGrid.Columns>
-                    </DataGrid>
                 </StackPanel>
             </ScrollViewer>
         </Border>
