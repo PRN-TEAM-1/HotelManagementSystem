@@ -60,7 +60,10 @@ public partial class App : Application
             serviceManagementViewModel,
             serviceOrderViewModel);
 
-        var reportsViewModel = CreateReportsViewModel();
+        var dashboardRepository = new Repositories.Implements.DashboardRepository();
+        var dashboardService = new DashboardService(dashboardRepository);
+        var dashboardViewModel = new DashboardViewModel(dashboardService);
+        var reportsViewModel = new ReportsViewModel(dashboardViewModel);
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);

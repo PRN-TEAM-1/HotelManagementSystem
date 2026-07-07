@@ -1,0 +1,163 @@
+﻿<UserControl x:Class="WPF.Views.RevenueReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20">
+
+
+            <!-- Header -->
+
+            <TextBlock Text="Revenue Report"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Margin="0,0,0,16"/>
+
+
+            <!-- Filters -->
+
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,20">
+
+
+                <TextBlock Text="Start Date:"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+
+                <DatePicker Width="140"
+                            SelectedDate="{Binding StartDate}"
+                            Margin="0,0,16,0"/>
+
+
+                <TextBlock Text="End Date:"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+
+                <DatePicker Width="140"
+                            SelectedDate="{Binding EndDate}"
+                            Margin="0,0,16,0"/>
+
+
+                <Button Content="Filter"
+                        Width="90"
+                        Margin="0,0,8,0"
+                        Command="{Binding FilterCommand}"/>
+
+            </StackPanel>
+
+
+            <!-- Revenue -->
+
+            <DockPanel Margin="0,0,0,10">
+
+                <TextBlock Text="Daily Revenue"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           DockPanel.Dock="Left"/>
+
+                <Button Content="Export Revenue CSV"
+                        Width="160"
+                        HorizontalAlignment="Right"
+                        Command="{Binding ExportRevenueCommand}"/>
+
+            </DockPanel>
+
+
+            <DataGrid ItemsSource="{Binding RevenueReports}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      IsReadOnly="True"
+                      Height="220">
+
+                <DataGrid.Columns>
+
+
+                    <DataGridTextColumn Header="Date"
+                                        Binding="{Binding Date, StringFormat=d}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Room Revenue"
+                                        Binding="{Binding RoomRevenue}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Service Revenue"
+                                        Binding="{Binding ServiceRevenue}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Total Revenue"
+                                        Binding="{Binding TotalRevenue}"
+                                        Width="*"/>
+
+
+                </DataGrid.Columns>
+
+            </DataGrid>
+
+
+            <!-- Services -->
+
+            <DockPanel Margin="0,30,0,10">
+
+
+                <TextBlock Text="Service Usage"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           DockPanel.Dock="Left"/>
+
+
+                <Button Content="Export Service CSV"
+                        Width="160"
+                        Command="{Binding ExportServiceCommand}"/>
+
+
+            </DockPanel>
+
+
+            <DataGrid ItemsSource="{Binding ServiceUsageReports}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      IsReadOnly="True"
+                      Height="220">
+
+
+                <DataGrid.Columns>
+
+
+                    <DataGridTextColumn Header="Service"
+                                        Binding="{Binding ServiceName}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Category"
+                                        Binding="{Binding Category}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Quantity"
+                                        Binding="{Binding QuantityOrdered}"
+                                        Width="*"/>
+
+
+                    <DataGridTextColumn Header="Revenue"
+                                        Binding="{Binding TotalRevenue}"
+                                        Width="*"/>
+
+
+                </DataGrid.Columns>
+
+
+            </DataGrid>
+
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>
