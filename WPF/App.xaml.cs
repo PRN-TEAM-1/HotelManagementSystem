@@ -42,6 +42,7 @@ public partial class App : Application
             userManagementService,
             _currentUserService,
             _dialogService);
+        var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
 
         // Register Member 3 ViewModels and Services
         var checkInService = new CheckInService();
@@ -56,13 +57,23 @@ public partial class App : Application
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
         var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
         var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
+        var customerManagementViewModel = new CustomerManagementViewModel(
+            new CustomerService(),
+            new RoomService(),
+            new BookingService(),
+            _currentUserService);
+        var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
+        var roomManagementViewModel = new RoomManagementViewModel(new RoomService(), new RoomTypeService());
 
         var operationsViewModel = new OperationsViewModel(
             checkInViewModel,
             checkoutViewModel,
             serviceManagementViewModel,
             serviceOrderViewModel,
-            invoiceViewModel);
+            invoiceViewModel,
+            customerManagementViewModel,
+            roomTypeManagementViewModel,
+            roomManagementViewModel);
 
         var reportsViewModel = CreateReportsViewModel();
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);

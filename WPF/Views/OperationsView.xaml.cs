@@ -20,7 +20,7 @@ public partial class OperationsView : UserControl
         var inverseTextBrush = (Brush)FindResource("TextInverseBrush");
         var primaryTextBrush = (Brush)FindResource("TextPrimaryBrush");
 
-        foreach (var button in new[] { CheckInTabButton, CheckoutTabButton, ServiceManagementTabButton, ServiceOrderTabButton, InvoiceTabButton })
+        foreach (var button in new[] { CheckInTabButton, CheckoutTabButton, ServiceManagementTabButton, ServiceOrderTabButton, InvoiceTabButton, CustomerTabButton, RoomTypeTabButton, RoomTabButton })
         {
             var isActive = ReferenceEquals(button, activeButton);
             button.Background = isActive ? accentBrush : surfaceBrush;
@@ -91,6 +91,36 @@ public partial class OperationsView : UserControl
             vm.CurrentViewModel = vm.InvoiceViewModel;
             ContentFrame.Content = new InvoiceView { DataContext = vm.InvoiceViewModel };
             SetActiveTab(InvoiceTabButton);
+        }
+    }
+
+    private void OnCustomerManagementClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is OperationsViewModel vm)
+        {
+            vm.CurrentViewModel = vm.CustomerManagementViewModel;
+            ContentFrame.Content = new CustomerManagementView { DataContext = vm.CustomerManagementViewModel };
+            SetActiveTab(CustomerTabButton);
+        }
+    }
+
+    private void OnRoomTypeClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is OperationsViewModel vm)
+        {
+            vm.CurrentViewModel = vm.RoomTypeManagementViewModel;
+            ContentFrame.Content = new RoomTypeManagementView { DataContext = vm.RoomTypeManagementViewModel };
+            SetActiveTab(RoomTypeTabButton);
+        }
+    }
+
+    private void OnRoomClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is OperationsViewModel vm)
+        {
+            vm.CurrentViewModel = vm.RoomManagementViewModel;
+            ContentFrame.Content = new RoomManagementView { DataContext = vm.RoomManagementViewModel };
+            SetActiveTab(RoomTabButton);
         }
     }
 
