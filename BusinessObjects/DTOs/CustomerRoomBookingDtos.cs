@@ -17,7 +17,7 @@ public sealed class CustomerListItemDto
     public DateTime CreatedAt { get; set; }
 }
 
-public sealed class CreateCustomerRequestDto
+public class CreateCustomerRequestDto
 {
     public string FullName { get; set; } = string.Empty;
 
@@ -54,7 +54,7 @@ public sealed class RoomListItemDto
     public string? Note { get; set; }
 }
 
-public sealed class CreateRoomRequestDto
+public class CreateRoomRequestDto
 {
     public int RoomTypeId { get; set; }
 

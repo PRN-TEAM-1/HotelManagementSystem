@@ -15,7 +15,7 @@ public sealed class RoomTypeListItemDto
     public string Status { get; set; } = string.Empty;
 }
 
-public sealed class CreateRoomTypeRequestDto
+public class CreateRoomTypeRequestDto
 {
     public string TypeName { get; set; } = string.Empty;
 
