@@ -48,7 +48,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         set => SetProperty(ref _typeName, value);
     }
 
-    public string Description
+    public string RoomTypeDescription
     {
         get => _description;
         set => SetProperty(ref _description, value);
@@ -135,7 +135,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
             var result = await _roomTypeService.CreateRoomTypeAsync(new CreateRoomTypeRequestDto
             {
                 TypeName = TypeName,
-                Description = Description,
+                Description = RoomTypeDescription,
                 BasePrice = BasePrice,
                 Capacity = Capacity,
                 Status = Status
@@ -145,7 +145,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
             if (result.IsSuccess)
             {
                 TypeName = string.Empty;
-                Description = string.Empty;
+                RoomTypeDescription = string.Empty;
                 BasePrice = 0;
                 Capacity = 2;
                 Status = "Active";

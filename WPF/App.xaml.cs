@@ -42,8 +42,6 @@ public partial class App : Application
             userManagementService,
             _currentUserService,
             _dialogService);
-        var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
-
         // Register Member 3 ViewModels and Services
         var checkInService = new CheckInService();
         var checkoutService = new CheckoutService();
