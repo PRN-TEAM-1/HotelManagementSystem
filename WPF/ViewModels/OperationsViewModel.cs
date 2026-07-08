@@ -9,6 +9,9 @@ public sealed class OperationsViewModel : BaseViewModel
     private readonly ServiceManagementViewModel _serviceManagementViewModel;
     private readonly ServiceOrderViewModel _serviceOrderViewModel;
     private readonly InvoiceViewModel _invoiceViewModel;
+    private readonly CustomerManagementViewModel _customerManagementViewModel;
+    private readonly RoomTypeManagementViewModel _roomTypeManagementViewModel;
+    private readonly RoomManagementViewModel _roomManagementViewModel;
 
     private BaseViewModel _currentViewModel;
 
@@ -17,13 +20,19 @@ public sealed class OperationsViewModel : BaseViewModel
         CheckoutViewModel checkoutViewModel,
         ServiceManagementViewModel serviceManagementViewModel,
         ServiceOrderViewModel serviceOrderViewModel,
-        InvoiceViewModel invoiceViewModel)
+        InvoiceViewModel invoiceViewModel,
+        CustomerManagementViewModel customerManagementViewModel,
+        RoomTypeManagementViewModel roomTypeManagementViewModel,
+        RoomManagementViewModel roomManagementViewModel)
     {
         _checkInViewModel = checkInViewModel ?? throw new ArgumentNullException(nameof(checkInViewModel));
         _checkoutViewModel = checkoutViewModel ?? throw new ArgumentNullException(nameof(checkoutViewModel));
         _serviceManagementViewModel = serviceManagementViewModel ?? throw new ArgumentNullException(nameof(serviceManagementViewModel));
         _serviceOrderViewModel = serviceOrderViewModel ?? throw new ArgumentNullException(nameof(serviceOrderViewModel));
         _invoiceViewModel = invoiceViewModel ?? throw new ArgumentNullException(nameof(invoiceViewModel));
+        _customerManagementViewModel = customerManagementViewModel ?? throw new ArgumentNullException(nameof(customerManagementViewModel));
+        _roomTypeManagementViewModel = roomTypeManagementViewModel ?? throw new ArgumentNullException(nameof(roomTypeManagementViewModel));
+        _roomManagementViewModel = roomManagementViewModel ?? throw new ArgumentNullException(nameof(roomManagementViewModel));
 
         _currentViewModel = checkInViewModel;
     }
@@ -42,6 +51,12 @@ public sealed class OperationsViewModel : BaseViewModel
 
     public InvoiceViewModel InvoiceViewModel => _invoiceViewModel;
 
+    public CustomerManagementViewModel CustomerManagementViewModel => _customerManagementViewModel;
+
+    public RoomTypeManagementViewModel RoomTypeManagementViewModel => _roomTypeManagementViewModel;
+
+    public RoomManagementViewModel RoomManagementViewModel => _roomManagementViewModel;
+
     public BaseViewModel CurrentViewModel
     {
         get => _currentViewModel;
@@ -55,7 +70,10 @@ public sealed class OperationsViewModel : BaseViewModel
             _checkoutViewModel.InitializeAsync(),
             _serviceManagementViewModel.InitializeAsync(),
             _serviceOrderViewModel.InitializeAsync(),
-            _invoiceViewModel.InitializeAsync()
+            _invoiceViewModel.InitializeAsync(),
+            _customerManagementViewModel.InitializeAsync(),
+            _roomTypeManagementViewModel.InitializeAsync(),
+            _roomManagementViewModel.InitializeAsync()
         );
     }
 }
