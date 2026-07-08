@@ -1,0 +1,342 @@
+<UserControl x:Class="WPF.Views.InvoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="{StaticResource WindowBackgroundBrush}" Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="Invoice Management"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}" />
+                <TextBlock Text="Create invoices for checked-out bookings"
+                           Margin="0,8,0,0"
+                           FontSize="14"
+                           Foreground="{StaticResource TextSecondaryBrush}" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="Refresh"
+                    Command="{Binding RefreshCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    VerticalAlignment="Center"
+                    Margin="0" />
+        </Grid>
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,14">
+            <Border Background="#FFE5C8"
+                    BorderBrush="#FFC107"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14"
+                    Margin="0,0,0,8"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#856404"
+                               TextWrapping="Wrap" />
+                    <Button Grid.Column="1"
+                            Command="{Binding ClearMessagesCommand}"
+                            Content="x"
+                            Width="24"
+                            Height="24"
+                            MinWidth="24"
+                            Padding="0"
+                            Margin="8,0,0,0"
+                            Background="Transparent"
+                            Foreground="#856404"
+                            BorderThickness="0" />
+                </Grid>
+            </Border>
+
+            <Border Background="#D4EDDA"
+                    BorderBrush="#28A745"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14"
+                    Margin="0,0,0,8"
+                    Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding SuccessMessage}"
+                               Foreground="#155724"
+                               TextWrapping="Wrap" />
+                    <Button Grid.Column="1"
+                            Command="{Binding ClearMessagesCommand}"
+                            Content="x"
+                            Width="24"
+                            Height="24"
+                            MinWidth="24"
+                            Padding="0"
+                            Margin="8,0,0,0"
+                            Background="Transparent"
+                            Foreground="#155724"
+                            BorderThickness="0" />
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.95*" />
+                <ColumnDefinition Width="1.05*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,12,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource SurfaceBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Ready for invoice"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                            <DataGrid ItemsSource="{Binding InvoiceCandidates}"
+                                      SelectedItem="{Binding SelectedCandidate}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      IsEnabled="{Binding CanEdit}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="80" />
+                                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150" />
+                                    <DataGridTextColumn Header="Rooms" Binding="{Binding RoomCount}" Width="70" />
+                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:C}'}" Width="100" />
+                                    <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:C}'}" Width="100" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <Border Background="{StaticResource SurfaceMutedBrush}"
+                                    BorderBrush="{StaticResource SurfaceBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="18"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding CandidateEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding CandidateEmptyMessage}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="2"
+                              Margin="0,14,0,0"
+                              Visibility="{Binding SelectedCandidate, Converter={StaticResource ObjectToVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Discount"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBox Text="{Binding DiscountAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding CanEdit}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                <TextBlock Text="Tax"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBox Text="{Binding TaxAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding CanEdit}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                                <TextBlock Text="Note"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBox Text="{Binding InvoiceNote, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="70"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         IsEnabled="{Binding CanEdit}" />
+                            </StackPanel>
+
+                            <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Preview total"
+                                               Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:C}'}"
+                                               FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        Content="Create Invoice"
+                                        Command="{Binding CreateInvoiceCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        VerticalAlignment="Center"
+                                        Margin="12,0,0,0" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="0,12,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Text="{Binding InvoiceSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             Margin="0,0,8,0" />
+                    <Button Grid.Column="1"
+                            Content="Search"
+                            Command="{Binding SearchInvoicesCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                    <Button Grid.Column="2"
+                            Content="Clear"
+                            Command="{Binding ClearInvoiceSearchCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Margin="0" />
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource SurfaceBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Invoices"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+
+                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                            <DataGrid ItemsSource="{Binding Invoices}"
+                                      SelectedItem="{Binding SelectedInvoice}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      IsEnabled="{Binding CanEdit}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="80" />
+                                    <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="80" />
+                                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150" />
+                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:C}'}" Width="100" />
+                                    <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:C}'}" Width="100" />
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <Border Background="{StaticResource SurfaceMutedBrush}"
+                                    BorderBrush="{StaticResource SurfaceBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="18"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding InvoiceEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding InvoiceEmptyMessage}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </Border>
+                        </Grid>
+
+                        <Button Grid.Row="2"
+                                Content="View Detail"
+                                Command="{Binding ViewInvoiceDetailCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                HorizontalAlignment="Right"
+                                Margin="0,12,0,0" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="1" Margin="12,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.05*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="0.95*" />
+                </Grid.RowDefinitions>
+
+                <ContentControl Grid.Row="0"
+                                Content="{Binding InvoiceDetail}" />
+
+                <ContentControl Grid.Row="1"
+                                Margin="0,12,0,0"
+                                Content="{Binding PaymentView}" />
+
+                <ContentControl Grid.Row="2"
+                                Margin="0,12,0,0"
+                                Content="{Binding PaymentHistory}" />
+            </Grid>
+
+            <Border Grid.ColumnSpan="2"
+                    Background="#80000000"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ProgressBar Width="240"
+                                 Height="4"
+                                 IsIndeterminate="True"
+                                 Background="#40FFFFFF"
+                                 Foreground="{StaticResource AccentBrush}" />
+                    <TextBlock Text="Processing..."
+                               Foreground="White"
+                               FontSize="14"
+                               TextAlignment="Center"
+                               Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
