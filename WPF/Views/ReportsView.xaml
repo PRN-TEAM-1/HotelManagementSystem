@@ -1,0 +1,54 @@
+<UserControl x:Class="WPF.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Tab Navigation -->
+        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="24,16">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="DashboardTabButton"
+                        Content="📊 Dashboard"
+                        Click="OnDashboardClick"
+                        Padding="16,10"
+                        Background="{StaticResource AccentBrush}"
+                        Foreground="{StaticResource TextInverseBrush}"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        Margin="0,0,8,0" />
+                <Button x:Name="OccupancyTabButton"
+                        Content="📈 Occupancy"
+                        Click="OnOccupancyClick"
+                        Padding="16,10"
+                        Background="{StaticResource SurfaceBrush}"
+                        Foreground="{StaticResource TextPrimaryBrush}"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        Margin="0,0,8,0" />
+                <Button x:Name="RevenueTabButton"
+                        Content="💰 Revenue"
+                        Click="OnRevenueClick"
+                        Padding="16,10"
+                        Background="{StaticResource SurfaceBrush}"
+                        Foreground="{StaticResource TextPrimaryBrush}"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        Margin="0,0,8,0" />
+                <Button x:Name="ServiceUsageTabButton"
+                        Content="🛎️ Service Usage"
+                        Click="OnServiceUsageClick"
+                        Padding="16,10"
+                        Background="{StaticResource SurfaceBrush}"
+                        Foreground="{StaticResource TextPrimaryBrush}"
+                        FontWeight="SemiBold"
+                        FontSize="13" />
+            </StackPanel>
+        </Border>
+
+        <!-- Content Area -->
+        <Frame Grid.Row="1" x:Name="ContentFrame" NavigationUIVisibility="Hidden" />
+    </Grid>
+</UserControl>

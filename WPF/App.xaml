@@ -53,21 +53,20 @@
             <DataTemplate DataType="{x:Type viewModels:ServiceOrderViewModel}">
                 <views:ServiceOrderView />
             </DataTemplate>
-
-            <DataTemplate DataType="{x:Type viewModels:InvoiceViewModel}">
-                <views:InvoiceView />
+            <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
+                <views:DashboardView />
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type viewModels:InvoiceDetailViewModel}">
-                <views:InvoiceDetailView />
+            <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}">
+                <views:ReportsView />
+            </DataTemplate>
+            
+            <DataTemplate DataType="{x:Type viewModels:OccupancyReportViewModel}">
+                <views:OccupancyReportView />
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type viewModels:PaymentViewModel}">
-                <views:PaymentView />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type viewModels:PaymentHistoryViewModel}">
-                <views:PaymentHistoryView />
+            <DataTemplate DataType="{x:Type viewModels:RevenueReportViewModel}">
+                <views:RevenueReportView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
