@@ -20,7 +20,7 @@ public partial class OperationsView : UserControl
         var inverseTextBrush = (Brush)FindResource("TextInverseBrush");
         var primaryTextBrush = (Brush)FindResource("TextPrimaryBrush");
 
-        foreach (var button in new[] { CheckInTabButton, CheckoutTabButton, ServiceManagementTabButton, ServiceOrderTabButton, InvoiceTabButton, CustomerTabButton, RoomTypeTabButton, RoomTabButton })
+        foreach (var button in new[] { CheckInTabButton, CheckoutTabButton, ServiceManagementTabButton, ServiceOrderTabButton, BillingTabButton, CustomerTabButton, RoomTypeTabButton, RoomTabButton })
         {
             var isActive = ReferenceEquals(button, activeButton);
             button.Background = isActive ? accentBrush : surfaceBrush;
@@ -84,13 +84,13 @@ public partial class OperationsView : UserControl
         }
     }
 
-    private void OnInvoiceClick(object sender, RoutedEventArgs e)
+    private void OnBillingClick(object sender, RoutedEventArgs e)
     {
         if (DataContext is OperationsViewModel vm)
         {
-            vm.CurrentViewModel = vm.InvoiceViewModel;
-            ContentFrame.Content = new InvoiceView { DataContext = vm.InvoiceViewModel };
-            SetActiveTab(InvoiceTabButton);
+            vm.CurrentViewModel = vm.BillingViewModel;
+            ContentFrame.Content = new BillingView { DataContext = vm.BillingViewModel };
+            SetActiveTab(BillingTabButton);
         }
     }
 

@@ -15,11 +15,11 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel>
-                <TextBlock Text="Invoice Management"
+                <TextBlock Text="Billing"
                            FontSize="28"
                            FontWeight="Bold"
                            Foreground="{StaticResource TextPrimaryBrush}" />
-                <TextBlock Text="Create invoices for checked-out bookings"
+                <TextBlock Text="Create invoices for checked-out bookings, record payments, and review payment history"
                            Margin="0,8,0,0"
                            FontSize="14"
                            Foreground="{StaticResource TextSecondaryBrush}" />
@@ -119,7 +119,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Ready for invoice"
+                        <TextBlock Text="Checked-out bookings"
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
@@ -255,7 +255,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Invoices"
+                        <TextBlock Text="Billing invoices"
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}" />

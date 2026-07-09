@@ -46,6 +46,22 @@
                 <views:CheckoutView />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:BillingViewModel}">
+                <views:BillingView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:InvoiceDetailViewModel}">
+                <views:InvoiceDetailView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:PaymentViewModel}">
+                <views:PaymentView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:PaymentHistoryViewModel}">
+                <views:PaymentHistoryView />
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:ServiceManagementViewModel}">
                 <views:ServiceManagementView />
             </DataTemplate>

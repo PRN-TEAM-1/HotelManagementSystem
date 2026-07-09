@@ -55,6 +55,7 @@ public partial class App : Application
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
         var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
         var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
+        var billingViewModel = new BillingViewModel(invoiceViewModel);
         var customerManagementViewModel = new CustomerManagementViewModel(
             new CustomerService(),
             new RoomService(),
@@ -68,7 +69,7 @@ public partial class App : Application
             checkoutViewModel,
             serviceManagementViewModel,
             serviceOrderViewModel,
-            invoiceViewModel,
+            billingViewModel,
             customerManagementViewModel,
             roomTypeManagementViewModel,
             roomManagementViewModel);
