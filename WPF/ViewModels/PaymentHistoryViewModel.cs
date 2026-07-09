@@ -28,7 +28,13 @@ public sealed class PaymentHistoryViewModel : BaseViewModel
     public int InvoiceId
     {
         get => _invoiceId;
-        private set => SetProperty(ref _invoiceId, value);
+        private set
+        {
+            if (SetProperty(ref _invoiceId, value))
+            {
+                OnPropertyChanged(nameof(EmptyMessage));
+            }
+        }
     }
 
     public List<PaymentHistoryDto> Payments

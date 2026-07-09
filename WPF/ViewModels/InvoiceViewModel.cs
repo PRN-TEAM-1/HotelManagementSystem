@@ -50,9 +50,9 @@ public sealed class InvoiceViewModel : BaseViewModel
         ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
 
-    public override string Title => "Invoices";
+    public override string Title => "Billing";
 
-    public override string Description => "Create invoices after checkout and review invoice detail";
+    public override string Description => "Create invoices, record payments, and review billing history";
 
     public List<InvoiceCandidateDto> InvoiceCandidates
     {

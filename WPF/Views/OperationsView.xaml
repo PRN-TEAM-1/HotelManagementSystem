@@ -63,9 +63,9 @@
                         Foreground="{StaticResource TextPrimaryBrush}"
                         FontWeight="SemiBold"
                         FontSize="13" />
-                <Button x:Name="InvoiceTabButton"
-                        Content="Invoices"
-                        Click="OnInvoiceClick"
+                <Button x:Name="BillingTabButton"
+                        Content="Billing"
+                        Click="OnBillingClick"
                         Padding="16,10"
                         Background="{StaticResource SurfaceBrush}"
                         Foreground="{StaticResource TextPrimaryBrush}"
