@@ -6,19 +6,23 @@ namespace WPF.ViewModels;
 public sealed class ReportsViewModel : BaseViewModel
 {
     private readonly DashboardViewModel _dashboardViewModel;
+    private readonly OccupancyReportViewModel _occupancyReportViewModel;
     private BaseViewModel _currentViewModel;
 
-    public ReportsViewModel(DashboardViewModel dashboardViewModel)
+    public ReportsViewModel(
+        DashboardViewModel dashboardViewModel,
+        OccupancyReportViewModel occupancyReportViewModel)
     {
-        _dashboardViewModel = dashboardViewModel ?? throw new ArgumentNullException(nameof(dashboardViewModel));
+        _dashboardViewModel = dashboardViewModel;
+        _occupancyReportViewModel = occupancyReportViewModel;
         _currentViewModel = dashboardViewModel;
     }
 
     public override string Title => "Reports";
 
-    public override string Description => "Dashboard metrics, occupancy reports, revenue summaries and service analytics";
-
     public DashboardViewModel DashboardViewModel => _dashboardViewModel;
+
+    public OccupancyReportViewModel OccupancyReportViewModel => _occupancyReportViewModel;
 
     public BaseViewModel CurrentViewModel
     {
@@ -28,8 +32,6 @@ public sealed class ReportsViewModel : BaseViewModel
 
     public override async Task InitializeAsync()
     {
-        await Task.WhenAll(
-            _dashboardViewModel.InitializeAsync()
-        );
+        await _dashboardViewModel.InitializeAsync();
     }
 }

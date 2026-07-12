@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using BusinessObjects.DTOs.Reports;
+using Services.Interfaces;
 using WPF.Commands;
 using WPF.Utilities;
 
@@ -8,9 +10,12 @@ namespace WPF.ViewModels;
 
 public sealed class OccupancyReportViewModel : BaseViewModel
 {
-    private DateTime _startDate = DateTime.Today.AddDays(-7);
+    private readonly IOccupancyReportService _occupancyReportService;
 
+    private DateTime _startDate = DateTime.Today.AddDays(-7);
     private DateTime _endDate = DateTime.Today;
+    private int _totalRoomNights;
+    private string _message = string.Empty;
 
     public override string Title => "Occupancy Report";
 
@@ -26,51 +31,80 @@ public sealed class OccupancyReportViewModel : BaseViewModel
         set => SetProperty(ref _endDate, value);
     }
 
+    public int TotalRoomNights
+    {
+        get => _totalRoomNights;
+        set => SetProperty(ref _totalRoomNights, value);
+    }
+
+    public string Message
+    {
+        get => _message;
+        set => SetProperty(ref _message, value);
+    }
+
     public ObservableCollection<OccupancyReportDto> OccupancyReports { get; } = new();
 
     public ICommand FilterCommand { get; }
 
     public ICommand ExportCommand { get; }
 
-    public OccupancyReportViewModel()
+    public OccupancyReportViewModel(IOccupancyReportService occupancyReportService)
     {
-        FilterCommand = new RelayCommand(LoadMockData);
+        _occupancyReportService = occupancyReportService;
+
+        FilterCommand = new RelayCommand(LoadData);
         ExportCommand = new RelayCommand(ExportCsv);
 
-        LoadMockData();
+        LoadData();
     }
 
-    private void LoadMockData()
+    private void LoadData()
     {
         OccupancyReports.Clear();
+        TotalRoomNights = 0;
+        Message = string.Empty;
 
-        OccupancyReports.Add(new OccupancyReportDto
+        if (EndDate.Date < StartDate.Date)
         {
-            RoomNumber = "101",
-            RoomType = "Phòng Standard",
-            TotalNightsBooked = 5,
-            OccupancyRate = 71.43
-        });
+            Message = "End date must be greater than or equal to start date.";
+            return;
+        }
 
-        OccupancyReports.Add(new OccupancyReportDto
+        var filter = new ReportFilterDto
         {
-            RoomNumber = "202",
-            RoomType = "Phòng Deluxe",
-            TotalNightsBooked = 4,
-            OccupancyRate = 57.14
-        });
+            StartDate = StartDate.Date,
+            EndDate = EndDate.Date
+        };
 
-        OccupancyReports.Add(new OccupancyReportDto
+        var result = _occupancyReportService.GetOccupancyReport(filter);
+
+        foreach (var item in result)
         {
-            RoomNumber = "301",
-            RoomType = "Phòng Suite VIP",
-            TotalNightsBooked = 6,
-            OccupancyRate = 85.71
-        });
+            OccupancyReports.Add(item);
+        }
+
+        TotalRoomNights = result.Sum(x => x.TotalNightsBooked);
+
+        if (!result.Any())
+        {
+            Message = "No occupancy data found for selected date range.";
+        }
     }
 
     private void ExportCsv()
     {
+        if (!OccupancyReports.Any())
+        {
+            MessageBox.Show(
+                "No data to export.",
+                "Export CSV",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
         CsvExporter.ExportToCsv(
             OccupancyReports,
             $"occupancy-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");

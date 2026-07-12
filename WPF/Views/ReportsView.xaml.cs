@@ -57,8 +57,16 @@ public partial class ReportsView : UserControl
 
     private void OnOccupancyClick(object sender, RoutedEventArgs e)
     {
-        ShowPlaceholder("Báo cáo công suất phòng (Occupancy Report) sẽ được triển khai ở task sau.");
-        SetActiveTab(OccupancyTabButton);
+        if (DataContext is ReportsViewModel vm)
+        {
+            vm.CurrentViewModel = vm.OccupancyReportViewModel;
+            ContentFrame.Content = new OccupancyReportView
+            {
+                DataContext = vm.OccupancyReportViewModel
+            };
+
+            SetActiveTab(OccupancyTabButton);
+        }
     }
 
     private void OnRevenueClick(object sender, RoutedEventArgs e)

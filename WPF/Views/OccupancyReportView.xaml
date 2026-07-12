@@ -10,17 +10,19 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Occupancy Report"
+        <TextBlock Grid.Row="0"
+                   Text="Occupancy Report"
                    FontSize="24"
                    FontWeight="Bold"
                    Margin="0,0,0,16"/>
 
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
-                    Margin="0,0,0,16">
+                    Margin="0,0,0,8">
 
             <TextBlock Text="Start Date:"
                        VerticalAlignment="Center"
@@ -47,9 +49,20 @@
                     Width="110"
                     Command="{Binding ExportCommand}"/>
 
+            <TextBlock Margin="20,0,0,0"
+                       VerticalAlignment="Center"
+                       FontWeight="SemiBold"
+                       Text="{Binding TotalRoomNights, StringFormat=Total Room Nights: {0}}"/>
+
         </StackPanel>
 
-        <DataGrid Grid.Row="2"
+        <TextBlock Grid.Row="2"
+                   Text="{Binding Message}"
+                   Foreground="Red"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+
+        <DataGrid Grid.Row="3"
                   ItemsSource="{Binding OccupancyReports}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
