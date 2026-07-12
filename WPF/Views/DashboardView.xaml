@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="WPF.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:WPF.Controls">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="20">
+
+            <!-- Header -->
+
+            <DockPanel Margin="0,0,0,20">
+
+                <TextBlock Text="Dashboard"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           DockPanel.Dock="Left"/>
+
+                <Button Content="Refresh"
+                        Width="100"
+                        Height="35"
+                        HorizontalAlignment="Right"
+                        Command="{Binding RefreshCommand}"/>
+
+            </DockPanel>
+
+            <!-- Room Summary -->
+
+            <TextBlock Text="Room Summary"
+                       FontWeight="Bold"
+                       FontSize="18"
+                       Margin="0,0,0,10"/>
+
+            <UniformGrid Columns="3">
+
+                <controls:DashboardCardControl
+                    Title="Total Rooms"
+                    Value="{Binding Dashboard.RoomSummary.TotalRooms}" />
+
+                <controls:DashboardCardControl
+                    Title="Available"
+                    Value="{Binding Dashboard.RoomSummary.AvailableRooms}" />
+
+                <controls:DashboardCardControl
+                    Title="Occupied"
+                    Value="{Binding Dashboard.RoomSummary.OccupiedRooms}" />
+
+                <controls:DashboardCardControl
+                    Title="Reserved"
+                    Value="{Binding Dashboard.RoomSummary.ReservedRooms}" />
+
+                <controls:DashboardCardControl
+                    Title="Cleaning"
+                    Value="{Binding Dashboard.RoomSummary.CleaningRooms}" />
+
+                <controls:DashboardCardControl
+                    Title="Maintenance"
+                    Value="{Binding Dashboard.RoomSummary.MaintenanceRooms}" />
+
+            </UniformGrid>
+
+            <!-- Today -->
+
+            <TextBlock Text="Today's Operations"
+                       FontWeight="Bold"
+                       FontSize="18"
+                       Margin="0,25,0,10"/>
+
+            <UniformGrid Columns="3">
+
+                <controls:DashboardCardControl
+                    Title="Bookings"
+                    Value="{Binding Dashboard.BookingSummary.TodayBookings}" />
+
+                <controls:DashboardCardControl
+                    Title="Check-ins"
+                    Value="{Binding Dashboard.TodayOperation.TodayCheckIns}" />
+
+                <controls:DashboardCardControl
+                    Title="Check-outs"
+                    Value="{Binding Dashboard.TodayOperation.TodayCheckOuts}" />
+
+            </UniformGrid>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

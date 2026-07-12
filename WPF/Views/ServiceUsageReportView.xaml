@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="WPF.Views.ServiceUsageReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="500"
+             d:DesignWidth="900">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Service Usage Report"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,8">
+
+            <TextBlock Text="Start Date:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+
+            <DatePicker SelectedDate="{Binding StartDate}"
+                        Width="140"
+                        Margin="0,0,16,0"/>
+
+            <TextBlock Text="End Date:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+
+            <DatePicker SelectedDate="{Binding EndDate}"
+                        Width="140"
+                        Margin="0,0,16,0"/>
+
+            <Button Content="Filter"
+                    Width="90"
+                    Margin="0,0,8,0"
+                    Command="{Binding FilterCommand}"/>
+
+            <Button Content="Export CSV"
+                    Width="110"
+                    Command="{Binding ExportCommand}"/>
+
+            <TextBlock Margin="20,0,0,0"
+                       VerticalAlignment="Center"
+                       FontWeight="SemiBold"
+                       Text="{Binding TotalQuantity, StringFormat=Total Quantity: {0}}"/>
+
+            <TextBlock Margin="20,0,0,0"
+                       VerticalAlignment="Center"
+                       FontWeight="SemiBold"
+                       Text="{Binding TotalRevenue, StringFormat=Total Revenue: {0:N0}}"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding Message}"
+                   Foreground="Red"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding ServiceUsageReports}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="True">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Service Name"
+                                    Binding="{Binding ServiceName}"
+                                    Width="2*"/>
+
+                <DataGridTextColumn Header="Quantity Used"
+                                    Binding="{Binding QuantityUsed}"
+                                    Width="*"/>
+
+                <DataGridTextColumn Header="Total Revenue"
+                                    Binding="{Binding TotalRevenue, StringFormat=N0}"
+                                    Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>

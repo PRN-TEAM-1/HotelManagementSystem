@@ -71,7 +71,11 @@ public partial class ReportsView : UserControl
 
     private void OnRevenueClick(object sender, RoutedEventArgs e)
     {
-        ShowPlaceholder("Báo cáo doanh thu (Revenue Report) sẽ được triển khai ở task sau.");
+        ContentFrame.Content = new RevenueReportView
+        {
+            DataContext = new RevenueReportViewModel()
+        };
+
         SetActiveTab(RevenueTabButton);
     }
 
