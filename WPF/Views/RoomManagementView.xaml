@@ -1,0 +1,45 @@
+<UserControl x:Class="WPF.Views.RoomManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.95*" />
+            <ColumnDefinition Width="1.05*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+            <TextBlock Text="Room Form" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBlock Text="Room Number" Margin="0,0,0,4" />
+            <TextBox Text="{Binding RoomNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBlock Text="Room Type" Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding RoomTypes}" SelectedValuePath="RoomTypeId" DisplayMemberPath="TypeName" SelectedValue="{Binding SelectedRoomTypeId}" Margin="0,0,0,8" />
+            <TextBlock Text="Floor" Margin="0,0,0,4" />
+            <TextBox Text="{Binding Floor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBlock Text="Status" Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding Status}" Margin="0,0,0,8" />
+            <TextBlock Text="Note" Margin="0,0,0,4" />
+            <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Save Room" Command="{Binding SaveCommand}" Margin="0,0,8,0" />
+                <Button Content="Clear" Command="{Binding ClearCommand}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Message}" Margin="0,10,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="Room List" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <Button Content="Search" Command="{Binding SearchCommand}" Margin="0,0,0,8" />
+            <ListView ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}" Height="340">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Room" DisplayMemberBinding="{Binding RoomNumber}" Width="80" />
+                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding RoomTypeName}" Width="140" />
+                        <GridViewColumn Header="Floor" DisplayMemberBinding="{Binding Floor}" Width="60" />
+                        <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="100" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</UserControl>
