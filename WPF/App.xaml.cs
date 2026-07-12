@@ -42,25 +42,42 @@ public partial class App : Application
             userManagementService,
             _currentUserService,
             _dialogService);
-
         // Register Member 3 ViewModels and Services
         var checkInService = new CheckInService();
         var checkoutService = new CheckoutService();
         var serviceCatalogService = new ServiceCatalogService();
         var serviceOrderService = new ServiceOrderService();
+        var invoiceService = new InvoiceService();
+        var paymentService = new PaymentService();
 
         var checkInViewModel = new CheckInViewModel(checkInService, _currentUserService);
         var checkoutViewModel = new CheckoutViewModel(checkoutService, _currentUserService);
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
         var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
+        var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
+        var billingViewModel = new BillingViewModel(invoiceViewModel);
+        var customerManagementViewModel = new CustomerManagementViewModel(
+            new CustomerService(),
+            new RoomService(),
+            new BookingService(),
+            _currentUserService);
+        var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
+        var roomManagementViewModel = new RoomManagementViewModel(new RoomService(), new RoomTypeService());
 
         var operationsViewModel = new OperationsViewModel(
             checkInViewModel,
             checkoutViewModel,
             serviceManagementViewModel,
-            serviceOrderViewModel);
+            serviceOrderViewModel,
+            billingViewModel,
+            customerManagementViewModel,
+            roomTypeManagementViewModel,
+            roomManagementViewModel);
 
-        var reportsViewModel = CreateReportsViewModel();
+        var dashboardRepository = new Repositories.Implements.DashboardRepository();
+        var dashboardService = new DashboardService(dashboardRepository);
+        var dashboardViewModel = new DashboardViewModel(dashboardService);
+        var reportsViewModel = new ReportsViewModel(dashboardViewModel);
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);

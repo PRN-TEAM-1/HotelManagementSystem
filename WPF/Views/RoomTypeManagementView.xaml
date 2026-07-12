@@ -1,0 +1,37 @@
+<UserControl x:Class="WPF.Views.RoomTypeManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.9*" />
+            <ColumnDefinition Width="1.1*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+            <TextBlock Text="Create Room Type" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBox Text="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBox Text="{Binding RoomTypeDescription, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBox Text="{Binding BasePrice, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <TextBox Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <Button Content="Create Room Type" Command="{Binding CreateCommand}" />
+            <TextBlock Text="{Binding Message}" Margin="0,10,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="Existing Room Types" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+            <Button Content="Search" Command="{Binding SearchCommand}" Margin="0,0,0,8" />
+            <ListView ItemsSource="{Binding RoomTypes}" Height="320">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding TypeName}" Width="140" />
+                        <GridViewColumn Header="Base Price" DisplayMemberBinding="{Binding BasePrice}" Width="100" />
+                        <GridViewColumn Header="Capacity" DisplayMemberBinding="{Binding Capacity}" Width="80" />
+                        <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="100" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</UserControl>
