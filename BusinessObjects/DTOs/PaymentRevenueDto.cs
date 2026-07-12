@@ -1,8 +1,8 @@
 ﻿namespace BusinessObjects.DTOs.Reports;
 
-public class RevenueReportDto
+public class PaymentRevenueDto
 {
-    public DateTime Date { get; set; }
+    public string PaymentMethod { get; set; } = string.Empty;
     public decimal TotalRevenue { get; set; }
     public int PaymentCount { get; set; }
 }

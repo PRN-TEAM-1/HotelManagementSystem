@@ -10,19 +10,19 @@ using WPF.Utilities;
 
 namespace WPF.ViewModels;
 
-public sealed class RevenueReportViewModel : BaseViewModel
+public sealed class ServiceUsageReportViewModel : BaseViewModel
 {
-    private readonly IRevenueReportService _service;
+    private readonly IServiceUsageReportService _service;
 
     private DateTime _startDate = DateTime.Today.AddDays(-7);
     private DateTime _endDate = DateTime.Today;
+    private int _totalQuantity;
     private decimal _totalRevenue;
     private string _message = string.Empty;
 
-    public override string Title => "Revenue Report";
+    public override string Title => "Service Usage Report";
 
-    public ObservableCollection<RevenueReportDto> RevenueReports { get; } = new();
-    public ObservableCollection<PaymentRevenueDto> PaymentMethodReports { get; } = new();
+    public ObservableCollection<ServiceUsageReportDto> ServiceUsageReports { get; } = new();
 
     public DateTime StartDate
     {
@@ -34,6 +34,12 @@ public sealed class RevenueReportViewModel : BaseViewModel
     {
         get => _endDate;
         set => SetProperty(ref _endDate, value);
+    }
+
+    public int TotalQuantity
+    {
+        get => _totalQuantity;
+        set => SetProperty(ref _totalQuantity, value);
     }
 
     public decimal TotalRevenue
@@ -51,12 +57,12 @@ public sealed class RevenueReportViewModel : BaseViewModel
     public ICommand FilterCommand { get; }
     public ICommand ExportCommand { get; }
 
-    public RevenueReportViewModel()
-        : this(new RevenueReportService(new RevenueReportRepository()))
+    public ServiceUsageReportViewModel()
+        : this(new ServiceUsageReportService(new ServiceUsageReportRepository()))
     {
     }
 
-    public RevenueReportViewModel(IRevenueReportService service)
+    public ServiceUsageReportViewModel(IServiceUsageReportService service)
     {
         _service = service;
 
@@ -68,8 +74,8 @@ public sealed class RevenueReportViewModel : BaseViewModel
 
     private void LoadData()
     {
-        RevenueReports.Clear();
-        PaymentMethodReports.Clear();
+        ServiceUsageReports.Clear();
+        TotalQuantity = 0;
         TotalRevenue = 0;
         Message = string.Empty;
 
@@ -85,37 +91,32 @@ public sealed class RevenueReportViewModel : BaseViewModel
             EndDate = EndDate.Date
         };
 
-        var revenues = _service.GetRevenueReport(filter);
-        var paymentMethods = _service.GetRevenueByPaymentMethod(filter);
+        var result = _service.GetServiceUsageReport(filter);
 
-        foreach (var item in revenues)
+        foreach (var item in result)
         {
-            RevenueReports.Add(item);
+            ServiceUsageReports.Add(item);
         }
 
-        foreach (var item in paymentMethods)
-        {
-            PaymentMethodReports.Add(item);
-        }
+        TotalQuantity = result.Sum(x => x.QuantityOrdered);
+        TotalRevenue = result.Sum(x => x.TotalRevenue);
 
-        TotalRevenue = revenues.Sum(x => x.TotalRevenue);
-
-        if (!revenues.Any())
+        if (!result.Any())
         {
-            Message = "No revenue data found.";
+            Message = "No service usage data found.";
         }
     }
 
     private void ExportCsv()
     {
-        if (!RevenueReports.Any())
+        if (!ServiceUsageReports.Any())
         {
             MessageBox.Show("No data to export.", "Export CSV");
             return;
         }
 
         CsvExporter.ExportToCsv(
-            RevenueReports,
-            $"revenue-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");
+            ServiceUsageReports,
+            $"service-usage-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");
     }
 }
