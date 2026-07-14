@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using BusinessObjects.DTOs.Reports;
+using Microsoft.Win32;
 using Repositories.Implements;
 using Services.Implements;
 using Services.Interfaces;
@@ -110,12 +111,21 @@ public sealed class RevenueReportViewModel : BaseViewModel
     {
         if (!RevenueReports.Any())
         {
-            MessageBox.Show("No data to export.", "Export CSV");
+            MessageBox.Show("No data.");
             return;
         }
 
-        CsvExporter.ExportToCsv(
-            RevenueReports,
-            $"revenue-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");
+        var dialog = new SaveFileDialog
+        {
+            Filter = "CSV (*.csv)|*.csv",
+            FileName = "RevenueReport.csv"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            CsvExporter.ExportToCsv(
+                RevenueReports,
+                dialog.FileName);
+        }
     }
 }
