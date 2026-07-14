@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using BusinessObjects.DTOs.Reports;
+using Microsoft.Win32;
 using Repositories.Implements;
 using Services.Implements;
 using Services.Interfaces;
@@ -111,12 +112,21 @@ public sealed class ServiceUsageReportViewModel : BaseViewModel
     {
         if (!ServiceUsageReports.Any())
         {
-            MessageBox.Show("No data to export.", "Export CSV");
+            MessageBox.Show("No data.");
             return;
         }
 
-        CsvExporter.ExportToCsv(
-            ServiceUsageReports,
-            $"service-usage-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");
+        var dialog = new SaveFileDialog
+        {
+            Filter = "CSV (*.csv)|*.csv",
+            FileName = "ServiceUsageReport.csv"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            CsvExporter.ExportToCsv(
+                ServiceUsageReports,
+                dialog.FileName);
+        }
     }
 }

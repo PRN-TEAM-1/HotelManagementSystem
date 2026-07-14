@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using BusinessObjects.DTOs.Reports;
+using Microsoft.Win32;
 using Services.Interfaces;
 using WPF.Commands;
 using WPF.Utilities;
@@ -96,17 +97,21 @@ public sealed class OccupancyReportViewModel : BaseViewModel
     {
         if (!OccupancyReports.Any())
         {
-            MessageBox.Show(
-                "No data to export.",
-                "Export CSV",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-
+            MessageBox.Show("No data.");
             return;
         }
 
-        CsvExporter.ExportToCsv(
-            OccupancyReports,
-            $"occupancy-report-{StartDate:yyyyMMdd}-{EndDate:yyyyMMdd}.csv");
+        var dialog = new SaveFileDialog();
+
+        dialog.Filter = "CSV (*.csv)|*.csv";
+
+        dialog.FileName = "OccupancyReport.csv";
+
+        if (dialog.ShowDialog() == true)
+        {
+            CsvExporter.ExportToCsv(
+                OccupancyReports,
+                dialog.FileName);
+        }
     }
 }
