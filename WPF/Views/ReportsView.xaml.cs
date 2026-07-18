@@ -55,7 +55,7 @@ public partial class ReportsView : UserControl
         NavigateToDashboard();
     }
 
-    private void OnOccupancyClick(object sender, RoutedEventArgs e)
+    private async void OnOccupancyClick(object sender, RoutedEventArgs e)
     {
         if (DataContext is ReportsViewModel vm)
         {
@@ -66,6 +66,19 @@ public partial class ReportsView : UserControl
             };
 
             SetActiveTab(OccupancyTabButton);
+
+            try
+            {
+                await vm.OccupancyReportViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Không thể tải dữ liệu Occupancy Report:\n{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 

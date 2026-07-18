@@ -77,7 +77,10 @@ public partial class App : Application
         var dashboardRepository = new Repositories.Implements.DashboardRepository();
         var dashboardService = new DashboardService(dashboardRepository);
         var dashboardViewModel = new DashboardViewModel(dashboardService);
-        var reportsViewModel = new ReportsViewModel(dashboardViewModel);
+        var occupancyReportRepository = new Repositories.Implements.OccupancyReportRepository();
+        var occupancyReportService = new OccupancyReportService(occupancyReportRepository);
+        var occupancyReportViewModel = new OccupancyReportViewModel(occupancyReportService);
+        var reportsViewModel = new ReportsViewModel(dashboardViewModel, occupancyReportViewModel);
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);

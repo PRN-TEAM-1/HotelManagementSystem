@@ -2,6 +2,7 @@ using BusinessObjects.DTOs;
 using BusinessObjects.Enums;
 using Services.Interfaces;
 using WPF.Commands;
+using WPF.Helpers;
 
 namespace WPF.ViewModels;
 
@@ -49,6 +50,7 @@ public sealed class PaymentViewModel : BaseViewModel
                 OnPropertyChanged(nameof(InvoiceLabel));
                 OnPropertyChanged(nameof(RemainingAmount));
                 OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(PaymentStateMessage));
                 RaiseCommandStates();
             }
         }
@@ -61,6 +63,30 @@ public sealed class PaymentViewModel : BaseViewModel
         : $"Invoice #{Invoice.InvoiceId} - {Invoice.CustomerName}";
 
     public decimal RemainingAmount => Invoice?.RemainingAmount ?? 0m;
+
+    public string PaymentStateMessage
+    {
+        get
+        {
+            if (Invoice is null)
+            {
+                return string.Empty;
+            }
+
+            if (string.Equals(Invoice.Status, InvoiceStatus.Cancelled.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return "Cancelled invoice cannot receive payment.";
+            }
+
+            if (string.Equals(Invoice.Status, InvoiceStatus.Paid.ToString(), StringComparison.OrdinalIgnoreCase)
+                || Invoice.RemainingAmount <= 0m)
+            {
+                return "Invoice has been fully paid.";
+            }
+
+            return string.Empty;
+        }
+    }
 
     public List<PaymentMethod> PaymentMethods { get; }
 
@@ -139,7 +165,7 @@ public sealed class PaymentViewModel : BaseViewModel
         SelectedPaymentMethod = PaymentMethod.Cash;
         AmountText = invoice is null || invoice.RemainingAmount <= 0m
             ? "0"
-            : invoice.RemainingAmount.ToString("0.##");
+            : MoneyInputParser.FormatInput(invoice.RemainingAmount);
         TransactionCode = string.Empty;
         Note = string.Empty;
         ErrorMessage = string.Empty;
@@ -155,7 +181,7 @@ public sealed class PaymentViewModel : BaseViewModel
     {
         return CanEdit
             && Enum.IsDefined(SelectedPaymentMethod)
-            && decimal.TryParse(AmountText, out var amount)
+            && MoneyInputParser.TryParse(AmountText, out var amount)
             && amount > 0m
             && amount <= RemainingAmount;
     }
@@ -178,7 +204,15 @@ public sealed class PaymentViewModel : BaseViewModel
             return;
         }
 
-        if (!decimal.TryParse(AmountText, out var amount) || amount <= 0m)
+        if (!CanEdit)
+        {
+            ErrorMessage = string.IsNullOrWhiteSpace(PaymentStateMessage)
+                ? "This invoice cannot receive payment."
+                : PaymentStateMessage;
+            return;
+        }
+
+        if (!MoneyInputParser.TryParse(AmountText, out var amount) || amount <= 0m)
         {
             ErrorMessage = "Payment amount must be a positive number.";
             return;
@@ -231,7 +265,7 @@ public sealed class PaymentViewModel : BaseViewModel
 
     private void UseRemainingAmount()
     {
-        AmountText = RemainingAmount.ToString("0.##");
+        AmountText = MoneyInputParser.FormatInput(RemainingAmount);
     }
 
     private void ResetForm()
@@ -243,7 +277,7 @@ public sealed class PaymentViewModel : BaseViewModel
 
         SelectedPaymentMethod = PaymentMethod.Cash;
         AmountText = Invoice.RemainingAmount > 0m
-            ? Invoice.RemainingAmount.ToString("0.##")
+            ? MoneyInputParser.FormatInput(Invoice.RemainingAmount)
             : "0";
         TransactionCode = string.Empty;
         Note = string.Empty;

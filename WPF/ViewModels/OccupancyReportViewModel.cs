@@ -56,8 +56,12 @@ public sealed class OccupancyReportViewModel : BaseViewModel
 
         FilterCommand = new RelayCommand(LoadData);
         ExportCommand = new RelayCommand(ExportCsv);
+    }
 
+    public override Task InitializeAsync()
+    {
         LoadData();
+        return Task.CompletedTask;
     }
 
     private void LoadData()

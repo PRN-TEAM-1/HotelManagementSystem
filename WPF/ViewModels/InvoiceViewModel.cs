@@ -12,6 +12,7 @@ public sealed class InvoiceViewModel : BaseViewModel
     private readonly ICurrentUserService _currentUserService;
     private readonly DialogService _dialogService;
 
+    private List<InvoiceCandidateDto> _allInvoiceCandidates = new();
     private List<InvoiceCandidateDto> _invoiceCandidates = new();
     private List<InvoiceSummaryDto> _invoices = new();
     private InvoiceCandidateDto? _selectedCandidate;
@@ -19,6 +20,7 @@ public sealed class InvoiceViewModel : BaseViewModel
     private InvoiceDetailViewModel _invoiceDetail = new();
     private PaymentViewModel _paymentView;
     private PaymentHistoryViewModel _paymentHistory;
+    private string _candidateSearchTerm = string.Empty;
     private string _invoiceSearchTerm = string.Empty;
     private string _discountAmountText = "0";
     private string _taxAmountText = "0";
@@ -43,6 +45,8 @@ public sealed class InvoiceViewModel : BaseViewModel
         _paymentView.PaymentRecorded += OnPaymentRecorded;
 
         RefreshCommand = new AsyncRelayCommand(RefreshAsync, CanExecuteWhenIdle);
+        SearchCandidatesCommand = new RelayCommand(SearchCandidates, CanExecuteWhenIdle);
+        ClearCandidateSearchCommand = new RelayCommand(ClearCandidateSearch, CanClearCandidateSearch);
         SearchInvoicesCommand = new AsyncRelayCommand(SearchInvoicesAsync, CanExecuteWhenIdle);
         ClearInvoiceSearchCommand = new AsyncRelayCommand(ClearInvoiceSearchAsync, CanClearInvoiceSearch);
         CreateInvoiceCommand = new AsyncRelayCommand(CreateInvoiceAsync, CanCreateInvoice);
@@ -121,6 +125,20 @@ public sealed class InvoiceViewModel : BaseViewModel
     {
         get => _paymentHistory;
         private set => SetProperty(ref _paymentHistory, value);
+    }
+
+    public string CandidateSearchTerm
+    {
+        get => _candidateSearchTerm;
+        set
+        {
+            if (SetProperty(ref _candidateSearchTerm, value))
+            {
+                ApplyCandidateFilter();
+                SearchCandidatesCommand.RaiseCanExecuteChanged();
+                ClearCandidateSearchCommand.RaiseCanExecuteChanged();
+            }
+        }
     }
 
     public string InvoiceSearchTerm
@@ -226,7 +244,9 @@ public sealed class InvoiceViewModel : BaseViewModel
                 return string.Empty;
             }
 
-            return "No checked-out bookings are ready for invoice creation.";
+            return string.IsNullOrWhiteSpace(CandidateSearchTerm)
+                ? "No checked-out bookings are ready for invoice creation."
+                : "No checked-out bookings match the current search.";
         }
     }
 
@@ -246,6 +266,10 @@ public sealed class InvoiceViewModel : BaseViewModel
     }
 
     public AsyncRelayCommand RefreshCommand { get; }
+
+    public RelayCommand SearchCandidatesCommand { get; }
+
+    public RelayCommand ClearCandidateSearchCommand { get; }
 
     public AsyncRelayCommand SearchInvoicesCommand { get; }
 
@@ -278,6 +302,11 @@ public sealed class InvoiceViewModel : BaseViewModel
         return !IsBusy && !string.IsNullOrWhiteSpace(InvoiceSearchTerm);
     }
 
+    private bool CanClearCandidateSearch()
+    {
+        return !IsBusy && !string.IsNullOrWhiteSpace(CandidateSearchTerm);
+    }
+
     private bool CanCreateInvoice()
     {
         return !IsBusy
@@ -306,11 +335,11 @@ public sealed class InvoiceViewModel : BaseViewModel
             if (candidateResult.IsFailure)
             {
                 ErrorMessage = candidateResult.Errors.FirstOrDefault() ?? candidateResult.Message;
-                InvoiceCandidates = new();
+                SetCandidateSource(new());
             }
             else
             {
-                InvoiceCandidates = candidateResult.Data ?? new();
+                SetCandidateSource(candidateResult.Data ?? new());
             }
 
             var invoiceResult = await _invoiceService.GetInvoicesAsync(
@@ -334,7 +363,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = $"Error loading invoices: {ex.Message}";
-            InvoiceCandidates = new();
+            SetCandidateSource(new());
             Invoices = new();
             ClearSelectedInvoiceDetail();
         }
@@ -385,6 +414,17 @@ public sealed class InvoiceViewModel : BaseViewModel
     {
         InvoiceSearchTerm = string.Empty;
         await SearchInvoicesAsync();
+    }
+
+    private void SearchCandidates()
+    {
+        ApplyCandidateFilter();
+    }
+
+    private void ClearCandidateSearch()
+    {
+        CandidateSearchTerm = string.Empty;
+        ApplyCandidateFilter();
     }
 
     private async Task CreateInvoiceAsync()
@@ -446,7 +486,7 @@ public sealed class InvoiceViewModel : BaseViewModel
     private async Task ReloadAfterCreateAsync(int? createdInvoiceId)
     {
         var candidateResult = await _invoiceService.GetInvoiceCandidatesAsync(_currentUserService.User);
-        InvoiceCandidates = candidateResult.Data ?? new();
+        SetCandidateSource(candidateResult.Data ?? new());
         SelectedCandidate = null;
 
         var invoiceResult = await _invoiceService.GetInvoicesAsync(
@@ -461,6 +501,15 @@ public sealed class InvoiceViewModel : BaseViewModel
         }
 
         SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == createdInvoiceId.Value);
+        if (SelectedInvoice is null)
+        {
+            InvoiceSearchTerm = string.Empty;
+
+            invoiceResult = await _invoiceService.GetInvoicesAsync(_currentUserService.User);
+            Invoices = invoiceResult.Data ?? new();
+            SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == createdInvoiceId.Value);
+        }
+
         if (SelectedInvoice is not null)
         {
             await LoadInvoiceDetailAsync(SelectedInvoice.InvoiceId);
@@ -546,7 +595,47 @@ public sealed class InvoiceViewModel : BaseViewModel
 
         Invoices = invoiceResult.Data ?? new();
         SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == invoiceId);
+        if (SelectedInvoice is null)
+        {
+            InvoiceSearchTerm = string.Empty;
+
+            invoiceResult = await _invoiceService.GetInvoicesAsync(_currentUserService.User);
+            Invoices = invoiceResult.Data ?? new();
+            SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == invoiceId);
+        }
+
         await LoadInvoiceDetailAsync(invoiceId);
+    }
+
+    private void SetCandidateSource(List<InvoiceCandidateDto> candidates)
+    {
+        _allInvoiceCandidates = candidates;
+        ApplyCandidateFilter();
+    }
+
+    private void ApplyCandidateFilter()
+    {
+        var normalizedTerm = CandidateSearchTerm.Trim();
+        var filteredCandidates = string.IsNullOrWhiteSpace(normalizedTerm)
+            ? _allInvoiceCandidates.ToList()
+            : _allInvoiceCandidates
+                .Where(candidate => MatchesCandidateSearch(candidate, normalizedTerm))
+                .ToList();
+
+        if (SelectedCandidate is not null
+            && filteredCandidates.All(candidate => candidate.BookingId != SelectedCandidate.BookingId))
+        {
+            SelectedCandidate = null;
+        }
+
+        InvoiceCandidates = filteredCandidates;
+    }
+
+    private static bool MatchesCandidateSearch(InvoiceCandidateDto candidate, string searchTerm)
+    {
+        return candidate.BookingId.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            || candidate.CustomerName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            || candidate.BookingStatus.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
     }
 
     private void ClearSelectedInvoiceDetail()
@@ -565,6 +654,8 @@ public sealed class InvoiceViewModel : BaseViewModel
     private void RaiseCommandStates()
     {
         RefreshCommand.RaiseCanExecuteChanged();
+        SearchCandidatesCommand.RaiseCanExecuteChanged();
+        ClearCandidateSearchCommand.RaiseCanExecuteChanged();
         SearchInvoicesCommand.RaiseCanExecuteChanged();
         ClearInvoiceSearchCommand.RaiseCanExecuteChanged();
         CreateInvoiceCommand.RaiseCanExecuteChanged();
@@ -573,6 +664,6 @@ public sealed class InvoiceViewModel : BaseViewModel
 
     private static bool TryParseMoney(string value, out decimal amount)
     {
-        return decimal.TryParse(value, out amount);
+        return MoneyInputParser.TryParse(value, out amount);
     }
 }
