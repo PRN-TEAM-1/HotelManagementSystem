@@ -25,8 +25,12 @@ public class DashboardViewModel : BaseViewModel
         _dashboardService = dashboardService;
 
         RefreshCommand = new RelayCommand(LoadDashboard);
+    }
 
+    public override Task InitializeAsync()
+    {
         LoadDashboard();
+        return Task.CompletedTask;
     }
 
     private void LoadDashboard()

@@ -84,13 +84,26 @@ public partial class OperationsView : UserControl
         }
     }
 
-    private void OnBillingClick(object sender, RoutedEventArgs e)
+    private async void OnBillingClick(object sender, RoutedEventArgs e)
     {
         if (DataContext is OperationsViewModel vm)
         {
             vm.CurrentViewModel = vm.BillingViewModel;
             ContentFrame.Content = new BillingView { DataContext = vm.BillingViewModel };
             SetActiveTab(BillingTabButton);
+
+            try
+            {
+                await vm.BillingViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Không thể tải dữ liệu Billing:\n{ex.Message}",
+                    "Lỗi",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 

@@ -70,7 +70,6 @@ public sealed class OperationsViewModel : BaseViewModel
             _checkoutViewModel.InitializeAsync(),
             _serviceManagementViewModel.InitializeAsync(),
             _serviceOrderViewModel.InitializeAsync(),
-            _billingViewModel.InitializeAsync(),
             _customerManagementViewModel.InitializeAsync(),
             _roomTypeManagementViewModel.InitializeAsync(),
             _roomManagementViewModel.InitializeAsync()
