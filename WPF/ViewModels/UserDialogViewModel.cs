@@ -36,8 +36,8 @@ public sealed class UserDialogViewModel : BaseViewModel
     public string DialogTitle => IsCreateMode ? "Add Staff Account" : "Edit Staff Account";
 
     public string DialogDescription => IsCreateMode
-        ? "Create an internal staff login for Admin, Manager or Receptionist."
-        : "Update profile, role and account status for this staff user.";
+        ? "Create staff access."
+        : "Update staff access.";
 
     public bool IsPasswordRequired => IsCreateMode;
 

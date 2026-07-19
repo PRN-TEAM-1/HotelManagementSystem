@@ -16,10 +16,9 @@ public sealed class SessionViewModel : BaseViewModel
         RefreshSessionSnapshot();
     }
 
-    public override string Title => "Current Session";
+    public override string Title => "Session";
 
-    public override string Description =>
-        "Read-only session summary for the authenticated staff account resolved by the real login flow.";
+    public override string Description => "Account and access summary";
 
     public ObservableCollection<string> AccessibleAreas { get; } = new();
 
@@ -63,9 +62,8 @@ public sealed class SessionViewModel : BaseViewModel
 
     private IEnumerable<string> GetAreasForCurrentRole()
     {
-        yield return "Core Workspace";
-        yield return "Current Session";
-        yield return "Style Guide";
+        yield return "Workspace";
+        yield return "Session";
 
         if (_currentUserService.HasRole(RoleName.Admin))
         {

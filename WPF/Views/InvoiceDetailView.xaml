@@ -1,191 +1,201 @@
 <UserControl x:Class="WPF.Views.InvoiceDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Grid>
-        <Border Background="{StaticResource SurfaceMutedBrush}"
-                BorderBrush="{StaticResource SurfaceBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="20"
-                Visibility="{Binding Invoice, Converter={StaticResource ObjectToVisibilityConverter}}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding Invoice, Converter={StaticResource ObjectToVisibilityConverter}}">
+            <StackPanel>
+                <materialDesign:Card Padding="16"
+                                     Margin="0,0,0,12"
+                                     materialDesign:ElevationAssist.Elevation="Dp2">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                        <StackPanel>
-                            <TextBlock Text="{Binding Invoice.InvoiceId, StringFormat='{}Invoice #{0}'}"
-                                       FontSize="20"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.CustomerName}"
-                                       Margin="0,4,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                            <TextBlock Text="{Binding Invoice.Status}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource AccentBrush}"
-                                       HorizontalAlignment="Right" />
-                            <TextBlock Text="{Binding Invoice.CreateDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
-                                       Margin="0,4,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Invoice.InvoiceId, StringFormat='{}Invoice #{0}'}"
+                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.CustomerName}"
+                                           Margin="0,2,0,0"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding Invoice.Status}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           HorizontalAlignment="Right" />
+                                <TextBlock Text="{Binding Invoice.CreateDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                           Margin="0,2,0,0"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Booking"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.BookingId, StringFormat='{}#{0}'}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.BookingStatus}"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Customer"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.CustomerPhone, TargetNullValue='No phone'}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.CustomerEmail, TargetNullValue='No email'}"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Created by"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.CreatedByUserName}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Invoice.Note, TargetNullValue='No note'}"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
                     </Grid>
+                </materialDesign:Card>
 
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel>
-                            <TextBlock Text="Booking"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.BookingId, StringFormat='{}Booking #{0}'}"
-                                       Margin="0,5,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.BookingStatus}"
-                                       Margin="0,3,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="Customer"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.CustomerPhone, TargetNullValue='No phone'}"
-                                       Margin="0,5,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.CustomerEmail, TargetNullValue='No email'}"
-                                       Margin="0,3,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Created by"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.CreatedByUserName}"
-                                       Margin="0,5,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.Note, TargetNullValue='No note'}"
-                                       Margin="0,3,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
+                <materialDesign:Card Padding="16"
+                                     Margin="0,0,0,12"
+                                     materialDesign:ElevationAssist.Elevation="Dp1">
+                    <UniformGrid Columns="4">
                         <StackPanel>
                             <TextBlock Text="Room"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.RoomAmount, StringFormat='{}{0:C}'}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Column="1">
+                        <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Service"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.ServiceAmount, StringFormat='{}{0:C}'}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2">
+                        <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Total"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.TotalAmount, StringFormat='{}{0:C}'}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Column="3">
+                        <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Remaining"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.RemainingAmount, StringFormat='{}{0:C}'}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource DangerBrush}" />
                         </StackPanel>
+                    </UniformGrid>
+                </materialDesign:Card>
+
+                <materialDesign:Card Padding="16"
+                                     Margin="0,0,0,12"
+                                     materialDesign:ElevationAssist.Elevation="Dp1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Rooms"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Invoice.RoomLines}"
+                                  Margin="0,8,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="*" />
+                                <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
+                                <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
+                                <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="Auto" MinWidth="64" />
+                                <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="90" />
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
+                </materialDesign:Card>
 
-                    <TextBlock Text="Rooms"
-                               Margin="0,22,0,8"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <DataGrid ItemsSource="{Binding Invoice.RoomLines}"
-                              Height="150"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              IsReadOnly="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="80" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="110" />
-                            <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='yyyy-MM-dd'}" Width="110" />
-                            <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='yyyy-MM-dd'}" Width="110" />
-                            <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="70" />
-                            <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:C}'}" Width="100" />
-                            <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:C}'}" Width="100" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                <materialDesign:Card Padding="16"
+                                     materialDesign:ElevationAssist.Elevation="Dp1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="Services"
-                               Margin="0,18,0,8"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <DataGrid ItemsSource="{Binding Invoice.ServiceLines}"
-                              Height="130"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              IsReadOnly="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="80" />
-                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="180" />
-                            <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" />
-                            <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:C}'}" Width="100" />
-                            <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:C}'}" Width="100" />
-                            <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="140" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <TextBlock Text="Services"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Invoice.ServiceLines}"
+                                  Margin="0,8,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
+                                <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.4*" />
+                                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="56" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="124" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </materialDesign:Card>
+            </StackPanel>
+        </ScrollViewer>
 
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
-
-        <Border Background="{StaticResource SurfaceMutedBrush}"
-                BorderBrush="{StaticResource SurfaceBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="24"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center">
-            <Border.Style>
-                <Style TargetType="Border">
+        <materialDesign:Card Padding="24"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Center"
+                             materialDesign:ElevationAssist.Elevation="Dp1">
+            <materialDesign:Card.Style>
+                <Style TargetType="materialDesign:Card">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Invoice}" Value="{x:Null}">
@@ -193,11 +203,19 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-            <TextBlock Text="{Binding EmptyMessage}"
-                       TextAlignment="Center"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       TextWrapping="Wrap" />
-        </Border>
+            </materialDesign:Card.Style>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <materialDesign:PackIcon Kind="ReceiptText"
+                                         Width="24"
+                                         Height="24"
+                                         Foreground="{StaticResource TextSecondaryBrush}"
+                                         Margin="0,0,8,0" />
+                <TextBlock Text="{Binding EmptyMessage}"
+                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </materialDesign:Card>
     </Grid>
 </UserControl>

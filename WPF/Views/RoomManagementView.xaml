@@ -1,45 +1,191 @@
 <UserControl x:Class="WPF.Views.RoomManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Margin="8">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.95*" />
-            <ColumnDefinition Width="1.05*" />
-        </Grid.ColumnDefinitions>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0" Margin="0,0,12,0">
-            <TextBlock Text="Room Form" FontWeight="SemiBold" Margin="0,0,0,8" />
-            <TextBlock Text="Room Number" Margin="0,0,0,4" />
-            <TextBox Text="{Binding RoomNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBlock Text="Room Type" Margin="0,0,0,4" />
-            <ComboBox ItemsSource="{Binding RoomTypes}" SelectedValuePath="RoomTypeId" DisplayMemberPath="TypeName" SelectedValue="{Binding SelectedRoomTypeId}" Margin="0,0,0,8" />
-            <TextBlock Text="Floor" Margin="0,0,0,4" />
-            <TextBox Text="{Binding Floor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBlock Text="Status" Margin="0,0,0,4" />
-            <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding Status}" Margin="0,0,0,8" />
-            <TextBlock Text="Note" Margin="0,0,0,4" />
-            <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Save Room" Command="{Binding SaveCommand}" Margin="0,0,8,0" />
-                <Button Content="Clear" Command="{Binding ClearCommand}" />
-            </StackPanel>
-            <TextBlock Text="{Binding Message}" Margin="0,10,0,0" TextWrapping="Wrap" />
-        </StackPanel>
+        <Border Padding="12"
+                Margin="0,0,0,12"
+                Background="{StaticResource SurfaceMutedBrush}"
+                CornerRadius="8"
+                Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="1">
-            <TextBlock Text="Room List" FontWeight="SemiBold" Margin="0,0,0,8" />
-            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <Button Content="Search" Command="{Binding SearchCommand}" Margin="0,0,0,8" />
-            <ListView ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}" Height="340">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Room" DisplayMemberBinding="{Binding RoomNumber}" Width="80" />
-                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding RoomTypeName}" Width="140" />
-                        <GridViewColumn Header="Floor" DisplayMemberBinding="{Binding Floor}" Width="60" />
-                        <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="100" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </StackPanel>
+                <materialDesign:PackIcon Kind="InformationOutline"
+                                         Width="20"
+                                         Height="20"
+                                         Foreground="{StaticResource AccentBrush}"
+                                         VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Message}"
+                           Margin="8,0,0,0"
+                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:Card Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="OfficeBuilding"
+                                                 Width="20"
+                                                 Height="20"
+                                                 Foreground="{StaticResource AccentBrush}"
+                                                 Margin="0,0,8,0" />
+                        <TextBlock Text="Room"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                        <TextBox Text="{Binding RoomNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Room number" />
+                        <ComboBox ItemsSource="{Binding RoomTypes}"
+                                  SelectedValuePath="RoomTypeId"
+                                  DisplayMemberPath="TypeName"
+                                  SelectedValue="{Binding SelectedRoomTypeId}"
+                                  materialDesign:HintAssist.Hint="Room type" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Text="{Binding Floor, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Floor" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding StatusOptions}"
+                                      SelectedItem="{Binding Status}"
+                                      materialDesign:HintAssist.Hint="Status" />
+                        </Grid>
+                        <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Note"
+                                 MinHeight="56"
+                                 MaxHeight="96"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,12,0,0">
+                        <Button Command="{Binding SaveCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                ToolTip="Save room">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSave"
+                                                         Width="18"
+                                                         Height="18"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="Save" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ClearCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0"
+                                ToolTip="Clear form">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Close"
+                                                         Width="18"
+                                                         Height="18"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="Clear" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Column="2"
+                                 Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="OfficeBuilding"
+                                                 Width="20"
+                                                 Height="20"
+                                                 Foreground="{StaticResource AccentBrush}"
+                                                 Margin="0,0,8,0" />
+                        <TextBlock Text="Room Inventory"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <DockPanel Grid.Row="1" Margin="0,12,0,0" LastChildFill="True">
+                        <Button DockPanel.Dock="Right"
+                                Command="{Binding SearchCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                Margin="8,0,0,0"
+                                ToolTip="Search rooms">
+                            <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                        </Button>
+                        <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Search rooms"
+                                 materialDesign:TextFieldAssist.HasClearButton="True" />
+                    </DockPanel>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Rooms}"
+                              SelectedItem="{Binding SelectedRoom}"
+                              Margin="0,8,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="80" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding RoomTypeName}" Width="1.5*" />
+                            <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="Auto" MinWidth="72" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="104" />
+                            <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </materialDesign:Card>
+
+            <Border Grid.ColumnSpan="3"
+                    Background="#80000000"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="160"
+                                 Height="4"
+                                 IsIndeterminate="True"
+                                 Style="{StaticResource MaterialDesignLinearProgressBar}" />
+                    <TextBlock Text="Loading..."
+                               Margin="0,8,0,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="White" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

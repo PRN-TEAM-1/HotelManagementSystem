@@ -1,49 +1,39 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style TargetType="TextBox">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-        <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="14,10" />
-        <Setter Property="Margin" Value="0,6,0,0" />
-        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
-    <Style TargetType="PasswordBox">
+    <Style TargetType="PasswordBox" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-        <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="14,10" />
-        <Setter Property="Margin" Value="0,6,0,0" />
-        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
-    <Style TargetType="ComboBox">
+    <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-        <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="10,6" />
-        <Setter Property="Margin" Value="0,6,0,0" />
-        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
-    <Style TargetType="DatePicker">
+    <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignFloatingHintDatePicker}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-        <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Margin" Value="0,6,0,0" />
-        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 </ResourceDictionary>

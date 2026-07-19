@@ -51,6 +51,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         {
             if (SetProperty(ref _selectedService, value))
             {
+                SelectService(value);
                 SelectServiceCommand.RaiseCanExecuteChanged();
             }
         }
@@ -147,8 +148,16 @@ public sealed class ServiceManagementViewModel : BaseViewModel
     public bool IsEditMode
     {
         get => _isEditMode;
-        set => SetProperty(ref _isEditMode, value);
+        set
+        {
+            if (SetProperty(ref _isEditMode, value))
+            {
+                OnPropertyChanged(nameof(IsCreateMode));
+            }
+        }
     }
+
+    public bool IsCreateMode => !IsEditMode;
 
     public AsyncRelayCommand LoadServicesCommand { get; }
 

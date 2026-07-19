@@ -3,10 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:viewModels="clr-namespace:WPF.ViewModels"
              xmlns:views="clr-namespace:WPF.Views"
-             xmlns:converters="clr-namespace:WPF.Converters">
+             xmlns:converters="clr-namespace:WPF.Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light"
+                                             PrimaryColor="Teal"
+                                             SecondaryColor="Amber" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                 <ResourceDictionary Source="Resources/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Buttons.xaml" />
                 <ResourceDictionary Source="Resources/TextBoxes.xaml" />
@@ -69,6 +74,19 @@
             <DataTemplate DataType="{x:Type viewModels:ServiceOrderViewModel}">
                 <views:ServiceOrderView />
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:CustomerManagementViewModel}">
+                <views:CustomerManagementView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:RoomTypeManagementViewModel}">
+                <views:RoomTypeManagementView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:RoomManagementViewModel}">
+                <views:RoomManagementView />
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
                 <views:DashboardView />
             </DataTemplate>
@@ -83,6 +101,10 @@
 
             <DataTemplate DataType="{x:Type viewModels:RevenueReportViewModel}">
                 <views:RevenueReportView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:ServiceUsageReportViewModel}">
+                <views:ServiceUsageReportView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

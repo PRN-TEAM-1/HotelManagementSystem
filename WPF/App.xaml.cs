@@ -80,7 +80,13 @@ public partial class App : Application
         var occupancyReportRepository = new Repositories.Implements.OccupancyReportRepository();
         var occupancyReportService = new OccupancyReportService(occupancyReportRepository);
         var occupancyReportViewModel = new OccupancyReportViewModel(occupancyReportService);
-        var reportsViewModel = new ReportsViewModel(dashboardViewModel, occupancyReportViewModel);
+        var revenueReportViewModel = new RevenueReportViewModel();
+        var serviceUsageReportViewModel = new ServiceUsageReportViewModel();
+        var reportsViewModel = new ReportsViewModel(
+            dashboardViewModel,
+            occupancyReportViewModel,
+            revenueReportViewModel,
+            serviceUsageReportViewModel);
         var styleGuideViewModel = new StyleGuideViewModel(_dialogService);
 
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);
@@ -208,20 +214,20 @@ public partial class App : Application
     private static SectionViewModel CreateWorkspaceViewModel()
     {
         return new SectionViewModel(
-            "Core Workspace",
-            "Authenticated entry point for every upcoming vertical slice after the new login flow is completed.",
-            "CORE-004 + M1-AUTH-001",
+            "Workspace",
+            "Staff operations overview for the hotel management system.",
+            "Overview",
             [
-                "`WPF View -> ViewModel -> Service -> Repository -> DAO` remains the only allowed call chain.",
-                "`DbContextFactory` centralizes `appsettings.json` discovery, so UI code stays configuration-only.",
-                "Auth now reaches SQL Server through EF Core and populates `CurrentUserService` with the logged-in staff account."
+                "Administration keeps staff accounts and access status current.",
+                "Operations brings together booking, stay service and billing work.",
+                "Reports show occupancy, revenue and service performance."
             ],
             [
-                "Add a view model, add a view, then register that pair once in `App.xaml.cs` to join the shell.",
-                "Keep repositories and DAOs out of `WPF`; feature view models should only depend on service interfaces.",
-                "Reuse the shared button, input and table styles so forms from different members still feel like one product."
+                "Access follows the signed-in staff role.",
+                "Billing status updates after successful payments.",
+                "Reports use current operational data."
             ],
-            ["MVVM", "Shell", "Navigation", "Auth", "Styles"]);
+            ["Accounts", "Operations", "Billing", "Reports"]);
     }
 
     private static SectionViewModel CreateOperationsViewModel()

@@ -1,89 +1,158 @@
 <UserControl x:Class="WPF.Views.OperationsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <!-- Tab Navigation -->
-        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="24,16">
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="CheckInTabButton"
-                        Content="📋 Check-In"
-                        Click="OnCheckInClick"
-                        Padding="16,10"
-                        Background="{StaticResource AccentBrush}"
-                        Foreground="{StaticResource TextInverseBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="CheckoutTabButton"
-                        Content="📤 Check-Out"
-                        Click="OnCheckoutClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="ServiceManagementTabButton"
-                        Content="🔧 Service Management"
-                        Click="OnServiceManagementClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="ServiceOrderTabButton"
-                        Content="🛎️ Service Orders"
-                        Click="OnServiceOrderClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="RoomTypeTabButton"
-                        Content="🏷️ Room Types"
-                        Click="OnRoomTypeClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="RoomTabButton"
-                        Content="🛏️ Rooms"
-                        Click="OnRoomClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13" />
-                <Button x:Name="BillingTabButton"
-                        Content="Billing"
-                        Click="OnBillingClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13"
-                        Margin="0,0,8,0" />
-                <Button x:Name="CustomerTabButton"
-                        Content="👥 Customer / Booking"
-                        Click="OnCustomerManagementClick"
-                        Padding="16,10"
-                        Background="{StaticResource SurfaceBrush}"
-                        Foreground="{StaticResource TextPrimaryBrush}"
-                        FontWeight="SemiBold"
-                        FontSize="13" />
-            </StackPanel>
-        </Border>
+        <materialDesign:Card Padding="16"
+                             Margin="0,0,12,0"
+                             materialDesign:ElevationAssist.Elevation="Dp2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-        <!-- Content Area -->
-        <Frame Grid.Row="1" x:Name="ContentFrame" NavigationUIVisibility="Hidden" />
+                <StackPanel>
+                    <TextBlock Text="Operations"
+                               Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Select a work area"
+                               Margin="0,2,0,0"
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1"
+                              Margin="0,16,0,0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Modules}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.SelectModuleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource ModuleButtonStyle}"
+                                        Margin="0,0,0,8"
+                                        ToolTip="{Binding Description}">
+                                    <Border Padding="12"
+                                            CornerRadius="8">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+                                                <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <materialDesign:PackIcon Kind="{Binding IconKind}"
+                                                                     Width="22"
+                                                                     Height="22"
+                                                                     Foreground="{StaticResource AccentBrush}"
+                                                                     VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                <TextBlock Text="{Binding Title}"
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                                <TextBlock Text="{Binding Description}"
+                                                           Margin="0,2,0,0"
+                                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </materialDesign:Card>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <materialDesign:Card Padding="16"
+                                 Margin="0,0,0,12"
+                                 materialDesign:ElevationAssist.Elevation="Dp1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentModuleTitle}"
+                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                   FontFamily="{StaticResource AppDisplayFont}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="{Binding CurrentModuleDescription}"
+                                   Margin="0,4,0,0"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <ProgressBar Grid.Column="1"
+                                 Width="120"
+                                 Height="4"
+                                 IsIndeterminate="True"
+                                 Style="{StaticResource MaterialDesignLinearProgressBar}"
+                                 VerticalAlignment="Center"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </Grid>
+            </materialDesign:Card>
+
+            <Border Grid.Row="1"
+                    Padding="12"
+                    Margin="0,0,0,12"
+                    Background="#FFF3D6"
+                    CornerRadius="8"
+                    Visibility="{Binding OperationMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <materialDesign:PackIcon Kind="AlertCircleOutline"
+                                             Width="20"
+                                             Height="20"
+                                             Foreground="{StaticResource WarningBrush}"
+                                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding OperationMessage}"
+                               Margin="8,0,0,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="#856404"
+                               TextWrapping="Wrap" />
+                </Grid>
+            </Border>
+
+            <ContentControl Grid.Row="2"
+                            Content="{Binding CurrentViewModel}" />
+        </Grid>
     </Grid>
 </UserControl>
