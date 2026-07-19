@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using WPF.Commands;
 
 namespace WPF.ViewModels;
 
@@ -14,6 +15,10 @@ public sealed class OperationsViewModel : BaseViewModel
     private readonly RoomManagementViewModel _roomManagementViewModel;
 
     private BaseViewModel _currentViewModel;
+    private OperationModuleViewModel? _selectedModule;
+    private string _operationMessage = string.Empty;
+    private bool _isBusy;
+    private readonly HashSet<string> _initializedModuleKeys = new(StringComparer.OrdinalIgnoreCase);
 
     public OperationsViewModel(
         CheckInViewModel checkInViewModel,
@@ -35,11 +40,22 @@ public sealed class OperationsViewModel : BaseViewModel
         _roomManagementViewModel = roomManagementViewModel ?? throw new ArgumentNullException(nameof(roomManagementViewModel));
 
         _currentViewModel = checkInViewModel;
+        Modules = new ObservableCollection<OperationModuleViewModel>(CreateModules());
+        SelectModuleCommand = new RelayCommand<OperationModuleViewModel>(SelectModule);
+
+        if (Modules.FirstOrDefault() is { } firstModule)
+        {
+            SetSelectedModule(firstModule);
+        }
     }
 
     public override string Title => "Operations";
 
-    public override string Description => "Manage guest operations, check-in, check-out, and services";
+    public override string Description => "Guest operations, rooms, services and billing";
+
+    public ObservableCollection<OperationModuleViewModel> Modules { get; }
+
+    public RelayCommand<OperationModuleViewModel> SelectModuleCommand { get; }
 
     public CheckInViewModel CheckInViewModel => _checkInViewModel;
 
@@ -63,16 +79,151 @@ public sealed class OperationsViewModel : BaseViewModel
         set => SetProperty(ref _currentViewModel, value);
     }
 
+    public OperationModuleViewModel? SelectedModule
+    {
+        get => _selectedModule;
+        private set
+        {
+            if (SetProperty(ref _selectedModule, value))
+            {
+                OnPropertiesChanged(nameof(CurrentModuleTitle), nameof(CurrentModuleDescription));
+            }
+        }
+    }
+
+    public string CurrentModuleTitle => SelectedModule?.Title ?? Title;
+
+    public string CurrentModuleDescription => SelectedModule?.Description ?? Description;
+
+    public string OperationMessage
+    {
+        get => _operationMessage;
+        private set => SetProperty(ref _operationMessage, value);
+    }
+
+    public bool IsBusy
+    {
+        get => _isBusy;
+        private set => SetProperty(ref _isBusy, value);
+    }
+
     public override async Task InitializeAsync()
     {
-        await Task.WhenAll(
-            _checkInViewModel.InitializeAsync(),
-            _checkoutViewModel.InitializeAsync(),
-            _serviceManagementViewModel.InitializeAsync(),
-            _serviceOrderViewModel.InitializeAsync(),
-            _customerManagementViewModel.InitializeAsync(),
-            _roomTypeManagementViewModel.InitializeAsync(),
-            _roomManagementViewModel.InitializeAsync()
-        );
+        await InitializeSelectedModuleAsync();
+    }
+
+    public override void OnNavigatedTo()
+    {
+        _ = InitializeSelectedModuleAsync();
+    }
+
+    private IEnumerable<OperationModuleViewModel> CreateModules()
+    {
+        return
+        [
+            new OperationModuleViewModel(
+                "check-in",
+                "Check-In",
+                "Confirm reserved rooms and start a stay.",
+                "Login",
+                _checkInViewModel),
+            new OperationModuleViewModel(
+                "checkout",
+                "Check-Out",
+                "Close active stays and prepare billing.",
+                "Logout",
+                _checkoutViewModel),
+            new OperationModuleViewModel(
+                "customers",
+                "Customers & Booking",
+                "Create guests, find rooms and create bookings.",
+                "AccountSearch",
+                _customerManagementViewModel),
+            new OperationModuleViewModel(
+                "services",
+                "Services",
+                "Maintain the hotel service catalog.",
+                "InformationOutline",
+                _serviceManagementViewModel),
+            new OperationModuleViewModel(
+                "service-orders",
+                "Service Orders",
+                "Record services used during a stay.",
+                "ReceiptText",
+                _serviceOrderViewModel),
+            new OperationModuleViewModel(
+                "billing",
+                "Billing",
+                "Create invoices and receive payments.",
+                "CreditCardOutline",
+                _billingViewModel),
+            new OperationModuleViewModel(
+                "room-types",
+                "Room Types",
+                "Manage room categories, price and capacity.",
+                "FileDocumentPlus",
+                _roomTypeManagementViewModel),
+            new OperationModuleViewModel(
+                "rooms",
+                "Rooms",
+                "Manage room inventory and operating status.",
+                "OfficeBuilding",
+                _roomManagementViewModel)
+        ];
+    }
+
+    private async void SelectModule(OperationModuleViewModel? module)
+    {
+        if (module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            SetSelectedModule(module);
+            await InitializeSelectedModuleAsync();
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Unable to open {module.Title}: {ex.Message}";
+        }
+    }
+
+    private void SetSelectedModule(OperationModuleViewModel module)
+    {
+        foreach (var item in Modules)
+        {
+            item.IsSelected = ReferenceEquals(item, module);
+        }
+
+        SelectedModule = module;
+        CurrentViewModel = module.ViewModel;
+        OperationMessage = string.Empty;
+    }
+
+    private async Task InitializeSelectedModuleAsync()
+    {
+        if (SelectedModule is null || _initializedModuleKeys.Contains(SelectedModule.Key))
+        {
+            return;
+        }
+
+        IsBusy = true;
+        OperationMessage = string.Empty;
+
+        try
+        {
+            await SelectedModule.ViewModel.InitializeAsync();
+            _initializedModuleKeys.Add(SelectedModule.Key);
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Unable to load {SelectedModule.Title}: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

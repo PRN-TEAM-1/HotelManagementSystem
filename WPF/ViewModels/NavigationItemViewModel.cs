@@ -11,11 +11,13 @@ public sealed class NavigationItemViewModel : BaseViewModel
         string key,
         string title,
         string caption,
+        string iconKind,
         IEnumerable<RoleName>? allowedRoles = null)
     {
         Key = key;
         TitleText = title;
         Caption = caption;
+        IconKind = iconKind;
         AllowedRoles = (allowedRoles ?? Array.Empty<RoleName>()).Distinct().ToArray();
     }
 
@@ -24,6 +26,8 @@ public sealed class NavigationItemViewModel : BaseViewModel
     public string TitleText { get; }
 
     public string Caption { get; }
+
+    public string IconKind { get; }
 
     public IReadOnlyCollection<RoleName> AllowedRoles { get; }
 

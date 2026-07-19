@@ -1,13 +1,11 @@
 <UserControl x:Class="WPF.Views.PaymentView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Grid>
-        <Border Background="{StaticResource SurfaceBrush}"
-                BorderBrush="{StaticResource SurfaceBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="14"
-                Visibility="{Binding HasInvoice, Converter={StaticResource BoolToVisibilityConverter}}">
+        <materialDesign:Card Padding="16"
+                             materialDesign:ElevationAssist.Elevation="Dp2"
+                             Visibility="{Binding HasInvoice, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -24,65 +22,66 @@
 
                     <StackPanel>
                         <TextBlock Text="Record Payment"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
                         <TextBlock Text="{Binding InvoiceLabel}"
-                                   Margin="0,4,0,0"
+                                   Margin="0,2,0,0"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <TextBlock Text="Remaining"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    HorizontalAlignment="Right" />
                         <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                    Foreground="{StaticResource DangerBrush}"
                                    HorizontalAlignment="Right" />
                     </StackPanel>
                 </Grid>
 
                 <Border Grid.Row="1"
-                        Background="#FFE5C8"
-                        BorderBrush="#FFC107"
-                        BorderThickness="1"
-                        CornerRadius="8"
                         Padding="10"
                         Margin="0,10,0,0"
+                        Background="#FFF3D6"
+                        CornerRadius="8"
                         Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding ErrorMessage}"
+                        <materialDesign:PackIcon Kind="AlertCircleOutline"
+                                                 Width="18"
+                                                 Height="18"
+                                                 Foreground="{StaticResource WarningBrush}"
+                                                 VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ErrorMessage}"
+                                   Margin="8,0,8,0"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
                                    Foreground="#856404"
                                    TextWrapping="Wrap" />
-                        <Button Grid.Column="1"
+                        <Button Grid.Column="2"
                                 Command="{Binding ClearMessagesCommand}"
-                                Content="x"
-                                Width="24"
-                                Height="24"
-                                MinWidth="24"
-                                Padding="0"
-                                Margin="8,0,0,0"
-                                Background="Transparent"
-                                Foreground="#856404"
-                                BorderThickness="0" />
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Dismiss">
+                            <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                        </Button>
                     </Grid>
                 </Border>
 
                 <Border Grid.Row="2"
-                        Background="{StaticResource SurfaceMutedBrush}"
-                        BorderBrush="{StaticResource SurfaceBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
                         Padding="10"
                         Margin="0,10,0,0"
+                        Background="{StaticResource SurfaceMutedBrush}"
+                        CornerRadius="8"
                         Visibility="{Binding PaymentStateMessage, Converter={StaticResource StringToVisibilityConverter}}">
                     <TextBlock Text="{Binding PaymentStateMessage}"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
                                Foreground="{StaticResource TextSecondaryBrush}"
                                TextWrapping="Wrap" />
                 </Border>
@@ -95,78 +94,82 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.1*" />
+                        <ColumnDefinition Width="8" />
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel>
-                        <TextBlock Text="Amount"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
-                        <TextBox Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"
-                                 IsEnabled="{Binding CanEdit}" />
-                    </StackPanel>
+                    <TextBox Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             materialDesign:HintAssist.Hint="Amount" />
 
-                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                        <TextBlock Text="Method"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
-                        <ComboBox ItemsSource="{Binding PaymentMethods}"
-                                  SelectedItem="{Binding SelectedPaymentMethod}"
-                                  IsEnabled="{Binding CanEdit}" />
-                    </StackPanel>
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding PaymentMethods}"
+                              SelectedItem="{Binding SelectedPaymentMethod}"
+                              IsEnabled="{Binding CanEdit}"
+                              materialDesign:HintAssist.Hint="Method" />
 
-                    <Button Grid.Column="2"
-                            Content="Use Remaining"
+                    <Button Grid.Column="3"
                             Command="{Binding UseRemainingAmountCommand}"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            VerticalAlignment="Bottom"
-                            Margin="10,0,0,0" />
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Use remaining amount"
+                            VerticalAlignment="Center"
+                            Margin="8,0,0,0">
+                        <materialDesign:PackIcon Kind="CashPlus" Width="20" Height="20" />
+                    </Button>
 
-                    <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,10,0,0">
-                        <TextBlock Text="Transaction code"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
-                        <TextBox Text="{Binding TransactionCode, UpdateSourceTrigger=PropertyChanged}"
-                                 IsEnabled="{Binding CanEdit}" />
-                    </StackPanel>
+                    <TextBox Grid.Row="1"
+                             Grid.ColumnSpan="4"
+                             Text="{Binding TransactionCode, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             materialDesign:HintAssist.Hint="Transaction code" />
 
-                    <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0,10,0,0">
-                        <TextBlock Text="Note"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    <StackPanel Grid.Row="2" Grid.ColumnSpan="4">
                         <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="54"
+                                 MinHeight="48"
+                                 MaxHeight="80"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
-                                 IsEnabled="{Binding CanEdit}" />
+                                 IsEnabled="{Binding CanEdit}"
+                                 materialDesign:HintAssist.Hint="Note" />
 
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right"
-                                    Margin="0,12,0,0">
-                            <Button Content="Reset"
-                                    Command="{Binding ResetFormCommand}"
-                                    Style="{StaticResource GhostButtonStyle}" />
-                            <Button Content="Record Payment"
-                                    Command="{Binding RecordPaymentCommand}"
+                                    Margin="0,8,0,0">
+                            <Button Command="{Binding ResetFormCommand}"
+                                    Style="{StaticResource GhostButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Refresh"
+                                                             Width="18"
+                                                             Height="18"
+                                                             Margin="0,0,8,0" />
+                                    <TextBlock Text="Reset" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding RecordPaymentCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Margin="8,0,0,0" />
+                                    Margin="8,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="CashRegister"
+                                                             Width="18"
+                                                             Height="18"
+                                                             Margin="0,0,8,0" />
+                                    <TextBlock Text="Record" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
             </Grid>
-        </Border>
+        </materialDesign:Card>
 
-        <Border Background="{StaticResource SurfaceBrush}"
-                BorderBrush="{StaticResource SurfaceBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="18"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center">
-            <Border.Style>
-                <Style TargetType="Border">
+        <materialDesign:Card Padding="20"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Center"
+                             materialDesign:ElevationAssist.Elevation="Dp1">
+            <materialDesign:Card.Style>
+                <Style TargetType="materialDesign:Card">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding HasInvoice}" Value="False">
@@ -174,11 +177,19 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-            <TextBlock Text="Select an invoice detail to record a payment."
-                       TextAlignment="Center"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       TextWrapping="Wrap" />
-        </Border>
+            </materialDesign:Card.Style>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <materialDesign:PackIcon Kind="CreditCardOutline"
+                                         Width="24"
+                                         Height="24"
+                                         Foreground="{StaticResource TextSecondaryBrush}"
+                                         Margin="0,0,8,0" />
+                <TextBlock Text="Select an invoice to record payment."
+                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </materialDesign:Card>
     </Grid>
 </UserControl>

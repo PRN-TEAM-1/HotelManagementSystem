@@ -1,252 +1,256 @@
 <UserControl x:Class="WPF.Views.UserManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Background="{StaticResource WindowBackgroundBrush}" Margin="24">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="User Management"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       Foreground="{StaticResource TextPrimaryBrush}" />
-            <TextBlock Text="Manage staff accounts, roles and login status"
-                       Margin="0,8,0,0"
-                       FontSize="14"
-                       Foreground="{StaticResource TextSecondaryBrush}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <Border Background="#FFE5C8"
-                    BorderBrush="#FFC107"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="16"
-                    Margin="0,0,0,8"
-                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+        <StackPanel Grid.Row="0">
+            <materialDesign:Card Padding="12"
+                                 Margin="0,0,0,8"
+                                 Background="#FFF3D6"
+                                 materialDesign:ElevationAssist.Elevation="Dp1"
+                                 Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding ErrorMessage}"
+
+                    <materialDesign:PackIcon Kind="AlertCircleOutline"
+                                             Width="20"
+                                             Height="20"
+                                             Foreground="{StaticResource WarningBrush}"
+                                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ErrorMessage}"
+                               Margin="8,0,8,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
                                Foreground="#856404"
                                TextWrapping="Wrap" />
-                    <Button Grid.Column="1"
+                    <Button Grid.Column="2"
                             Command="{Binding ClearMessagesCommand}"
-                            Content="x"
-                            Width="24"
-                            Height="24"
-                            MinWidth="24"
-                            Padding="0"
-                            Margin="8,0,0,0"
-                            Background="Transparent"
-                            Foreground="#856404"
-                            BorderThickness="0" />
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Dismiss">
+                        <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                    </Button>
                 </Grid>
-            </Border>
+            </materialDesign:Card>
 
-            <Border Background="#D4EDDA"
-                    BorderBrush="#28A745"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="16"
-                    Margin="0,0,0,8"
-                    Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
+            <materialDesign:Card Padding="12"
+                                 Margin="0,0,0,8"
+                                 Background="#DFF3E7"
+                                 materialDesign:ElevationAssist.Elevation="Dp1"
+                                 Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding SuccessMessage}"
-                               Foreground="#155724"
+
+                    <materialDesign:PackIcon Kind="CheckCircleOutline"
+                                             Width="20"
+                                             Height="20"
+                                             Foreground="{StaticResource SuccessBrush}"
+                                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SuccessMessage}"
+                               Margin="8,0,8,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource SuccessBrush}"
                                TextWrapping="Wrap" />
-                    <Button Grid.Column="1"
+                    <Button Grid.Column="2"
                             Command="{Binding ClearMessagesCommand}"
-                            Content="x"
-                            Width="24"
-                            Height="24"
-                            MinWidth="24"
-                            Padding="0"
-                            Margin="8,0,0,0"
-                            Background="Transparent"
-                            Foreground="#155724"
-                            BorderThickness="0" />
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Dismiss">
+                        <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                    </Button>
                 </Grid>
-            </Border>
+            </materialDesign:Card>
         </StackPanel>
 
-        <Grid Grid.Row="2" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <materialDesign:Card Grid.Row="1"
+                             Padding="16"
+                             Margin="0,0,0,12"
+                             materialDesign:ElevationAssist.Elevation="Dp2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal">
-                <TextBox Width="280"
-                         Margin="0,0,8,0"
-                         Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding CanEdit}" />
-                <Button Content="Search"
-                        Command="{Binding SearchUsersCommand}"
-                        IsEnabled="{Binding CanEdit}"
-                        MinWidth="88"
-                        Padding="12,8"
-                        Style="{StaticResource PrimaryButtonStyle}" />
-                <Button Content="Clear"
-                        Command="{Binding ClearSearchCommand}"
-                        MinWidth="88"
-                        Padding="12,8"
-                        Style="{StaticResource GhostButtonStyle}" />
-                <Button Content="Refresh"
-                        Command="{Binding LoadUsersCommand}"
-                        IsEnabled="{Binding CanEdit}"
-                        MinWidth="88"
-                        Padding="12,8"
-                        Style="{StaticResource SecondaryButtonStyle}" />
-            </StackPanel>
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
+                        <Button Command="{Binding SearchUsersCommand}"
+                                IsEnabled="{Binding CanEdit}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Search">
+                            <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                        </Button>
+                        <Button Command="{Binding ClearSearchCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Clear search">
+                            <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
+                        </Button>
+                        <Button Command="{Binding LoadUsersCommand}"
+                                IsEnabled="{Binding CanEdit}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Refresh">
+                            <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" />
+                        </Button>
+                    </StackPanel>
 
-            <StackPanel Grid.Column="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right">
-                <Button Content="Add User"
-                        Command="{Binding AddUserCommand}"
-                        IsEnabled="{Binding CanEdit}"
-                        MinWidth="96"
-                        Padding="12,8"
-                        Style="{StaticResource PrimaryButtonStyle}" />
-                <Button Content="Edit"
-                        Command="{Binding EditUserCommand}"
-                        MinWidth="76"
-                        Padding="12,8"
-                        Style="{StaticResource SecondaryButtonStyle}" />
-                <Button Content="Activate"
-                        Command="{Binding ActivateUserCommand}"
-                        MinWidth="86"
-                        Padding="12,8"
-                        Style="{StaticResource SecondaryButtonStyle}" />
-                <Button Content="Inactive"
-                        Command="{Binding InactivateUserCommand}"
-                        MinWidth="86"
-                        Padding="12,8"
-                        Style="{StaticResource GhostButtonStyle}" />
-                <Button Content="Lock"
-                        Command="{Binding LockUserCommand}"
-                        MinWidth="76"
-                        Padding="12,8"
-                        Style="{StaticResource GhostButtonStyle}"
-                        Margin="0" />
-            </StackPanel>
-        </Grid>
+                    <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             materialDesign:HintAssist.Hint="Search staff"
+                             materialDesign:TextFieldAssist.HasClearButton="True" />
+                </DockPanel>
 
-        <Grid Grid.Row="3">
+                <WrapPanel Grid.Column="1"
+                           Margin="16,0,0,0"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center">
+                    <Button Command="{Binding AddUserCommand}"
+                            IsEnabled="{Binding CanEdit}"
+                            Style="{StaticResource PrimaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountPlus"
+                                                     Width="18"
+                                                     Height="18"
+                                                     Margin="0,0,8,0" />
+                            <TextBlock Text="Add" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding EditUserCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Edit account">
+                        <materialDesign:PackIcon Kind="Pencil" Width="20" Height="20" />
+                    </Button>
+                    <Button Command="{Binding ActivateUserCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Activate account">
+                        <materialDesign:PackIcon Kind="CheckCircleOutline" Width="20" Height="20" />
+                    </Button>
+                    <Button Command="{Binding InactivateUserCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Set inactive">
+                        <materialDesign:PackIcon Kind="AccountOff" Width="20" Height="20" />
+                    </Button>
+                    <Button Command="{Binding LockUserCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Lock account">
+                        <materialDesign:PackIcon Kind="Lock" Width="20" Height="20" />
+                    </Button>
+                </WrapPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <Grid Grid.Row="2">
             <DataGrid ItemsSource="{Binding Users}"
                       SelectedItem="{Binding SelectedUser}"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      IsReadOnly="True"
                       IsEnabled="{Binding CanEdit}"
                       HorizontalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="130" />
-                    <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="190" />
-                    <DataGridTextColumn Header="Role" Binding="{Binding RoleName}" Width="120" />
-                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="220" />
-                    <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="120" />
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-                    <DataGridCheckBoxColumn Header="Has Activity" Binding="{Binding HasBusinessReferences}" Width="110" />
-                    <DataGridTextColumn Header="Updated" Binding="{Binding UpdatedAt, StringFormat='yyyy-MM-dd HH:mm'}" Width="150" />
+                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="1*" />
+                    <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="1.4*" />
+                    <DataGridTextColumn Header="Role" Binding="{Binding RoleName}" Width="Auto" MinWidth="96" />
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.6*" />
+                    <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="Auto" MinWidth="108" />
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
+                    <DataGridCheckBoxColumn Header="Activity" Binding="{Binding HasBusinessReferences}" Width="Auto" MinWidth="84" />
+                    <DataGridTextColumn Header="Updated" Binding="{Binding UpdatedAt, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
                 </DataGrid.Columns>
             </DataGrid>
 
-            <Border Background="{StaticResource SurfaceMutedBrush}"
-                    BorderBrush="{StaticResource SurfaceBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="22"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Visibility="{Binding EmptyStateMessage, Converter={StaticResource StringToVisibilityConverter}}">
-                <TextBlock Text="{Binding EmptyStateMessage}"
-                           FontSize="16"
-                           Foreground="{StaticResource TextSecondaryBrush}" />
-            </Border>
+            <materialDesign:Card Padding="16"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 materialDesign:ElevationAssist.Elevation="Dp1"
+                                 Visibility="{Binding EmptyStateMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="AccountSearch"
+                                             Width="22"
+                                             Height="22"
+                                             Foreground="{StaticResource TextSecondaryBrush}"
+                                             Margin="0,0,8,0" />
+                    <TextBlock Text="{Binding EmptyStateMessage}"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+            </materialDesign:Card>
 
             <Border Background="#80000000"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <ProgressBar Width="220"
+                    <ProgressBar Width="180"
                                  Height="4"
                                  IsIndeterminate="True"
-                                 Background="#40FFFFFF"
-                                 Foreground="{StaticResource AccentBrush}" />
+                                 Style="{StaticResource MaterialDesignLinearProgressBar}" />
                     <TextBlock Text="Processing..."
                                Foreground="White"
-                               FontSize="14"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
                                TextAlignment="Center"
-                               Margin="0,12,0,0" />
+                               Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
         </Grid>
 
-        <Border Grid.Row="4"
-                Margin="0,16,0,0"
-                Padding="16"
-                Background="{StaticResource SurfaceMutedBrush}"
-                BorderBrush="{StaticResource SurfaceBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Visibility="{Binding SelectedUser, Converter={StaticResource ObjectToVisibilityConverter}}">
+        <materialDesign:Card Grid.Row="3"
+                             Margin="0,12,0,0"
+                             Padding="16"
+                             materialDesign:ElevationAssist.Elevation="Dp1"
+                             Visibility="{Binding SelectedUser, Converter={StaticResource ObjectToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Selected account"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.Username}"
-                               Margin="0,6,0,0"
+                    <TextBlock Text="Selected"
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBlock Text="{Binding SelectedUser.Username}"
+                               Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Full name"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
                     <TextBlock Text="{Binding SelectedUser.FullName}"
-                               Margin="0,6,0,0"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
+                <StackPanel Grid.Column="2" Margin="24,0,0,0">
                     <TextBlock Text="Role"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.RoleName}"
-                               Margin="0,6,0,0"
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBlock Text="{Binding SelectedUser.RoleName}"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="3">
+                <StackPanel Grid.Column="3" Margin="24,0,0,0">
                     <TextBlock Text="Status"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.Status}"
-                               Margin="0,6,0,0"
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBlock Text="{Binding SelectedUser.Status}"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource AccentBrush}" />
                 </StackPanel>
             </Grid>
-        </Border>
+        </materialDesign:Card>
     </Grid>
 </UserControl>

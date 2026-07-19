@@ -7,7 +7,7 @@ public partial class CheckoutView : UserControl
 {
     public CheckoutView()
     {
-            InitializeComponent();
+        InitializeComponent();
     }
 
     private void OnCancelClick(object sender, System.Windows.RoutedEventArgs e)

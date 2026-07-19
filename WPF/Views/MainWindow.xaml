@@ -3,24 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Hotel Management System"
         Width="1400"
         Height="860"
-        MinWidth="1180"
-        MinHeight="720"
+        MinWidth="1120"
+        MinHeight="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackgroundBrush}">
+        Background="{StaticResource WindowBackgroundBrush}"
+        Style="{StaticResource MaterialDesignWindow}">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="280" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="28">
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="20">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
@@ -28,35 +29,17 @@
 
                 <StackPanel>
                     <TextBlock Text="{Binding AppTitle}"
+                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                                FontFamily="{StaticResource AppDisplayFont}"
-                               FontSize="30"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextInverseBrush}" />
                     <TextBlock Text="{Binding AppSubtitle}"
-                               Margin="0,8,0,0"
-                               FontSize="13"
-                               Foreground="#C2D5E6"
-                               TextWrapping="Wrap" />
+                               Margin="0,4,0,0"
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                               Foreground="#C2D5E6" />
                 </StackPanel>
 
-                <Border Grid.Row="1"
-                        Margin="0,24,0,0"
-                        Padding="18"
-                        Background="#12314A"
-                        CornerRadius="18">
-                    <StackPanel>
-                        <TextBlock Text="M1-AUTH-001 online"
-                                   Foreground="{StaticResource TextInverseBrush}"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="This shell is now unlocked by real login, backed by EF Core and ready for the remaining vertical slices."
-                                   Margin="0,8,0,0"
-                                   Foreground="#C2D5E6"
-                                   FontSize="12"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-                </Border>
-
-                <ScrollViewer Grid.Row="2"
+                <ScrollViewer Grid.Row="1"
                               Margin="0,24,0,0"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
@@ -67,57 +50,80 @@
                                         CommandParameter="{Binding}"
                                         Tag="{Binding IsSelected}"
                                         Style="{StaticResource NavigationButtonStyle}"
+                                        ToolTip="{Binding Caption}"
                                         Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding TitleText}"
-                                                   FontSize="15"
-                                                   FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Caption}"
-                                                   Margin="0,5,0,0"
-                                                   Foreground="#C2D5E6"
-                                                   FontSize="12"
-                                                   TextWrapping="Wrap" />
-                                    </StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <materialDesign:PackIcon Kind="{Binding IconKind}"
+                                                                 Width="20"
+                                                                 Height="20"
+                                                                 Foreground="{StaticResource TextInverseBrush}"
+                                                                 VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding TitleText}"
+                                                   Margin="12,0,0,0"
+                                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextInverseBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
 
-                <Border Grid.Row="3"
-                        Margin="0,24,0,0"
-                        Padding="18"
-                        Background="#0B2235"
-                        CornerRadius="18">
+                <materialDesign:Card Grid.Row="2"
+                                     Margin="0,20,0,0"
+                                     Padding="16"
+                                     Background="#102A40"
+                                     materialDesign:ElevationAssist.Elevation="Dp1">
                     <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <materialDesign:PackIcon Kind="AccountCircle"
+                                                     Width="28"
+                                                     Height="28"
+                                                     Foreground="{StaticResource TextInverseBrush}"
+                                                     VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="{Binding SessionDisplayName}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextInverseBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding SessionRoleDisplay}"
+                                           Margin="0,2,0,0"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="#A9C4D9" />
+                            </StackPanel>
+                        </Grid>
+
                         <TextBlock Text="{Binding AuthenticationState}"
-                                   Foreground="{StaticResource TextInverseBrush}"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding SessionDisplayName}"
-                                   Margin="0,6,0,0"
-                                   Foreground="#DCE8F3"
-                                   FontSize="16"
-                                   FontFamily="{StaticResource AppDisplayFont}" />
-                        <TextBlock Text="{Binding SessionRoleDisplay}"
-                                   Margin="0,4,0,0"
-                                   Foreground="#A9C4D9"
-                                   FontSize="12" />
+                                   Margin="0,10,0,0"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Foreground="#C2D5E6" />
                     </StackPanel>
-                </Border>
+                </materialDesign:Card>
             </Grid>
         </Border>
 
-        <Grid Grid.Column="1" Margin="24">
+        <Grid Grid.Column="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Padding="24"
-                    Background="{StaticResource SurfaceBrush}"
-                    BorderBrush="{StaticResource SurfaceBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="24">
+            <materialDesign:Card Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -126,13 +132,12 @@
 
                     <StackPanel>
                         <TextBlock Text="{Binding CurrentPageTitle}"
+                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                    FontFamily="{StaticResource AppDisplayFont}"
-                                   FontSize="28"
-                                   FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
                         <TextBlock Text="{Binding CurrentPageDescription}"
-                                   Margin="0,8,0,0"
-                                   FontSize="13"
+                                   Margin="0,4,0,0"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
@@ -140,26 +145,27 @@
                     <StackPanel Grid.Column="1"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <Button Content="Back"
-                                Command="{Binding GoBackCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" />
-                        <Button Content="Logout"
-                                Command="{Binding LogoutCommand}"
-                                Style="{StaticResource GhostButtonStyle}"
-                                Margin="0,0,0,0" />
+                        <Button Command="{Binding GoBackCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Back">
+                            <materialDesign:PackIcon Kind="ArrowLeft" Width="20" Height="20" />
+                        </Button>
+                        <Button Command="{Binding LogoutCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Logout"
+                                Margin="4,0,0,0">
+                            <materialDesign:PackIcon Kind="Logout" Width="20" Height="20" />
+                        </Button>
                     </StackPanel>
                 </Grid>
-            </Border>
+            </materialDesign:Card>
 
-            <Border Grid.Row="1"
-                    Margin="0,24,0,0"
-                    Padding="28"
-                    Background="{StaticResource SurfaceBrush}"
-                    BorderBrush="{StaticResource SurfaceBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="24">
+            <materialDesign:Card Grid.Row="1"
+                                 Margin="0,16,0,0"
+                                 Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp1">
                 <ContentControl Content="{Binding CurrentViewModel}" />
-            </Border>
+            </materialDesign:Card>
         </Grid>
     </Grid>
 </Window>

@@ -1,37 +1,172 @@
 <UserControl x:Class="WPF.Views.RoomTypeManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Margin="8">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.9*" />
-            <ColumnDefinition Width="1.1*" />
-        </Grid.ColumnDefinitions>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0" Margin="0,0,12,0">
-            <TextBlock Text="Create Room Type" FontWeight="SemiBold" Margin="0,0,0,8" />
-            <TextBox Text="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBox Text="{Binding RoomTypeDescription, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBox Text="{Binding BasePrice, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <TextBox Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
-            <Button Content="Create Room Type" Command="{Binding CreateCommand}" />
-            <TextBlock Text="{Binding Message}" Margin="0,10,0,0" TextWrapping="Wrap" />
-        </StackPanel>
+        <Border Padding="12"
+                Margin="0,0,0,12"
+                Background="{StaticResource SurfaceMutedBrush}"
+                CornerRadius="8"
+                Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="1">
-            <TextBlock Text="Existing Room Types" FontWeight="SemiBold" Margin="0,0,0,8" />
-            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
-            <Button Content="Search" Command="{Binding SearchCommand}" Margin="0,0,0,8" />
-            <ListView ItemsSource="{Binding RoomTypes}" Height="320">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding TypeName}" Width="140" />
-                        <GridViewColumn Header="Base Price" DisplayMemberBinding="{Binding BasePrice}" Width="100" />
-                        <GridViewColumn Header="Capacity" DisplayMemberBinding="{Binding Capacity}" Width="80" />
-                        <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="100" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </StackPanel>
+                <materialDesign:PackIcon Kind="InformationOutline"
+                                         Width="20"
+                                         Height="20"
+                                         Foreground="{StaticResource AccentBrush}"
+                                         VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Message}"
+                           Margin="8,0,0,0"
+                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:Card Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FileDocumentPlus"
+                                                 Width="20"
+                                                 Height="20"
+                                                 Foreground="{StaticResource AccentBrush}"
+                                                 Margin="0,0,8,0" />
+                        <TextBlock Text="Room Type"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                        <TextBox Text="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Type name" />
+                        <TextBox Text="{Binding RoomTypeDescription, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Description"
+                                 MinHeight="56"
+                                 MaxHeight="96"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Text="{Binding BasePrice, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Base price" />
+                            <TextBox Grid.Column="2"
+                                     Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Capacity" />
+                        </Grid>
+                        <TextBox Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Status" />
+                    </StackPanel>
+
+                    <Button Grid.Row="3"
+                            Command="{Binding CreateCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Right"
+                            Margin="0,12,0,0"
+                            ToolTip="Create room type">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FileDocumentPlus"
+                                                     Width="18"
+                                                     Height="18"
+                                                     Margin="0,0,8,0" />
+                            <TextBlock Text="Create" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Column="2"
+                                 Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="OfficeBuilding"
+                                                 Width="20"
+                                                 Height="20"
+                                                 Foreground="{StaticResource AccentBrush}"
+                                                 Margin="0,0,8,0" />
+                        <TextBlock Text="Existing Types"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <DockPanel Grid.Row="1" Margin="0,12,0,0" LastChildFill="True">
+                        <Button DockPanel.Dock="Right"
+                                Command="{Binding SearchCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                Margin="8,0,0,0"
+                                ToolTip="Search room types">
+                            <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                        </Button>
+                        <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Search room types"
+                                 materialDesign:TextFieldAssist.HasClearButton="True" />
+                    </DockPanel>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding RoomTypes}"
+                              Margin="0,8,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding TypeName}" Width="1.5*" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
+                            <DataGridTextColumn Header="Base Price" Binding="{Binding BasePrice, StringFormat='{}{0:C}'}" Width="*" />
+                            <DataGridTextColumn Header="Capacity" Binding="{Binding Capacity}" Width="Auto" MinWidth="88" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="96" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </materialDesign:Card>
+
+            <Border Grid.ColumnSpan="3"
+                    Background="#80000000"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="160"
+                                 Height="4"
+                                 IsIndeterminate="True"
+                                 Style="{StaticResource MaterialDesignLinearProgressBar}" />
+                    <TextBlock Text="Loading..."
+                               Margin="0,8,0,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="White" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

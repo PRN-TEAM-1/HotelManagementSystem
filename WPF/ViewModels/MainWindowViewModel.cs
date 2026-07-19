@@ -17,7 +17,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
     private BaseViewModel? _currentViewModel;
     private string _currentPageTitle = "Hotel Management System";
-    private string _currentPageDescription = "Role-aware operations shell";
+    private string _currentPageDescription = "Operations workspace";
     private string _sessionDisplayName = "No active session";
     private string _sessionRoleDisplay = "Public";
     private string _authenticationState = "Signed out";
@@ -50,7 +50,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
     public string AppTitle => "Hotel Management System";
 
-    public string AppSubtitle => "Role-aware operations shell powered by EF Core auth";
+    public string AppSubtitle => "Hotel operations";
 
     public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }
 
@@ -113,31 +113,32 @@ public sealed class MainWindowViewModel : BaseViewModel
         [
             new NavigationItemViewModel(
                 NavigationTargets.Workspace,
-                "Core Workspace",
-                "Architecture handoff and integration notes"),
+                "Workspace",
+                "Overview and shared workspace",
+                "ViewDashboard"),
             new NavigationItemViewModel(
                 NavigationTargets.Session,
-                "Current Session",
-                "Authenticated user profile and access summary"),
+                "Session",
+                "Current account and access",
+                "AccountCircle"),
             new NavigationItemViewModel(
                 NavigationTargets.Administration,
                 "Administration",
-                "Users, rooms, room types and service catalog",
+                "Users, rooms and catalog setup",
+                "ShieldAccount",
                 [RoleName.Admin]),
             new NavigationItemViewModel(
                 NavigationTargets.Operations,
                 "Operations",
-                "Booking, check-in, check-out and billing",
+                "Booking, stay and billing tasks",
+                "ClipboardList",
                 [RoleName.Admin, RoleName.Receptionist]),
             new NavigationItemViewModel(
                 NavigationTargets.Reports,
                 "Reports",
-                "Dashboard, occupancy and revenue insights",
-                [RoleName.Admin, RoleName.Manager]),
-            new NavigationItemViewModel(
-                NavigationTargets.StyleGuide,
-                "Style Guide",
-                "Preview buttons, text inputs and data tables")
+                "Dashboard and business reports",
+                "ChartBox",
+                [RoleName.Admin, RoleName.Manager])
         ];
     }
 
