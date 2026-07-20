@@ -35,7 +35,7 @@
                                    Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    HorizontalAlignment="Right" />
-                        <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}"
+                        <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}"
                                    Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                    Foreground="{StaticResource DangerBrush}"
                                    HorizontalAlignment="Right" />

@@ -76,9 +76,9 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="360" />
-                <ColumnDefinition Width="12" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
             <materialDesign:Card Padding="16"
@@ -114,21 +114,12 @@
                                  materialDesign:HintAssist.Hint="Price" />
                     </StackPanel>
 
-                    <Border Grid.Row="2"
-                            Padding="12"
-                            Margin="0,12,0,0"
-                            Background="{StaticResource SurfaceMutedBrush}"
-                            CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="Status"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedServiceDetails.Status, TargetNullValue=New service}"
-                                       Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                        </StackPanel>
-                    </Border>
+                    <ComboBox Grid.Row="2"
+                              Margin="0,16,0,0"
+                              ItemsSource="{Binding AvailableStatuses}"
+                              SelectedItem="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding CanEdit}"
+                              materialDesign:HintAssist.Hint="Status" />
 
                     <StackPanel Grid.Row="3"
                                 Orientation="Horizontal"
@@ -158,19 +149,6 @@
                                                          Height="18"
                                                          Margin="0,0,8,0" />
                                 <TextBlock Text="Save" />
-                            </StackPanel>
-                        </Button>
-                        <Button Command="{Binding InactivateServiceCommand}"
-                                IsEnabled="{Binding CanEdit}"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}"
-                                ToolTip="Inactivate service">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="AccountOff"
-                                                         Width="18"
-                                                         Height="18"
-                                                         Margin="0,0,8,0" />
-                                <TextBlock Text="Inactive" />
                             </StackPanel>
                         </Button>
                         <Button Click="OnCancelClick"
@@ -239,9 +217,9 @@
                               IsEnabled="{Binding CanEdit}"
                               Margin="0,8,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.6*" />
-                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
-                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat='{}{0:C}'}" Width="*" />
+                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.6*" MinWidth="140" />
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" MinWidth="100" />
+                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="96" />
                         </DataGrid.Columns>
                     </DataGrid>

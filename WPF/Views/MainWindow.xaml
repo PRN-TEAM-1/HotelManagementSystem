@@ -15,7 +15,7 @@
         Style="{StaticResource MaterialDesignWindow}">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="220" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -122,7 +122,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <materialDesign:Card Padding="16"
+            <materialDesign:Card Padding="24,12"
                                  materialDesign:ElevationAssist.Elevation="Dp1">
                 <Grid>
                     <Grid.ColumnDefinitions>

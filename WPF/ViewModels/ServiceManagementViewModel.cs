@@ -14,6 +14,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
     private string _serviceName = string.Empty;
     private string _category = string.Empty;
     private string _priceText = string.Empty;
+    private string _selectedStatus = "Active";
     private string _searchTerm = string.Empty;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
@@ -28,7 +29,6 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         SearchServicesCommand = new AsyncRelayCommand(SearchServicesAsync, CanExecuteSearch);
         CreateServiceCommand = new AsyncRelayCommand(CreateServiceAsync, CanCreateService);
         UpdateServiceCommand = new AsyncRelayCommand(UpdateServiceAsync, CanUpdateService);
-        InactivateServiceCommand = new AsyncRelayCommand(InactivateServiceAsync, CanInactivateService);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
         ResetFormCommand = new RelayCommand(ResetForm);
         SelectServiceCommand = new RelayCommand<ServiceListItemDto>(SelectService);
@@ -60,7 +60,13 @@ public sealed class ServiceManagementViewModel : BaseViewModel
     public ServiceDto? SelectedServiceDetails
     {
         get => _selectedServiceDetails;
-        private set => SetProperty(ref _selectedServiceDetails, value);
+        private set
+        {
+            if (SetProperty(ref _selectedServiceDetails, value))
+            {
+                UpdateServiceCommand.RaiseCanExecuteChanged();
+            }
+        }
     }
 
     public string ServiceName
@@ -102,6 +108,20 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         }
     }
 
+    public List<string> AvailableStatuses { get; } = new() { "Active", "Inactive" };
+
+    public string SelectedStatus
+    {
+        get => _selectedStatus;
+        set
+        {
+            if (SetProperty(ref _selectedStatus, value))
+            {
+                UpdateServiceCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
     public string SearchTerm
     {
         get => _searchTerm;
@@ -138,7 +158,6 @@ public sealed class ServiceManagementViewModel : BaseViewModel
                 SearchServicesCommand.RaiseCanExecuteChanged();
                 CreateServiceCommand.RaiseCanExecuteChanged();
                 UpdateServiceCommand.RaiseCanExecuteChanged();
-                InactivateServiceCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -166,8 +185,6 @@ public sealed class ServiceManagementViewModel : BaseViewModel
     public AsyncRelayCommand CreateServiceCommand { get; }
 
     public AsyncRelayCommand UpdateServiceCommand { get; }
-
-    public AsyncRelayCommand InactivateServiceCommand { get; }
 
     public RelayCommand ClearMessagesCommand { get; }
 
@@ -207,11 +224,6 @@ public sealed class ServiceManagementViewModel : BaseViewModel
             && !string.IsNullOrWhiteSpace(Category)
             && !string.IsNullOrWhiteSpace(PriceText)
             && decimal.TryParse(PriceText, out _);
-    }
-
-    private bool CanInactivateService()
-    {
-        return !IsBusy && SelectedService != null && SelectedService.Status.Equals("Active", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task LoadServicesAsync()
@@ -283,9 +295,9 @@ public sealed class ServiceManagementViewModel : BaseViewModel
 
     private async Task CreateServiceAsync()
     {
-        if (!decimal.TryParse(PriceText, out var price))
+        if (!decimal.TryParse(PriceText, out var price) || price <= 0)
         {
-            ErrorMessage = "Invalid price format";
+            ErrorMessage = "Price must be a valid number greater than 0";
             return;
         }
 
@@ -332,9 +344,9 @@ public sealed class ServiceManagementViewModel : BaseViewModel
             return;
         }
 
-        if (!decimal.TryParse(PriceText, out var price))
+        if (!decimal.TryParse(PriceText, out var price) || price <= 0)
         {
-            ErrorMessage = "Invalid price format";
+            ErrorMessage = "Price must be a valid number greater than 0";
             return;
         }
 
@@ -349,7 +361,8 @@ public sealed class ServiceManagementViewModel : BaseViewModel
                 ServiceId = SelectedServiceDetails.ServiceId,
                 ServiceName = ServiceName.Trim(),
                 Category = Category.Trim(),
-                Price = price
+                Price = price,
+                Status = SelectedStatus
             };
 
             var result = await _serviceCatalogService.UpdateServiceAsync(request);
@@ -375,42 +388,6 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         }
     }
 
-    private async Task InactivateServiceAsync()
-    {
-        if (SelectedService is null)
-        {
-            ErrorMessage = "Please select a service to inactivate";
-            return;
-        }
-
-        IsBusy = true;
-        ErrorMessage = string.Empty;
-        SuccessMessage = string.Empty;
-
-        try
-        {
-            var result = await _serviceCatalogService.InactivateServiceAsync(SelectedService.ServiceId);
-
-            if (result.IsFailure)
-            {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
-                return;
-            }
-
-            SuccessMessage = $"Service '{SelectedService.ServiceName}' inactivated successfully";
-            ResetForm();
-            await LoadServicesAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error inactivating service: {ex.Message}";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
     private void SelectService(ServiceListItemDto? service)
     {
         if (service is null)
@@ -425,6 +402,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         ServiceName = service.ServiceName;
         Category = service.Category;
         PriceText = service.Price.ToString("F2");
+        SelectedStatus = service.Status;
         SelectedServiceDetails = new ServiceDto
         {
             ServiceId = service.ServiceId,
@@ -440,6 +418,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
         ServiceName = string.Empty;
         Category = string.Empty;
         PriceText = string.Empty;
+        SelectedStatus = "Active";
         SelectedServiceDetails = null;
         IsEditMode = false;
     }

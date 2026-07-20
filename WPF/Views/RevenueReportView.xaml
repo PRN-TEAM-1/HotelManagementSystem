@@ -67,7 +67,7 @@
                         <TextBlock Text="Revenue"
                                    Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
-                        <TextBlock Text="{Binding TotalRevenue, StringFormat='{}{0:C}'}"
+                        <TextBlock Text="{Binding TotalRevenue, StringFormat='{}{0:N0} VND'}"
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
@@ -134,7 +134,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
                             <DataGridTextColumn Header="Payments" Binding="{Binding PaymentCount}" Width="Auto" MinWidth="96" />
-                            <DataGridTextColumn Header="Total" Binding="{Binding TotalRevenue, StringFormat='{}{0:C}'}" Width="*" />
+                            <DataGridTextColumn Header="Total" Binding="{Binding TotalRevenue, StringFormat='{}{0:N0} VND'}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -166,7 +166,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="*" />
                             <DataGridTextColumn Header="Payments" Binding="{Binding PaymentCount}" Width="Auto" MinWidth="88" />
-                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat='{}{0:C}'}" Width="*" />
+                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat='{}{0:N0} VND'}" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

@@ -99,7 +99,7 @@
                             <TextBlock Text="Room"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.RoomAmount, StringFormat='{}{0:C}'}"
+                            <TextBlock Text="{Binding Invoice.RoomAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
@@ -108,7 +108,7 @@
                             <TextBlock Text="Service"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.ServiceAmount, StringFormat='{}{0:C}'}"
+                            <TextBlock Text="{Binding Invoice.ServiceAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
@@ -117,7 +117,7 @@
                             <TextBlock Text="Total"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.TotalAmount, StringFormat='{}{0:C}'}"
+                            <TextBlock Text="{Binding Invoice.TotalAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
@@ -126,7 +126,7 @@
                             <TextBlock Text="Remaining"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding Invoice.RemainingAmount, StringFormat='{}{0:C}'}"
+                            <TextBlock Text="{Binding Invoice.RemainingAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource DangerBrush}" />
                         </StackPanel>
@@ -154,8 +154,8 @@
                                 <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
                                 <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
                                 <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="Auto" MinWidth="64" />
-                                <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:C}'}" Width="*" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="90" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -180,8 +180,8 @@
                                 <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
                                 <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.4*" />
                                 <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="56" />
-                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:C}'}" Width="*" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:C}'}" Width="*" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="124" />
                             </DataGrid.Columns>
                         </DataGrid>

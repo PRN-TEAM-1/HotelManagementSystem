@@ -53,7 +53,7 @@ public partial class App : Application
         var checkInViewModel = new CheckInViewModel(checkInService, _currentUserService);
         var checkoutViewModel = new CheckoutViewModel(checkoutService, _currentUserService);
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
-        var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService);
+        var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService, checkoutService);
         var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
         var billingViewModel = new BillingViewModel(invoiceViewModel);
         var customerManagementViewModel = new CustomerManagementViewModel(
@@ -72,7 +72,8 @@ public partial class App : Application
             billingViewModel,
             customerManagementViewModel,
             roomTypeManagementViewModel,
-            roomManagementViewModel);
+            roomManagementViewModel,
+            _currentUserService);
 
         var dashboardRepository = new Repositories.Implements.DashboardRepository();
         var dashboardService = new DashboardService(dashboardRepository);

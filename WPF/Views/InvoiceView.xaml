@@ -144,8 +144,8 @@
                                     <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="72" />
                                     <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.5*" />
                                     <DataGridTextColumn Header="Rooms" Binding="{Binding RoomCount}" Width="Auto" MinWidth="64" />
-                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:C}'}" Width="*" />
-                                    <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:C}'}" Width="*" />
+                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                    <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
 
@@ -216,7 +216,7 @@
                                 <TextBlock Text="Total"
                                            Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                            Foreground="{StaticResource TextSecondaryBrush}" />
-                                <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:C}'}"
+                                <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:N0} VND'}"
                                            Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                            Foreground="{StaticResource TextPrimaryBrush}" />
                             </StackPanel>
@@ -281,8 +281,8 @@
                                     <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="Auto" MinWidth="72" />
                                     <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
                                     <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.6*" />
-                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:C}'}" Width="*" />
-                                    <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:C}'}" Width="*" />
+                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                    <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
                                 </DataGrid.Columns>
                             </DataGrid>

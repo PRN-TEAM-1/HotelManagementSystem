@@ -76,9 +76,9 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.25*" MinWidth="480" />
-                <ColumnDefinition Width="12" />
-                <ColumnDefinition Width="0.75*" MinWidth="360" />
+                <ColumnDefinition Width="1.8*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
 
             <materialDesign:Card Padding="16"
@@ -143,7 +143,7 @@
                                 <TextBlock Text="Total"
                                            Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                            Foreground="{StaticResource TextSecondaryBrush}" />
-                                <TextBlock Text="{Binding ServiceOrderTotal, StringFormat='{}{0:C}'}"
+                                <TextBlock Text="{Binding ServiceOrderTotal, StringFormat='{}{0:N0} VND'}"
                                            Style="{StaticResource MaterialDesignBody2TextBlock}"
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}" />
@@ -151,20 +151,39 @@
                         </Grid>
                     </Border>
 
-                    <DataGrid Grid.Row="2"
-                              ItemsSource="{Binding ServiceOrders}"
-                              SelectedItem="{Binding SelectedServiceOrder}"
-                              IsEnabled="{Binding CanEdit}"
-                              Margin="0,12,0,0">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.5*" />
-                            <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="64" />
-                            <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:C}'}" Width="*" />
-                            <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:C}'}" Width="*" />
-                            <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="1.2*" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <Grid Grid.Row="2" Margin="0,12,0,0">
+                        <DataGrid ItemsSource="{Binding ServiceOrders}"
+                                  SelectedItem="{Binding SelectedServiceOrder}"
+                                  IsEnabled="{Binding CanEdit}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  FrozenColumnCount="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.5*" MinWidth="150" />
+                                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="64" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
+                                <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="1.2*" MinWidth="120" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Chưa có dịch vụ nào khác, thêm mới ở bên phải"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ServiceOrders.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
                 </Grid>
             </materialDesign:Card>
 
@@ -173,7 +192,6 @@
                                  materialDesign:ElevationAssist.Elevation="Dp2">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
@@ -191,66 +209,82 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Margin="0,16,0,0">
-                        <TextBox Text="{Binding BookingDetailId, UpdateSourceTrigger=PropertyChanged}"
-                                 IsEnabled="{Binding CanEdit}"
-                                 materialDesign:HintAssist.Hint="Booking detail ID" />
+                        <ComboBox ItemsSource="{Binding ActiveStays}"
+                                  SelectedItem="{Binding SelectedStay}"
+                                  IsEnabled="{Binding CanEdit}"
+                                  Margin="0,0,0,16"
+                                  materialDesign:HintAssist.Hint="Select Room / Stay">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <Run Text="Room " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding RoomNumber}" FontWeight="SemiBold"/>
+                                        <Run Text=" (Booking #"/>
+                                        <Run Text="{Binding BookingId}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        
                         <ComboBox ItemsSource="{Binding AvailableServices}"
                                   SelectedItem="{Binding SelectedService}"
                                   DisplayMemberPath="ServiceName"
                                   IsEnabled="{Binding CanEdit}"
+                                  Margin="0,0,0,4"
                                   materialDesign:HintAssist.Hint="Service" />
+                                  
+                        <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}Giá: {0:N0} VND'}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="4,0,0,16">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignCaptionTextBlock}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedService}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
                         <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                  IsEnabled="{Binding CanEdit}"
-                                 TextAlignment="Right"
+                                 TextAlignment="Left"
+                                 Margin="0,0,0,24"
                                  materialDesign:HintAssist.Hint="Quantity" />
                     </StackPanel>
 
-                    <Border Grid.Row="2"
-                            Padding="12"
-                            Margin="0,12,0,0"
-                            Background="{StaticResource SurfaceMutedBrush}"
-                            CornerRadius="8">
-                        <StackPanel>
-                            <TextBlock Text="Selected Service"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedService.ServiceName, TargetNullValue=Select a service}"
-                                       Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}{0:C}', TargetNullValue=0}"
-                                       Margin="0,4,0,0"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
-                        </StackPanel>
-                    </Border>
-
-                    <StackPanel Grid.Row="3"
+                    <StackPanel Grid.Row="2"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 Margin="0,12,0,0">
                         <Button Command="{Binding CreateServiceOrderCommand}"
                                 IsEnabled="{Binding CanEdit}"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                ToolTip="Add service order">
+                                ToolTipService.ShowOnDisabled="True">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                    <Setter Property="ToolTip" Value="Add service order" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="ToolTip" Value="Vui lòng chọn Phòng, Dịch vụ và nhập Số lượng" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CashPlus"
-                                                         Width="18"
-                                                         Height="18"
-                                                         Margin="0,0,8,0" />
+                                <materialDesign:PackIcon Kind="CashPlus" Width="18" Height="18" Margin="0,0,8,0" />
                                 <TextBlock Text="Add" />
                             </StackPanel>
                         </Button>
                         <Button Command="{Binding CancelServiceOrderCommand}"
                                 IsEnabled="{Binding CanEdit}"
                                 Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="0"
+                                Margin="8,0,0,0"
                                 ToolTip="Cancel selected service order">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Close"
-                                                         Width="18"
-                                                         Height="18"
-                                                         Margin="0,0,8,0" />
+                                <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Margin="0,0,8,0" />
                                 <TextBlock Text="Cancel" />
                             </StackPanel>
                         </Button>

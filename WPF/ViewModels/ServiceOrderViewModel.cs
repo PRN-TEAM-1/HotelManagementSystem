@@ -9,8 +9,11 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     private readonly IServiceOrderService _serviceOrderService;
     private readonly IServiceCatalogService _serviceCatalogService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ICheckoutService _checkoutService;
 
     private int _bookingDetailId;
+    private List<CheckoutCandidateDto> _activeStays = new();
+    private CheckoutCandidateDto? _selectedStay;
     private List<ServiceOrderListItemDto> _serviceOrders = new();
     private List<ServiceListItemDto> _availableServices = new();
     private ServiceOrderListItemDto? _selectedServiceOrder;
@@ -23,11 +26,13 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     public ServiceOrderViewModel(
         IServiceOrderService serviceOrderService,
         IServiceCatalogService serviceCatalogService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ICheckoutService checkoutService)
     {
         _serviceOrderService = serviceOrderService ?? throw new ArgumentNullException(nameof(serviceOrderService));
         _serviceCatalogService = serviceCatalogService ?? throw new ArgumentNullException(nameof(serviceCatalogService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _checkoutService = checkoutService ?? throw new ArgumentNullException(nameof(checkoutService));
 
         LoadServicesCommand = new AsyncRelayCommand(LoadServicesAsync, CanExecuteLoad);
         LoadServiceOrdersCommand = new AsyncRelayCommand(LoadServiceOrdersAsync, CanExecuteLoad);
@@ -45,6 +50,29 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     {
         get => _bookingDetailId;
         set => SetProperty(ref _bookingDetailId, value);
+    }
+
+    public List<CheckoutCandidateDto> ActiveStays
+    {
+        get => _activeStays;
+        private set => SetProperty(ref _activeStays, value);
+    }
+
+    public CheckoutCandidateDto? SelectedStay
+    {
+        get => _selectedStay;
+        set
+        {
+            if (SetProperty(ref _selectedStay, value))
+            {
+                BookingDetailId = value?.BookingDetailId ?? 0;
+                CreateServiceOrderCommand.RaiseCanExecuteChanged();
+                if (!IsBusy)
+                {
+                    _ = LoadServiceOrdersAsync();
+                }
+            }
+        }
     }
 
     public List<ServiceOrderListItemDto> ServiceOrders
@@ -149,8 +177,18 @@ public sealed class ServiceOrderViewModel : BaseViewModel
 
     public override async Task InitializeAsync()
     {
+        await LoadActiveStaysAsync();
         await LoadServicesAsync();
         await LoadServiceOrdersAsync();
+    }
+
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        if (!IsBusy)
+        {
+            _ = LoadServiceOrdersAsync();
+        }
     }
 
     private bool CanExecuteLoad()
@@ -162,14 +200,43 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     {
         return !IsBusy
             && SelectedService != null
+            && SelectedStay != null
             && int.TryParse(QuantityText, out var qty)
-            && qty > 0
-            && BookingDetailId > 0;
+            && qty > 0;
     }
 
     private bool CanCancelServiceOrder()
     {
         return !IsBusy && SelectedServiceOrder != null;
+    }
+
+    private async Task LoadActiveStaysAsync()
+    {
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            var result = await _checkoutService.GetCheckoutCandidatesAsync();
+
+            if (result.IsFailure)
+            {
+                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ActiveStays = new();
+                return;
+            }
+
+            ActiveStays = result.Data ?? new();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error loading active stays: {ex.Message}";
+            ActiveStays = new();
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private async Task LoadServicesAsync()
@@ -203,23 +270,39 @@ public sealed class ServiceOrderViewModel : BaseViewModel
 
     private async Task LoadServiceOrdersAsync()
     {
-        if (BookingDetailId <= 0)
-        {
-            ServiceOrders = new();
-            return;
-        }
-
         IsBusy = true;
         ErrorMessage = string.Empty;
 
         try
         {
+            var previousBookingDetailId = BookingDetailId;
+            var staysResult = await _checkoutService.GetCheckoutCandidatesAsync();
+            
+            if (staysResult.IsSuccess)
+            {
+                ActiveStays = staysResult.Data ?? new();
+                if (previousBookingDetailId > 0)
+                {
+                    _selectedStay = ActiveStays.FirstOrDefault(x => x.BookingDetailId == previousBookingDetailId);
+                    BookingDetailId = _selectedStay?.BookingDetailId ?? 0;
+                    OnPropertyChanged(nameof(SelectedStay));
+                }
+            }
+
+            if (BookingDetailId <= 0)
+            {
+                ServiceOrders = new();
+                IsBusy = false;
+                return;
+            }
+
             var result = await _serviceOrderService.GetServiceOrdersByBookingDetailAsync(BookingDetailId);
 
             if (result.IsFailure)
             {
                 ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
                 ServiceOrders = new();
+                IsBusy = false;
                 return;
             }
 

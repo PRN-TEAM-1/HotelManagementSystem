@@ -39,7 +39,8 @@ public sealed class CheckInQueryDao
                     CheckOutDate = x.BookingDetail.CheckOutDate,
                     RoomPrice = x.BookingDetail.RoomPrice,
                     NumberOfNights = x.BookingDetail.NumberOfNights,
-                    BookingDetailStatus = x.BookingDetail.Status.ToString()
+                    BookingDetailStatus = x.BookingDetail.Status.ToString(),
+                    RoomStatus = x.Room.Status.ToString()
                 })
             .Where(dto => dto.RoomType != null)
             .OrderBy(dto => dto.BookingId)
@@ -78,7 +79,8 @@ public sealed class CheckInQueryDao
                 CheckOutDate = x.BookingDetail.CheckOutDate,
                 RoomPrice = x.BookingDetail.RoomPrice,
                 NumberOfNights = x.BookingDetail.NumberOfNights,
-                BookingDetailStatus = x.BookingDetail.Status.ToString()
+                BookingDetailStatus = x.BookingDetail.Status.ToString(),
+                RoomStatus = x.Room.Status.ToString()
             })
             .FirstOrDefaultAsync(cancellationToken);
 

@@ -84,7 +84,7 @@
                         <TextBlock Text="Revenue"
                                    Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                    Foreground="{StaticResource TextSecondaryBrush}" />
-                        <TextBlock Text="{Binding TotalRevenue, StringFormat='{}{0:C}'}"
+                        <TextBlock Text="{Binding TotalRevenue, StringFormat='{}{0:N0} VND'}"
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
@@ -146,7 +146,7 @@
                         <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.6*" />
                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
                         <DataGridTextColumn Header="Quantity" Binding="{Binding QuantityOrdered}" Width="Auto" MinWidth="88" />
-                        <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat='{}{0:C}'}" Width="*" />
+                        <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat='{}{0:N0} VND'}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

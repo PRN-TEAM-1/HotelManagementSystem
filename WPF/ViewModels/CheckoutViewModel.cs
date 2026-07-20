@@ -100,6 +100,15 @@ public sealed class CheckoutViewModel : BaseViewModel
         await LoadCheckoutCandidatesAsync();
     }
 
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        if (!IsBusy)
+        {
+            _ = LoadCheckoutCandidatesAsync();
+        }
+    }
+
     private bool CanExecuteLoad()
     {
         return !IsBusy;

@@ -91,7 +91,7 @@
                                 <DataGridTextColumn Header="Guest" Binding="{Binding GuestName}" Width="2*" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
                                 <DataGridTextColumn Header="Nights" Binding="{Binding Nights}" Width="80" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:C}}" Width="110" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:N0} VND}" Width="110" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>

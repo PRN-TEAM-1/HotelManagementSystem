@@ -100,6 +100,15 @@ public sealed class CheckInViewModel : BaseViewModel
         await LoadCheckInCandidatesAsync();
     }
 
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        if (!IsBusy)
+        {
+            _ = LoadCheckInCandidatesAsync();
+        }
+    }
+
     private bool CanExecuteLoad()
     {
         return !IsBusy;

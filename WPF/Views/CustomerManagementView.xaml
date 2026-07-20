@@ -446,7 +446,7 @@
                                     <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
                                     <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                                    <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:C}'}" Width="*" />
+                                    <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

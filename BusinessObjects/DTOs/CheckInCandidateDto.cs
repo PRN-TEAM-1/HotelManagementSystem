@@ -23,4 +23,6 @@ public sealed class CheckInCandidateDto
     public int NumberOfNights { get; set; }
 
     public string BookingDetailStatus { get; set; } = string.Empty;
+
+    public string RoomStatus { get; set; } = string.Empty;
 }

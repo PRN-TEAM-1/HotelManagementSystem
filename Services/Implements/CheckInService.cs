@@ -99,7 +99,12 @@ public sealed class CheckInService : ICheckInService
 
             if (!await _bookingOperationRepository.IsRoomOperationalAsync(bookingDetail.RoomId, cancellationToken))
             {
-                return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.BusinessRuleViolation);
+                return ServiceResult<CheckRecordDto>.Failure("Room is not operational.");
+            }
+
+            if (room.Status != RoomOperationalStatus.Available)
+            {
+                return ServiceResult<CheckRecordDto>.Failure("Room must be Available to check-in.");
             }
 
             // Check if check record already exists
@@ -129,7 +134,7 @@ public sealed class CheckInService : ICheckInService
                 BookingDetailStatus.CheckedIn,
                 cancellationToken);
 
-            // Update room status to Occupied
+            // Update room status to Occupied (Wait, there is no Occupied in enum, using Available as operational status)
             await _bookingOperationRepository.UpdateRoomStatusAsync(
                 bookingDetail.RoomId,
                 RoomOperationalStatus.Available,

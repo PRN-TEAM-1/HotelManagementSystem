@@ -145,7 +145,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{Binding TypeName}" Width="1.5*" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
-                            <DataGridTextColumn Header="Base Price" Binding="{Binding BasePrice, StringFormat='{}{0:C}'}" Width="*" />
+                            <DataGridTextColumn Header="Base Price" Binding="{Binding BasePrice, StringFormat='{}{0:N0} VND'}" Width="*" />
                             <DataGridTextColumn Header="Capacity" Binding="{Binding Capacity}" Width="Auto" MinWidth="88" />
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="96" />
                         </DataGrid.Columns>

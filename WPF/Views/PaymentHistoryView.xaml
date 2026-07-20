@@ -38,7 +38,7 @@
                 <DataGrid ItemsSource="{Binding Payments}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="Auto" MinWidth="100" />
-                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='{}{0:C}'}" Width="*" />
+                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='{}{0:N0} VND'}" Width="*" />
                         <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
                         <DataGridTextColumn Header="Receiver" Binding="{Binding ReceivedByUserName}" Width="*" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="80" />
