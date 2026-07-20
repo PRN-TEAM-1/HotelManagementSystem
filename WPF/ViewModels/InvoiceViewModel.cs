@@ -29,6 +29,7 @@ public sealed class InvoiceViewModel : BaseViewModel
     private string _successMessage = string.Empty;
     private bool _isBusy;
     private bool _isInitialized;
+    private bool _isInvoiceWorkspaceOpen;
 
     public InvoiceViewModel(
         IInvoiceService invoiceService,
@@ -51,6 +52,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         ClearInvoiceSearchCommand = new AsyncRelayCommand(ClearInvoiceSearchAsync, CanClearInvoiceSearch);
         CreateInvoiceCommand = new AsyncRelayCommand(CreateInvoiceAsync, CanCreateInvoice);
         ViewInvoiceDetailCommand = new AsyncRelayCommand(ViewInvoiceDetailAsync, CanViewInvoiceDetail);
+        CloseInvoiceWorkspaceCommand = new RelayCommand(CloseInvoiceWorkspace);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
 
@@ -215,6 +217,12 @@ public sealed class InvoiceViewModel : BaseViewModel
 
     public bool CanEdit => !IsBusy;
 
+    public bool IsInvoiceWorkspaceOpen
+    {
+        get => _isInvoiceWorkspaceOpen;
+        private set => SetProperty(ref _isInvoiceWorkspaceOpen, value);
+    }
+
     public decimal PreviewTotalAmount
     {
         get
@@ -278,6 +286,8 @@ public sealed class InvoiceViewModel : BaseViewModel
     public AsyncRelayCommand CreateInvoiceCommand { get; }
 
     public AsyncRelayCommand ViewInvoiceDetailCommand { get; }
+
+    public RelayCommand CloseInvoiceWorkspaceCommand { get; }
 
     public RelayCommand ClearMessagesCommand { get; }
 
@@ -512,7 +522,10 @@ public sealed class InvoiceViewModel : BaseViewModel
 
         if (SelectedInvoice is not null)
         {
-            await LoadInvoiceDetailAsync(SelectedInvoice.InvoiceId);
+            if (await LoadInvoiceDetailAsync(SelectedInvoice.InvoiceId))
+            {
+                IsInvoiceWorkspaceOpen = true;
+            }
         }
     }
 
@@ -529,7 +542,10 @@ public sealed class InvoiceViewModel : BaseViewModel
 
         try
         {
-            await LoadInvoiceDetailAsync(SelectedInvoice.InvoiceId);
+            if (await LoadInvoiceDetailAsync(SelectedInvoice.InvoiceId))
+            {
+                IsInvoiceWorkspaceOpen = true;
+            }
         }
         catch (Exception ex)
         {
@@ -541,7 +557,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         }
     }
 
-    private async Task LoadInvoiceDetailAsync(int invoiceId)
+    private async Task<bool> LoadInvoiceDetailAsync(int invoiceId)
     {
         var result = await _invoiceService.GetInvoiceDetailAsync(
             invoiceId,
@@ -551,7 +567,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         {
             ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
             ClearSelectedInvoiceDetail();
-            return;
+            return false;
         }
 
         InvoiceDetail = new InvoiceDetailViewModel(result.Data);
@@ -560,10 +576,11 @@ public sealed class InvoiceViewModel : BaseViewModel
         if (result.Data is null)
         {
             PaymentHistory.Clear();
-            return;
+            return false;
         }
 
         await PaymentHistory.LoadAsync(result.Data.InvoiceId);
+        return true;
     }
 
     private async void OnPaymentRecorded(object? sender, PaymentResultDto result)
@@ -604,7 +621,10 @@ public sealed class InvoiceViewModel : BaseViewModel
             SelectedInvoice = Invoices.FirstOrDefault(invoice => invoice.InvoiceId == invoiceId);
         }
 
-        await LoadInvoiceDetailAsync(invoiceId);
+        if (await LoadInvoiceDetailAsync(invoiceId))
+        {
+            IsInvoiceWorkspaceOpen = true;
+        }
     }
 
     private void SetCandidateSource(List<InvoiceCandidateDto> candidates)
@@ -640,9 +660,15 @@ public sealed class InvoiceViewModel : BaseViewModel
 
     private void ClearSelectedInvoiceDetail()
     {
+        IsInvoiceWorkspaceOpen = false;
         InvoiceDetail = new InvoiceDetailViewModel();
         PaymentView.ClearInvoice();
         PaymentHistory.Clear();
+    }
+
+    private void CloseInvoiceWorkspace()
+    {
+        IsInvoiceWorkspaceOpen = false;
     }
 
     private void ClearMessages()

@@ -75,243 +75,284 @@
         </StackPanel>
 
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" MinWidth="420" />
-                <ColumnDefinition Width="1.1*" MinWidth="480" />
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="19*" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="21*" />
+            </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0" Margin="0,0,8,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="12" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <materialDesign:Card Grid.Row="0"
+                                 Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <materialDesign:Card Grid.Row="0"
-                                     Padding="16"
-                                     materialDesign:ElevationAssist.Elevation="Dp2">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
+                        <StackPanel>
                             <TextBlock Text="Checked-out Bookings"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
-                            <Button Grid.Column="1"
-                                    Command="{Binding RefreshCommand}"
-                                    Style="{StaticResource IconButtonStyle}"
-                                    ToolTip="Refresh billing data">
-                                <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" />
-                            </Button>
-                        </Grid>
+                            <TextBlock Text="Select a booking, review charges, then create an invoice."
+                                       Margin="0,2,0,0"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
 
-                        <DockPanel Grid.Row="1" Margin="0,8,0,0" LastChildFill="True">
-                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
-                                <Button Command="{Binding SearchCandidatesCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Search">
-                                    <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
-                                </Button>
-                                <Button Command="{Binding ClearCandidateSearchCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Clear search">
-                                    <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
-                                </Button>
-                            </StackPanel>
+                        <Button Grid.Column="1"
+                                Command="{Binding RefreshCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Refresh billing data">
+                            <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" />
+                        </Button>
+                    </Grid>
 
-                            <TextBox Text="{Binding CandidateSearchTerm, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding CanEdit}"
-                                     materialDesign:HintAssist.Hint="Search bookings"
-                                     materialDesign:TextFieldAssist.HasClearButton="True" />
-                        </DockPanel>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="31*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="18*" />
+                        </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Row="2" Margin="0,8,0,0">
-                            <DataGrid ItemsSource="{Binding InvoiceCandidates}"
-                                      SelectedItem="{Binding SelectedCandidate}"
-                                      IsEnabled="{Binding CanEdit}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="72" />
-                                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.5*" />
-                                    <DataGridTextColumn Header="Rooms" Binding="{Binding RoomCount}" Width="Auto" MinWidth="64" />
-                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                    <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-
-                            <Border Padding="16"
-                                    Background="{StaticResource SurfaceMutedBrush}"
-                                    CornerRadius="8"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Visibility="{Binding CandidateEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="FileSearchOutline"
-                                                             Width="22"
-                                                             Height="22"
-                                                             Foreground="{StaticResource TextSecondaryBrush}"
-                                                             Margin="0,0,8,0" />
-                                    <TextBlock Text="{Binding CandidateEmptyMessage}"
-                                               Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <Grid Grid.Row="3"
-                              Margin="0,12,0,0"
-                              Visibility="{Binding SelectedCandidate, Converter={StaticResource ObjectToVisibilityConverter}}">
+                        <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="8" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
 
-                            <TextBox Text="{Binding DiscountAmountText, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding CanEdit}"
-                                     materialDesign:HintAssist.Hint="Discount" />
-
-                            <TextBox Grid.Column="2"
-                                     Text="{Binding TaxAmountText, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding CanEdit}"
-                                     materialDesign:HintAssist.Hint="Tax" />
-
-                            <TextBox Grid.Row="1"
-                                     Grid.ColumnSpan="3"
-                                     Text="{Binding InvoiceNote, UpdateSourceTrigger=PropertyChanged}"
-                                     MinHeight="48"
-                                     MaxHeight="80"
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
-                                     VerticalScrollBarVisibility="Auto"
-                                     IsEnabled="{Binding CanEdit}"
-                                     materialDesign:HintAssist.Hint="Note" />
-
-                        </Grid>
-
-                        <Grid Grid.Row="4"
-                              Margin="0,12,0,0"
-                              Visibility="{Binding SelectedCandidate, Converter={StaticResource ObjectToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel>
-                                <TextBlock Text="Total"
-                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                           Foreground="{StaticResource TextSecondaryBrush}" />
-                                <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:N0} VND'}"
-                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                           Foreground="{StaticResource TextPrimaryBrush}" />
-                            </StackPanel>
-
-                            <Button Grid.Column="1"
-                                    Command="{Binding CreateInvoiceCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    VerticalAlignment="Center"
-                                    Margin="8,0,0,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="FileDocumentPlus"
-                                                             Width="18"
-                                                             Height="18"
-                                                             Margin="0,0,8,0" />
-                                    <TextBlock Text="Create" />
+                            <DockPanel LastChildFill="True">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
+                                    <Button Command="{Binding SearchCandidatesCommand}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            ToolTip="Search bookings">
+                                        <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                                    </Button>
+                                    <Button Command="{Binding ClearCandidateSearchCommand}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            ToolTip="Clear search">
+                                        <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
+                                    </Button>
                                 </StackPanel>
-                            </Button>
+
+                                <TextBox Text="{Binding CandidateSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding CanEdit}"
+                                         materialDesign:HintAssist.Hint="Search bookings"
+                                         materialDesign:TextFieldAssist.HasClearButton="True" />
+                            </DockPanel>
+
+                            <Grid Grid.Row="2">
+                                <DataGrid ItemsSource="{Binding InvoiceCandidates}"
+                                          SelectedItem="{Binding SelectedCandidate}"
+                                          IsEnabled="{Binding CanEdit}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="72" />
+                                        <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.5*" />
+                                        <DataGridTextColumn Header="Rooms" Binding="{Binding RoomCount}" Width="Auto" MinWidth="64" />
+                                        <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                        <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <Border Padding="16"
+                                        Background="{StaticResource SurfaceMutedBrush}"
+                                        CornerRadius="8"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding CandidateEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="FileSearchOutline"
+                                                                 Width="22"
+                                                                 Height="22"
+                                                                 Foreground="{StaticResource TextSecondaryBrush}"
+                                                                 Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding CandidateEmptyMessage}"
+                                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </Grid>
+
+                        <Border Grid.Column="2"
+                                Padding="12"
+                                Background="{StaticResource SurfaceMutedBrush}"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="8" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Create Invoice"
+                                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{Binding SelectedCandidate.CustomerName, TargetNullValue='Select a booking'}"
+                                                   Margin="0,2,0,0"
+                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="1"
+                                            Command="{Binding CreateInvoiceCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            VerticalAlignment="Center"
+                                            Margin="8,0,0,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="FileDocumentPlus"
+                                                                     Width="18"
+                                                                     Height="18"
+                                                                     Margin="0,0,8,0" />
+                                            <TextBlock Text="Create" />
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+
+                                <UniformGrid Grid.Row="2" Columns="2">
+                                    <StackPanel>
+                                        <TextBlock Text="Booking"
+                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                        <TextBlock Text="{Binding SelectedCandidate.BookingId, StringFormat='{}#{0}', TargetNullValue='-'}"
+                                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+
+                                    <StackPanel Margin="12,0,0,0">
+                                        <TextBlock Text="Base"
+                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                        <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:N0} VND'}"
+                                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <Grid Grid.Row="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="8" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Text="{Binding DiscountAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding CanEdit}"
+                                             materialDesign:HintAssist.Hint="Discount" />
+
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding TaxAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding CanEdit}"
+                                             materialDesign:HintAssist.Hint="Tax" />
+
+                                    <TextBox Grid.Row="2"
+                                             Grid.ColumnSpan="3"
+                                             Text="{Binding InvoiceNote, UpdateSourceTrigger=PropertyChanged}"
+                                             MinHeight="48"
+                                             MaxHeight="80"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             IsEnabled="{Binding CanEdit}"
+                                             materialDesign:HintAssist.Hint="Note" />
+                                </Grid>
+
+                                <Grid Grid.Row="6">
+                                    <StackPanel>
+                                        <TextBlock Text="Invoice total"
+                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                        <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:N0} VND'}"
+                                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
                     </Grid>
-                </materialDesign:Card>
+                </Grid>
+            </materialDesign:Card>
 
-                <materialDesign:Card Grid.Row="2"
-                                     Padding="16"
-                                     materialDesign:ElevationAssist.Elevation="Dp2">
+            <materialDesign:Card Grid.Row="2"
+                                 Padding="16"
+                                 materialDesign:ElevationAssist.Elevation="Dp2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="320" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Invoices"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <StackPanel>
+                            <TextBlock Text="Invoices"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock Text="Open a selected invoice to review, record payment, or audit history."
+                                       Margin="0,2,0,0"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
 
-                        <DockPanel Grid.Row="1" Margin="0,8,0,0" LastChildFill="True">
-                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
-                                <Button Command="{Binding SearchInvoicesCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Search">
-                                    <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
-                                </Button>
-                                <Button Command="{Binding ClearInvoiceSearchCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
-                                        ToolTip="Clear search">
-                                    <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
-                                </Button>
-                            </StackPanel>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding InvoiceSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding CanEdit}"
+                                 materialDesign:HintAssist.Hint="Search invoices"
+                                 materialDesign:TextFieldAssist.HasClearButton="True" />
 
-                            <TextBox Text="{Binding InvoiceSearchTerm, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding CanEdit}"
-                                     materialDesign:HintAssist.Hint="Search invoices"
-                                     materialDesign:TextFieldAssist.HasClearButton="True" />
-                        </DockPanel>
+                        <Button Grid.Column="3"
+                                Command="{Binding SearchInvoicesCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Search invoices">
+                            <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                        </Button>
 
-                        <Grid Grid.Row="2" Margin="0,8,0,0">
-                            <DataGrid ItemsSource="{Binding Invoices}"
-                                      SelectedItem="{Binding SelectedInvoice}"
-                                      IsEnabled="{Binding CanEdit}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="Auto" MinWidth="72" />
-                                    <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
-                                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.6*" />
-                                    <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                    <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                        <Button Grid.Column="4"
+                                Command="{Binding ClearInvoiceSearchCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Clear search">
+                            <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
+                        </Button>
 
-                            <Border Padding="16"
-                                    Background="{StaticResource SurfaceMutedBrush}"
-                                    CornerRadius="8"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Visibility="{Binding InvoiceEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="ReceiptText"
-                                                             Width="22"
-                                                             Height="22"
-                                                             Foreground="{StaticResource TextSecondaryBrush}"
-                                                             Margin="0,0,8,0" />
-                                    <TextBlock Text="{Binding InvoiceEmptyMessage}"
-                                               Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <Button Grid.Row="3"
+                        <Button Grid.Column="6"
                                 Command="{Binding ViewInvoiceDetailCommand}"
                                 Style="{StaticResource PrimaryButtonStyle}"
-                                HorizontalAlignment="Right"
-                                Margin="0,12,0,0">
+                                VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Eye"
                                                          Width="18"
@@ -321,30 +362,108 @@
                             </StackPanel>
                         </Button>
                     </Grid>
-                </materialDesign:Card>
-            </Grid>
 
-            <Grid Grid.Column="1" Margin="8,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1.1*" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="0.9*" />
-                </Grid.RowDefinitions>
+                    <Grid Grid.Row="2">
+                        <DataGrid ItemsSource="{Binding Invoices}"
+                                  SelectedItem="{Binding SelectedInvoice}"
+                                  IsEnabled="{Binding CanEdit}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="Auto" MinWidth="72" />
+                                <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
+                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.6*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                <ContentControl Grid.Row="0"
-                                Content="{Binding InvoiceDetail}" />
+                        <Border Padding="16"
+                                Background="{StaticResource SurfaceMutedBrush}"
+                                CornerRadius="8"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding InvoiceEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ReceiptText"
+                                                         Width="22"
+                                                         Height="22"
+                                                         Foreground="{StaticResource TextSecondaryBrush}"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="{Binding InvoiceEmptyMessage}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </materialDesign:Card>
 
-                <ContentControl Grid.Row="1"
-                                Margin="0,12,0,0"
-                                Content="{Binding PaymentView}" />
+            <Border Grid.RowSpan="3"
+                    Background="#66000000"
+                    Panel.ZIndex="10"
+                    Visibility="{Binding IsInvoiceWorkspaceOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid Width="680"
+                      MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                      HorizontalAlignment="Right"
+                      Background="{StaticResource WindowBackgroundBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <ContentControl Grid.Row="2"
-                                Margin="0,12,0,0"
-                                Content="{Binding PaymentHistory}" />
-            </Grid>
+                    <Border Padding="16"
+                            Background="White"
+                            BorderBrush="#E0E4EA"
+                            BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-            <Border Grid.ColumnSpan="2"
+                            <StackPanel>
+                                <TextBlock Text="{Binding SelectedInvoice.InvoiceId, StringFormat='{}Invoice #{0}', TargetNullValue='Invoice'}"
+                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding SelectedInvoice.CustomerName}"
+                                           Margin="0,2,0,0"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding CloseInvoiceWorkspaceCommand}"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Close invoice workspace">
+                                <materialDesign:PackIcon Kind="Close" Width="20" Height="20" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <TabControl Grid.Row="1"
+                                Margin="12">
+                        <TabItem Header="Detail">
+                            <ContentControl Content="{Binding InvoiceDetail}" />
+                        </TabItem>
+
+                        <TabItem Header="Payment">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ContentControl Content="{Binding PaymentView}" />
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <TabItem Header="History">
+                            <ContentControl Content="{Binding PaymentHistory}" />
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </Border>
+
+            <Border Grid.RowSpan="3"
                     Background="#80000000"
+                    Panel.ZIndex="20"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <ProgressBar Width="180"
