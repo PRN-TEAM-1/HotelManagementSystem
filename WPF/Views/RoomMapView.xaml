@@ -98,10 +98,22 @@
                                                         <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VNĐ/night'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
                                                     </StackPanel>
 
-                                                    <TextBlock Grid.Row="2" Text="{Binding OccupancyLabel}" FontSize="11" FontStyle="Italic" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" />
+                                                    <DockPanel Grid.Row="2">
+                                                        <Button Content="Mark Cleaned"
+                                                                Command="{Binding DataContext.MarkCleanedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Height="22"
+                                                                Padding="6,0,6,0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                DockPanel.Dock="Left"
+                                                                Visibility="{Binding Status, Converter={StaticResource StringToVisibilityConverter}}" />
+                                                        <TextBlock Text="{Binding OccupancyLabel}" FontSize="11" FontStyle="Italic" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                    </DockPanel>
                                                 </Grid>
                                             </materialDesign:Card>
                                         </DataTemplate>
+
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
