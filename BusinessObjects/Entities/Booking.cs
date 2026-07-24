@@ -19,4 +19,9 @@ public sealed class Booking
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public Customer? Customer { get; set; }
+
+    public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }
+

@@ -51,24 +51,34 @@ public sealed class BookingService : IBookingService
                 UpdatedAt = DateTime.Now
             };
 
+            var roomPrices = await _bookingRepository.GetRoomPricesAsync(request.RoomIds, cancellationToken);
+            var numberOfNights = Math.Max(1, (int)(request.CheckOutDate.Date - request.CheckInDate.Date).TotalDays);
+
             var createdBooking = await _bookingRepository.AddAsync(booking, cancellationToken);
 
-            var details = request.RoomIds.Select(roomId => new BookingDetail
+            var details = request.RoomIds.Select(roomId =>
             {
-                BookingId = createdBooking.BookingId,
-                RoomId = roomId,
-                CheckInDate = request.CheckInDate,
-                CheckOutDate = request.CheckOutDate,
-                RoomPrice = 0,
-                NumberOfNights = (int)(request.CheckOutDate - request.CheckInDate).TotalDays,
-                RoomTotal = 0,
-                Status = BookingDetailStatus.Reserved,
-                Note = request.Note,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                var price = roomPrices.TryGetValue(roomId, out var p) ? p : 0m;
+                var total = price * numberOfNights;
+
+                return new BookingDetail
+                {
+                    BookingId = createdBooking.BookingId,
+                    RoomId = roomId,
+                    CheckInDate = request.CheckInDate,
+                    CheckOutDate = request.CheckOutDate,
+                    RoomPrice = price,
+                    NumberOfNights = numberOfNights,
+                    RoomTotal = total,
+                    Status = BookingDetailStatus.Reserved,
+                    Note = request.Note,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
             }).ToList();
 
             await _bookingRepository.AddBookingDetailsAsync(details, cancellationToken);
+            var bookingTotal = details.Sum(d => d.RoomTotal);
 
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
             {
@@ -78,7 +88,7 @@ public sealed class BookingService : IBookingService
                 CheckInDate = request.CheckInDate,
                 CheckOutDate = request.CheckOutDate,
                 Status = createdBooking.Status.ToString(),
-                RoomTotal = 0
+                RoomTotal = bookingTotal
             }, "Booking created successfully.");
         }
         catch
@@ -94,15 +104,26 @@ public sealed class BookingService : IBookingService
         try
         {
             var bookings = await _bookingRepository.GetRecentBookingsAsync(count, cancellationToken);
-            return ServiceResult<List<BookingSummaryDto>>.Success(bookings.Select(booking => new BookingSummaryDto
+            return ServiceResult<List<BookingSummaryDto>>.Success(bookings.Select(booking =>
             {
-                BookingId = booking.BookingId,
-                CustomerName = string.Empty,
-                RoomNumbers = string.Empty,
-                CheckInDate = booking.BookingDate,
-                CheckOutDate = booking.BookingDate,
-                Status = booking.Status.ToString(),
-                RoomTotal = 0
+                var roomNumbers = string.Join(", ", booking.BookingDetails
+                    .Where(bd => bd.Room != null)
+                    .Select(bd => bd.Room!.RoomNumber));
+
+                var checkIn = booking.BookingDetails.FirstOrDefault()?.CheckInDate ?? booking.BookingDate;
+                var checkOut = booking.BookingDetails.FirstOrDefault()?.CheckOutDate ?? booking.BookingDate;
+                var total = booking.BookingDetails.Sum(bd => bd.RoomTotal);
+
+                return new BookingSummaryDto
+                {
+                    BookingId = booking.BookingId,
+                    CustomerName = booking.Customer?.FullName ?? string.Empty,
+                    RoomNumbers = roomNumbers,
+                    CheckInDate = checkIn,
+                    CheckOutDate = checkOut,
+                    Status = booking.Status.ToString(),
+                    RoomTotal = total
+                };
             }).ToList());
         }
         catch
@@ -110,4 +131,27 @@ public sealed class BookingService : IBookingService
             return ServiceResult<List<BookingSummaryDto>>.Failure(ErrorMessages.SystemError);
         }
     }
+
+    public async Task<ServiceResult<bool>> CancelBookingAsync(
+        int bookingId,
+        CancellationToken cancellationToken = default)
+    {
+        if (bookingId <= 0)
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        try
+        {
+            var success = await _bookingRepository.CancelBookingAsync(bookingId, cancellationToken);
+            return success
+                ? ServiceResult<bool>.Success(true, "Booking cancelled successfully.")
+                : ServiceResult<bool>.Failure("Unable to cancel booking. It may be already cancelled or completed.");
+        }
+        catch
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+        }
+    }
 }
+

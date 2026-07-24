@@ -61,14 +61,22 @@ public sealed class RoomService : IRoomService
         try
         {
             var rooms = await _roomRepository.GetRoomMapAsync(asOfDate, cancellationToken);
-            return ServiceResult<List<RoomMapItemDto>>.Success(rooms.Select(room => new RoomMapItemDto
+            return ServiceResult<List<RoomMapItemDto>>.Success(rooms.Select(room =>
             {
-                RoomId = room.RoomId,
-                RoomNumber = room.RoomNumber,
-                RoomTypeName = room.RoomType?.TypeName ?? string.Empty,
-                Status = room.Status.ToString(),
-                IsOccupied = room.Status == RoomOperationalStatus.Inactive ? false : room.Status == RoomOperationalStatus.Maintenance ? false : false,
-                OccupancyLabel = room.Status.ToString()
+                var isOccupied = string.Equals(room.Status.ToString(), "Occupied", StringComparison.OrdinalIgnoreCase);
+
+
+                return new RoomMapItemDto
+                {
+                    RoomId = room.RoomId,
+                    RoomNumber = room.RoomNumber,
+                    Floor = room.Floor,
+                    RoomTypeName = room.RoomType?.TypeName ?? string.Empty,
+                    BasePrice = room.RoomType?.BasePrice ?? 0m,
+                    Status = room.Status.ToString(),
+                    IsOccupied = isOccupied,
+                    OccupancyLabel = room.Status.ToString()
+                };
             }).ToList());
         }
         catch
@@ -76,6 +84,7 @@ public sealed class RoomService : IRoomService
             return ServiceResult<List<RoomMapItemDto>>.Failure(ErrorMessages.SystemError);
         }
     }
+
 
     public async Task<ServiceResult<RoomListItemDto>> CreateRoomAsync(
         CreateRoomRequestDto request,

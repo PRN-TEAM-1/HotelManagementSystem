@@ -63,6 +63,7 @@ public partial class App : Application
             _currentUserService);
         var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
         var roomManagementViewModel = new RoomManagementViewModel(new RoomService(), new RoomTypeService());
+        var roomMapViewModel = new RoomMapViewModel(new RoomService());
 
         var operationsViewModel = new OperationsViewModel(
             checkInViewModel,
@@ -73,7 +74,9 @@ public partial class App : Application
             customerManagementViewModel,
             roomTypeManagementViewModel,
             roomManagementViewModel,
+            roomMapViewModel,
             _currentUserService);
+
 
         var dashboardRepository = new Repositories.Implements.DashboardRepository();
         var dashboardService = new DashboardService(dashboardRepository);

@@ -101,20 +101,25 @@
                                                  materialDesign:HintAssist.Hint="Address" />
                                     </Grid>
 
-                                    <Button Grid.Row="2"
-                                            Command="{Binding CreateCustomerCommand}"
-                                            Style="{StaticResource PrimaryButtonStyle}"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,4,0,0"
-                                            ToolTip="Create guest profile">
-                                        <StackPanel Orientation="Horizontal">
-                                            <materialDesign:PackIcon Kind="AccountPlus"
-                                                                     Width="18"
-                                                                     Height="18"
-                                                                     Margin="0,0,8,0" />
-                                            <TextBlock Text="Create" />
-                                        </StackPanel>
-                                    </Button>
+                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                                         <Button Command="{Binding CreateCustomerCommand}"
+                                                 Style="{StaticResource PrimaryButtonStyle}"
+                                                 Margin="0,0,8,0"
+                                                 ToolTip="Create guest profile">
+                                             <StackPanel Orientation="Horizontal">
+                                                 <materialDesign:PackIcon Kind="AccountPlus" Width="18" Height="18" Margin="0,0,6,0" />
+                                                 <TextBlock Text="Create" />
+                                             </StackPanel>
+                                         </Button>
+                                         <Button Command="{Binding UpdateCustomerCommand}"
+                                                 Style="{StaticResource SecondaryButtonStyle}"
+                                                 ToolTip="Update selected guest profile">
+                                             <StackPanel Orientation="Horizontal">
+                                                 <materialDesign:PackIcon Kind="AccountEdit" Width="18" Height="18" Margin="0,0,6,0" />
+                                                 <TextBlock Text="Update" />
+                                             </StackPanel>
+                                         </Button>
+                                     </StackPanel>
                                 </Grid>
                             </materialDesign:Card>
 
@@ -425,20 +430,35 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ReceiptText"
-                                                         Width="20"
-                                                         Height="20"
-                                                         Foreground="{StaticResource AccentBrush}"
-                                                         Margin="0,0,8,0" />
-                                <TextBlock Text="Recent Bookings"
-                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                           Foreground="{StaticResource TextPrimaryBrush}" />
-                            </StackPanel>
+                            <DockPanel LastChildFill="True">
+                                <Button DockPanel.Dock="Right"
+                                        Command="{Binding CancelBookingCommand}"
+                                        Style="{StaticResource DangerButtonStyle}"
+                                        ToolTip="Cancel selected booking">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Cancel" Width="18" Height="18" Margin="0,0,6,0" />
+                                        <TextBlock Text="Cancel Booking" />
+                                    </StackPanel>
+                                </Button>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ReceiptText"
+                                                             Width="20"
+                                                             Height="20"
+                                                             Foreground="{StaticResource AccentBrush}"
+                                                             Margin="0,0,8,0" />
+                                    <TextBlock Text="Recent Bookings"
+                                               Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                </StackPanel>
+                            </DockPanel>
 
                             <DataGrid Grid.Row="1"
-                                      ItemsSource="{Binding Bookings}"
-                                      Margin="0,12,0,0">
+                                       ItemsSource="{Binding Bookings}"
+                                       SelectedItem="{Binding SelectedBooking, Mode=TwoWay}"
+                                       AutoGenerateColumns="False"
+                                       IsReadOnly="True"
+                                       Margin="0,12,0,0">
+
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
                                     <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.4*" />

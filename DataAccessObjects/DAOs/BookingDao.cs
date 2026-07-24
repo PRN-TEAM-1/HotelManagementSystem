@@ -41,8 +41,58 @@ public sealed class BookingDao
 
         return await context.Bookings
             .AsNoTracking()
+            .Include(booking => booking.Customer)
+            .Include(booking => booking.BookingDetails)
+                .ThenInclude(detail => detail.Room)
             .OrderByDescending(booking => booking.CreatedAt)
             .Take(Math.Max(1, count))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Dictionary<int, decimal>> GetRoomPricesAsync(
+        IEnumerable<int> roomIds,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        var ids = roomIds.Distinct().ToList();
+        return await context.Rooms
+            .AsNoTracking()
+            .Include(room => room.RoomType)
+            .Where(room => ids.Contains(room.RoomId))
+            .ToDictionaryAsync(
+                room => room.RoomId,
+                room => room.RoomType?.BasePrice ?? 0m,
+                cancellationToken);
+    }
+
+    public async Task<bool> CancelBookingAsync(int bookingId, CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        var booking = await context.Bookings
+            .Include(b => b.BookingDetails)
+            .FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken);
+
+        if (booking is null || booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
+        {
+            return false;
+        }
+
+        booking.Status = BookingStatus.Cancelled;
+        booking.UpdatedAt = DateTime.Now;
+
+        foreach (var detail in booking.BookingDetails)
+        {
+            if (detail.Status == BookingDetailStatus.Reserved)
+            {
+                detail.Status = BookingDetailStatus.Cancelled;
+                detail.UpdatedAt = DateTime.Now;
+            }
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 }
+

@@ -42,13 +42,30 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCustomersCommand = new AsyncRelayCommand(SearchCustomersAsync);
         CreateCustomerCommand = new AsyncRelayCommand(CreateCustomerAsync);
+        UpdateCustomerCommand = new AsyncRelayCommand(UpdateCustomerAsync);
         CreateBookingCommand = new AsyncRelayCommand(CreateBookingAsync);
+        CancelBookingCommand = new AsyncRelayCommand(CancelBookingAsync);
         RefreshRoomsCommand = new AsyncRelayCommand(RefreshRoomsAsync);
     }
 
     public override string Title => "Customer & Booking";
 
     public override string Description => "Manage guests, rooms, room map and reservations";
+
+    public AsyncRelayCommand LoadCommand { get; }
+
+    public AsyncRelayCommand SearchCustomersCommand { get; }
+
+    public AsyncRelayCommand CreateCustomerCommand { get; }
+
+    public AsyncRelayCommand UpdateCustomerCommand { get; }
+
+    public AsyncRelayCommand CreateBookingCommand { get; }
+
+    public AsyncRelayCommand CancelBookingCommand { get; }
+
+    public AsyncRelayCommand RefreshRoomsCommand { get; }
+
 
     public ObservableCollection<CustomerListItemDto> Customers
     {
@@ -68,11 +85,30 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         private set => SetProperty(ref _bookings, value);
     }
 
+    private BookingSummaryDto? _selectedBooking;
+
     public CustomerListItemDto? SelectedCustomer
     {
         get => _selectedCustomer;
-        set => SetProperty(ref _selectedCustomer, value);
+        set
+        {
+            if (SetProperty(ref _selectedCustomer, value) && value != null)
+            {
+                CustomerName = value.FullName;
+                IdentityCard = value.IdentityCard ?? string.Empty;
+                PhoneNumber = value.PhoneNumber ?? string.Empty;
+                Email = value.Email ?? string.Empty;
+                Address = value.Address ?? string.Empty;
+            }
+        }
     }
+
+    public BookingSummaryDto? SelectedBooking
+    {
+        get => _selectedBooking;
+        set => SetProperty(ref _selectedBooking, value);
+    }
+
 
     public RoomListItemDto? SelectedRoom
     {
@@ -140,17 +176,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         private set => SetProperty(ref _isBusy, value);
     }
 
-    public AsyncRelayCommand LoadCommand { get; }
-
-    public AsyncRelayCommand SearchCustomersCommand { get; }
-
-    public AsyncRelayCommand CreateCustomerCommand { get; }
-
-    public AsyncRelayCommand CreateBookingCommand { get; }
-
-    public AsyncRelayCommand RefreshRoomsCommand { get; }
-
     public override async Task InitializeAsync()
+
     {
         await LoadAsync();
     }
@@ -261,6 +288,69 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         }
     }
 
+    private async Task UpdateCustomerAsync()
+    {
+        if (SelectedCustomer is null)
+        {
+            Message = "Please select a customer to update.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(CustomerName))
+        {
+            Message = "Customer name is required.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _customerService.UpdateCustomerAsync(new UpdateCustomerRequestDto
+            {
+                CustomerId = SelectedCustomer.CustomerId,
+                FullName = CustomerName,
+                IdentityCard = IdentityCard,
+                PhoneNumber = PhoneNumber,
+                Email = Email,
+                Address = Address
+            });
+
+            Message = result.Message;
+            if (result.IsSuccess)
+            {
+                await LoadAsync();
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task CancelBookingAsync()
+    {
+        if (SelectedBooking is null)
+        {
+            Message = "Please select a booking to cancel.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId);
+            Message = result.Message;
+            if (result.IsSuccess)
+            {
+                await LoadAsync();
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private async Task RefreshRoomsAsync()
     {
         var result = await _roomService.GetAvailableRoomsAsync(CheckInDate, CheckOutDate, SearchTerm);
@@ -270,3 +360,4 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         }
     }
 }
+
