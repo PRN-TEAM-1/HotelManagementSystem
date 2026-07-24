@@ -92,6 +92,8 @@
                                  VerticalScrollBarVisibility="Auto" />
                     </StackPanel>
 
+
+
                     <StackPanel Grid.Row="3"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Right"
