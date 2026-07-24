@@ -39,11 +39,15 @@ public sealed class RoomMapViewModel : BaseViewModel
 
         LoadCommand = new AsyncRelayCommand(LoadRoomMapAsync);
         RefreshCommand = new AsyncRelayCommand(LoadRoomMapAsync);
+        MarkCleanedCommand = new AsyncRelayCommand<RoomMapItemDto>(MarkCleanedAsync);
     }
 
     public override string Title => "Room Map";
 
     public override string Description => "Real-time room status, floor layout and occupancy map";
+
+    public AsyncRelayCommand<RoomMapItemDto> MarkCleanedCommand { get; }
+
 
     public DateTime AsOfDate
     {
@@ -189,4 +193,40 @@ public sealed class RoomMapViewModel : BaseViewModel
 
         RoomGroups = new ObservableCollection<FloorRoomGroupViewModel>(groups);
     }
+
+    private async Task MarkCleanedAsync(RoomMapItemDto? roomItem)
+    {
+        if (roomItem is null) return;
+
+        IsBusy = true;
+        try
+        {
+            var updateResult = await _roomService.UpdateRoomAsync(new UpdateRoomRequestDto
+            {
+                RoomId = roomItem.RoomId,
+                RoomNumber = roomItem.RoomNumber,
+                Floor = roomItem.Floor,
+                Status = "Available"
+            });
+
+            if (updateResult.IsSuccess)
+            {
+                Message = $"Room {roomItem.RoomNumber} marked as Cleaned & Available.";
+                await LoadRoomMapAsync();
+            }
+            else
+            {
+                Message = updateResult.Message ?? "Failed to update room status.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
 }
+
