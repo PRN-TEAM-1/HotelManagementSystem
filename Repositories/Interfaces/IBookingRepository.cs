@@ -19,5 +19,12 @@ public interface IBookingRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> CancelBookingAsync(int bookingId, CancellationToken cancellationToken = default);
+
+    Task<List<int>> GetOverlappingRoomIdsAsync(
+        IEnumerable<int> roomIds,
+        DateTime checkIn,
+        DateTime checkOut,
+        CancellationToken cancellationToken = default);
 }
+
 
