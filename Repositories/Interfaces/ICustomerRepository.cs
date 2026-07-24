@@ -16,4 +16,9 @@ public interface ICustomerRepository
         string? identityCard,
         int? excludedCustomerId = null,
         CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetCustomerBookingsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default);
 }
+

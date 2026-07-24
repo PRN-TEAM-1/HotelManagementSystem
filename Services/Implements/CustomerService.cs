@@ -127,7 +127,48 @@ public sealed class CustomerService : ICustomerService
         }
     }
 
+    public async Task<ServiceResult<List<BookingSummaryDto>>> GetCustomerBookingsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default)
+    {
+        if (customerId <= 0)
+        {
+            return ServiceResult<List<BookingSummaryDto>>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        try
+        {
+            var bookings = await _customerRepository.GetCustomerBookingsAsync(customerId, cancellationToken);
+            return ServiceResult<List<BookingSummaryDto>>.Success(bookings.Select(booking =>
+            {
+                var roomNumbers = string.Join(", ", booking.BookingDetails
+                    .Where(bd => bd.Room != null)
+                    .Select(bd => bd.Room!.RoomNumber));
+
+                var checkIn = booking.BookingDetails.FirstOrDefault()?.CheckInDate ?? booking.BookingDate;
+                var checkOut = booking.BookingDetails.FirstOrDefault()?.CheckOutDate ?? booking.BookingDate;
+                var total = booking.BookingDetails.Sum(bd => bd.RoomTotal);
+
+                return new BookingSummaryDto
+                {
+                    BookingId = booking.BookingId,
+                    CustomerName = booking.Customer?.FullName ?? string.Empty,
+                    RoomNumbers = roomNumbers,
+                    CheckInDate = checkIn,
+                    CheckOutDate = checkOut,
+                    Status = booking.Status.ToString(),
+                    RoomTotal = total
+                };
+            }).ToList());
+        }
+        catch
+        {
+            return ServiceResult<List<BookingSummaryDto>>.Failure(ErrorMessages.SystemError);
+        }
+    }
+
     private static CustomerListItemDto MapToListItem(Customer customer)
+
     {
         return new CustomerListItemDto
         {

@@ -34,4 +34,10 @@ public sealed class CustomerRepository : ICustomerRepository
     {
         return _dao.ExistsByIdentityCardAsync(identityCard, excludedCustomerId, cancellationToken);
     }
+
+    public Task<List<Booking>> GetCustomerBookingsAsync(int customerId, CancellationToken cancellationToken = default)
+    {
+        return _dao.GetCustomerBookingsAsync(customerId, cancellationToken);
+    }
 }
+

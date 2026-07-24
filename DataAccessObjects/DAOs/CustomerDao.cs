@@ -85,4 +85,21 @@ public sealed class CustomerDao
             && customer.IdentityCard == normalized
             && (!excludedCustomerId.HasValue || customer.CustomerId != excludedCustomerId.Value), cancellationToken);
     }
+
+    public async Task<List<Booking>> GetCustomerBookingsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        return await context.Bookings
+            .AsNoTracking()
+            .Include(b => b.Customer)
+            .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
+            .Where(b => b.CustomerId == customerId)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
 }
+
