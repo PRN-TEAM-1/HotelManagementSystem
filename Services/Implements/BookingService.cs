@@ -38,8 +38,22 @@ public sealed class BookingService : IBookingService
             return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.InvalidDateRange);
         }
 
+        var overlappingRoomIds = await _bookingRepository.GetOverlappingRoomIdsAsync(
+            request.RoomIds,
+            request.CheckInDate,
+            request.CheckOutDate,
+            cancellationToken);
+
+        if (overlappingRoomIds.Count > 0)
+        {
+            return ServiceResult<BookingSummaryDto>.Failure(
+                ErrorMessages.DuplicateRecord,
+                $"Room(s) with ID {string.Join(", ", overlappingRoomIds)} is already reserved or occupied for the selected dates.");
+        }
+
         try
         {
+
             var booking = new Booking
             {
                 CustomerId = request.CustomerId,

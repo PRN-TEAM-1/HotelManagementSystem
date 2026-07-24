@@ -94,5 +94,25 @@ public sealed class BookingDao
         await context.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    public async Task<List<int>> GetOverlappingRoomIdsAsync(
+        IEnumerable<int> roomIds,
+        DateTime checkIn,
+        DateTime checkOut,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        var ids = roomIds.Distinct().ToList();
+        return await context.BookingDetails
+            .AsNoTracking()
+            .Where(detail => ids.Contains(detail.RoomId))
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.CheckInDate < checkOut && detail.CheckOutDate > checkIn)
+            .Select(detail => detail.RoomId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }
+
 
