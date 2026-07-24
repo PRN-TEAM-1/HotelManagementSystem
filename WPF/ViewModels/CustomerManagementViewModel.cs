@@ -85,7 +85,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         private set => SetProperty(ref _bookings, value);
     }
 
-    private BookingSummaryDto? _selectedBooking;
+    private ObservableCollection<BookingSummaryDto> _selectedCustomerBookings = new();
+
+    public ObservableCollection<BookingSummaryDto> SelectedCustomerBookings
+    {
+        get => _selectedCustomerBookings;
+        private set => SetProperty(ref _selectedCustomerBookings, value);
+    }
 
     public CustomerListItemDto? SelectedCustomer
     {
@@ -99,15 +105,21 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 PhoneNumber = value.PhoneNumber ?? string.Empty;
                 Email = value.Email ?? string.Empty;
                 Address = value.Address ?? string.Empty;
+
+                _ = LoadSelectedCustomerBookingsAsync(value.CustomerId);
             }
         }
     }
+
+
+    private BookingSummaryDto? _selectedBooking;
 
     public BookingSummaryDto? SelectedBooking
     {
         get => _selectedBooking;
         set => SetProperty(ref _selectedBooking, value);
     }
+
 
 
     public RoomListItemDto? SelectedRoom
@@ -359,5 +371,15 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             AvailableRooms = new ObservableCollection<RoomListItemDto>(result.Data ?? new List<RoomListItemDto>());
         }
     }
+
+    private async Task LoadSelectedCustomerBookingsAsync(int customerId)
+    {
+        var result = await _customerService.GetCustomerBookingsAsync(customerId);
+        if (result.IsSuccess)
+        {
+            SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>(result.Data ?? new List<BookingSummaryDto>());
+        }
+    }
 }
+
 

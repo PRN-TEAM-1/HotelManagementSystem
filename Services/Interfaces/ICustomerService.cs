@@ -15,4 +15,9 @@ public interface ICustomerService
     Task<ServiceResult<CustomerListItemDto>> UpdateCustomerAsync(
         UpdateCustomerRequestDto request,
         CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<List<BookingSummaryDto>>> GetCustomerBookingsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default);
 }
+

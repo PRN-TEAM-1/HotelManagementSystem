@@ -474,7 +474,36 @@
                         </Grid>
                     </materialDesign:Card>
                 </TabItem>
+
+                <TabItem Header="Selected Guest History">
+                    <materialDesign:Card Margin="0,12,0,0" Padding="16" materialDesign:ElevationAssist.Elevation="Dp2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
+                                <TextBlock Text="Selected Guest Booking History" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerBookings}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Booking ID" Binding="{Binding BookingId}" Width="Auto" MinWidth="80" />
+                                    <DataGridTextColumn Header="Guest Name" Binding="{Binding CustomerName}" Width="1.4*" />
+                                    <DataGridTextColumn Header="Booked Rooms" Binding="{Binding RoomNumbers}" Width="*" />
+                                    <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+                                    <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
+                                    <DataGridTextColumn Header="Total Amount" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VNĐ'}" Width="*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </materialDesign:Card>
+                </TabItem>
             </TabControl>
+
 
             <Border Background="#80000000"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
