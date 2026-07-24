@@ -22,6 +22,8 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
             <converters:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />
+            <converters:StatusToBrushConverter x:Key="StatusToBrushConverter" />
+
 
             <DataTemplate DataType="{x:Type viewModels:SectionViewModel}">
                 <views:SectionView />

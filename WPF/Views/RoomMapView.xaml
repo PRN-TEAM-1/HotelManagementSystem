@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:WPF.Controls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
-    <Grid Margin="16">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -13,8 +13,8 @@
         <!-- Summary & Action Bar -->
         <DockPanel Grid.Row="0" Margin="0,0,0,16" LastChildFill="False">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                <materialDesign:PackIcon Kind="ViewGrid" Width="24" Height="24" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,8,0" />
-                <TextBlock Text="Room Map Layout" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
+                <materialDesign:PackIcon Kind="ViewGrid" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
+                <TextBlock Text="Room Map Layout" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
@@ -43,11 +43,11 @@
         <!-- Status Counters -->
         <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,16">
             <controls:DashboardCardControl Title="Total Rooms" Value="{Binding TotalRooms}" />
-            <controls:DashboardCardControl Title="Available (Green)" Value="{Binding AvailableCount}" />
-            <controls:DashboardCardControl Title="Occupied (Red)" Value="{Binding OccupiedCount}" />
-            <controls:DashboardCardControl Title="Reserved (Blue)" Value="{Binding ReservedCount}" />
-            <controls:DashboardCardControl Title="Cleaning (Yellow)" Value="{Binding CleaningCount}" />
-            <controls:DashboardCardControl Title="Maintenance (Gray)" Value="{Binding MaintenanceCount}" />
+            <controls:DashboardCardControl Title="Available" Value="{Binding AvailableCount}" />
+            <controls:DashboardCardControl Title="Occupied" Value="{Binding OccupiedCount}" />
+            <controls:DashboardCardControl Title="Reserved" Value="{Binding ReservedCount}" />
+            <controls:DashboardCardControl Title="Cleaning" Value="{Binding CleaningCount}" />
+            <controls:DashboardCardControl Title="Maintenance" Value="{Binding MaintenanceCount}" />
         </UniformGrid>
 
         <!-- Floor Groups & Room Cards -->
@@ -59,7 +59,7 @@
                             <StackPanel>
                                 <DockPanel Margin="0,0,0,12">
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                        <materialDesign:PackIcon Kind="Layers" Width="20" Height="20" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,8,0" />
+                                        <materialDesign:PackIcon Kind="Layers" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
                                         <TextBlock Text="{Binding FloorName}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" FontWeight="Bold" />
                                     </StackPanel>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding Rooms.Count, StringFormat='{}{0} Rooms'}" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
@@ -84,9 +84,14 @@
 
                                                     <DockPanel Grid.Row="0">
                                                         <TextBlock Text="{Binding RoomNumber}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" DockPanel.Dock="Left" />
-                                                        <materialDesign:Chip Content="{Binding Status}" DockPanel.Dock="Right" Padding="4,0,4,0" Height="22" FontSize="10" />
+                                                        <materialDesign:Chip Content="{Binding Status}"
+                                                                             Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                                                                             Foreground="White"
+                                                                             DockPanel.Dock="Right"
+                                                                             Padding="6,0,6,0"
+                                                                             Height="22"
+                                                                             FontSize="10" />
                                                     </DockPanel>
-
 
                                                     <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,4,0,4">
                                                         <TextBlock Text="{Binding RoomTypeName}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
@@ -105,5 +110,13 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="3" Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Width="160" Height="4" IsIndeterminate="True" Style="{StaticResource MaterialDesignLinearProgressBar}" />
+                <TextBlock Text="Loading Room Map..." Margin="0,8,0,0" Style="{StaticResource MaterialDesignBody2TextBlock}" Foreground="White" />
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
