@@ -27,4 +27,9 @@ public sealed class BookingDetail
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public Room? Room { get; set; }
+
+    public Booking? Booking { get; set; }
 }
+

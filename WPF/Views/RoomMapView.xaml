@@ -1,0 +1,109 @@
+<UserControl x:Class="WPF.Views.RoomMapView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:WPF.Controls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Summary & Action Bar -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16" LastChildFill="False">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                <materialDesign:PackIcon Kind="ViewGrid" Width="24" Height="24" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,8,0" />
+                <TextBlock Text="Room Map Layout" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                <TextBlock Text="As of Date:" VerticalAlignment="Center" Margin="0,0,8,0" Style="{StaticResource MaterialDesignBody2TextBlock}" />
+                <DatePicker SelectedDate="{Binding AsOfDate, Mode=TwoWay}" Width="130" Margin="0,0,16,0" />
+
+                <TextBlock Text="Filter:" VerticalAlignment="Center" Margin="0,0,8,0" Style="{StaticResource MaterialDesignBody2TextBlock}" />
+                <ComboBox SelectedValue="{Binding SelectedStatusFilter, Mode=TwoWay}" SelectedValuePath="Tag" Width="140" Margin="0,0,16,0">
+                    <ComboBoxItem Content="All Statuses" Tag="All" IsSelected="True" />
+                    <ComboBoxItem Content="Available" Tag="Available" />
+                    <ComboBoxItem Content="Occupied" Tag="Occupied" />
+                    <ComboBoxItem Content="Reserved" Tag="Reserved" />
+                    <ComboBoxItem Content="Cleaning" Tag="Cleaning" />
+                    <ComboBoxItem Content="Maintenance" Tag="Maintenance" />
+                </ComboBox>
+
+                <Button Command="{Binding RefreshCommand}" Style="{StaticResource PrimaryButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" Margin="0,0,6,0" />
+                        <TextBlock Text="Refresh" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Status Counters -->
+        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,16">
+            <controls:DashboardCardControl Title="Total Rooms" Value="{Binding TotalRooms}" />
+            <controls:DashboardCardControl Title="Available (Green)" Value="{Binding AvailableCount}" />
+            <controls:DashboardCardControl Title="Occupied (Red)" Value="{Binding OccupiedCount}" />
+            <controls:DashboardCardControl Title="Reserved (Blue)" Value="{Binding ReservedCount}" />
+            <controls:DashboardCardControl Title="Cleaning (Yellow)" Value="{Binding CleaningCount}" />
+            <controls:DashboardCardControl Title="Maintenance (Gray)" Value="{Binding MaintenanceCount}" />
+        </UniformGrid>
+
+        <!-- Floor Groups & Room Cards -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding RoomGroups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <materialDesign:Card Margin="0,0,0,16" Padding="16" materialDesign:ElevationAssist.Elevation="Dp2">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <materialDesign:PackIcon Kind="Layers" Width="20" Height="20" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding FloorName}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" FontWeight="Bold" />
+                                    </StackPanel>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Rooms.Count, StringFormat='{}{0} Rooms'}" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                                </DockPanel>
+
+                                <ItemsControl ItemsSource="{Binding Rooms}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card Width="150" Height="110" Margin="0,0,12,12" Padding="12" materialDesign:ElevationAssist.Elevation="Dp1" Background="#FAFAFA">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <DockPanel Grid.Row="0">
+                                                        <TextBlock Text="{Binding RoomNumber}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextPrimaryBrush}" DockPanel.Dock="Left" />
+                                                        <materialDesign:Chip Content="{Binding Status}" DockPanel.Dock="Right" Padding="4,0,4,0" Height="22" FontSize="10" />
+                                                    </DockPanel>
+
+
+                                                    <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,4,0,4">
+                                                        <TextBlock Text="{Binding RoomTypeName}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VNĐ/night'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Row="2" Text="{Binding OccupancyLabel}" FontSize="11" FontStyle="Italic" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" />
+                                                </Grid>
+                                            </materialDesign:Card>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

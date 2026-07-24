@@ -174,6 +174,8 @@ public sealed class HotelManagementContext : DbContext
             builder.Property(b => b.Note).HasColumnName("note");
             builder.Property(b => b.CreatedAt).HasColumnName("created_at");
             builder.Property(b => b.UpdatedAt).HasColumnName("updated_at");
+            builder.HasOne(b => b.Customer).WithMany().HasForeignKey(b => b.CustomerId);
+            builder.HasMany(b => b.BookingDetails).WithOne(bd => bd.Booking).HasForeignKey(bd => bd.BookingId);
         });
 
         // BookingDetail configuration
@@ -193,7 +195,9 @@ public sealed class HotelManagementContext : DbContext
             builder.Property(bd => bd.Note).HasColumnName("note");
             builder.Property(bd => bd.CreatedAt).HasColumnName("created_at");
             builder.Property(bd => bd.UpdatedAt).HasColumnName("updated_at");
+            builder.HasOne(bd => bd.Room).WithMany().HasForeignKey(bd => bd.RoomId);
         });
+
 
         // CheckRecord configuration
         modelBuilder.Entity<CheckRecord>(builder =>

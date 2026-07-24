@@ -14,6 +14,7 @@ public sealed class OperationsViewModel : BaseViewModel
     private readonly CustomerManagementViewModel _customerManagementViewModel;
     private readonly RoomTypeManagementViewModel _roomTypeManagementViewModel;
     private readonly RoomManagementViewModel _roomManagementViewModel;
+    private readonly RoomMapViewModel _roomMapViewModel;
     private readonly ICurrentUserService _currentUserService;
 
     private BaseViewModel _currentViewModel;
@@ -31,6 +32,7 @@ public sealed class OperationsViewModel : BaseViewModel
         CustomerManagementViewModel customerManagementViewModel,
         RoomTypeManagementViewModel roomTypeManagementViewModel,
         RoomManagementViewModel roomManagementViewModel,
+        RoomMapViewModel roomMapViewModel,
         ICurrentUserService currentUserService)
     {
         _checkInViewModel = checkInViewModel ?? throw new ArgumentNullException(nameof(checkInViewModel));
@@ -41,7 +43,9 @@ public sealed class OperationsViewModel : BaseViewModel
         _customerManagementViewModel = customerManagementViewModel ?? throw new ArgumentNullException(nameof(customerManagementViewModel));
         _roomTypeManagementViewModel = roomTypeManagementViewModel ?? throw new ArgumentNullException(nameof(roomTypeManagementViewModel));
         _roomManagementViewModel = roomManagementViewModel ?? throw new ArgumentNullException(nameof(roomManagementViewModel));
+        _roomMapViewModel = roomMapViewModel ?? throw new ArgumentNullException(nameof(roomMapViewModel));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+
 
         _currentViewModel = checkInViewModel;
         Modules = new ObservableCollection<OperationModuleViewModel>(CreateModules());
@@ -98,6 +102,8 @@ public sealed class OperationsViewModel : BaseViewModel
 
     public RoomManagementViewModel RoomManagementViewModel => _roomManagementViewModel;
 
+    public RoomMapViewModel RoomMapViewModel => _roomMapViewModel;
+
     public BaseViewModel CurrentViewModel
     {
         get => _currentViewModel;
@@ -147,6 +153,12 @@ public sealed class OperationsViewModel : BaseViewModel
         var modules = new List<OperationModuleViewModel>
         {
             new OperationModuleViewModel(
+                "room-map",
+                "Room Map",
+                "Real-time room occupancy and operating status.",
+                "ViewGrid",
+                _roomMapViewModel),
+            new OperationModuleViewModel(
                 "check-in",
                 "Check-In",
                 "Confirm reserved rooms and start a stay.",
@@ -165,6 +177,7 @@ public sealed class OperationsViewModel : BaseViewModel
                 "AccountSearch",
                 _customerManagementViewModel)
         };
+
 
         if (_currentUserService.HasRole(BusinessObjects.Enums.RoleName.Admin, BusinessObjects.Enums.RoleName.Manager))
         {

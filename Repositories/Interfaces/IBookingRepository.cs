@@ -13,4 +13,11 @@ public interface IBookingRepository
     Task<List<BookingDetail>> AddBookingDetailsAsync(
         IEnumerable<BookingDetail> details,
         CancellationToken cancellationToken = default);
+
+    Task<Dictionary<int, decimal>> GetRoomPricesAsync(
+        IEnumerable<int> roomIds,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> CancelBookingAsync(int bookingId, CancellationToken cancellationToken = default);
 }
+

@@ -78,7 +78,11 @@ public sealed class RoomMapItemDto
 
     public string RoomNumber { get; set; } = string.Empty;
 
+    public int Floor { get; set; }
+
     public string RoomTypeName { get; set; } = string.Empty;
+
+    public decimal BasePrice { get; set; }
 
     public string Status { get; set; } = string.Empty;
 
@@ -90,6 +94,7 @@ public sealed class RoomMapItemDto
 
     public DateTime? CheckOutDate { get; set; }
 }
+
 
 public sealed class CreateBookingRequestDto
 {

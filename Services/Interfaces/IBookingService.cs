@@ -11,4 +11,9 @@ public interface IBookingService
     Task<ServiceResult<List<BookingSummaryDto>>> GetRecentBookingsAsync(
         int count = 10,
         CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<bool>> CancelBookingAsync(
+        int bookingId,
+        CancellationToken cancellationToken = default);
 }
+
