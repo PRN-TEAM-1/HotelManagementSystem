@@ -138,11 +138,6 @@ public sealed class ServiceOrderService : IServiceOrderService
                 return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.BusinessRuleViolation);
             }
 
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             // Create service order
             var totalPrice = request.Quantity * service.Price;
             var serviceOrder = new ServiceOrder
@@ -162,7 +157,6 @@ public sealed class ServiceOrderService : IServiceOrderService
 
             var createdOrder = await _serviceOrderRepository.AddAsync(serviceOrder, cancellationToken);
 
-            scope.Complete();
 
             var dto = new ServiceOrderListItemDto
             {

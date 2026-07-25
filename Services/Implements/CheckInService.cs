@@ -136,11 +136,6 @@ public sealed class CheckInService : ICheckInService
                 return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.BusinessRuleViolation);
             }
 
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             // Create check record
             var checkRecord = new CheckRecord
             {
@@ -159,7 +154,6 @@ public sealed class CheckInService : ICheckInService
                 RoomOperationalStatus.Occupied,
                 cancellationToken);
 
-            scope.Complete();
 
             var dto = MapToCheckRecordDto(createdCheckRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);

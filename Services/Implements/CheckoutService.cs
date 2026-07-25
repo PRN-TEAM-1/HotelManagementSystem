@@ -125,11 +125,6 @@ public sealed class CheckoutService : ICheckoutService
                 return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.NotFound);
             }
 
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             // Update check record
             checkRecord.ActualCheckOutDate = DateTime.Now;
             checkRecord.CheckOutByUserId = currentUser!.UserId;
@@ -142,7 +137,6 @@ public sealed class CheckoutService : ICheckoutService
                 RoomOperationalStatus.Cleaning,
                 cancellationToken);
 
-            scope.Complete();
 
             var result = new CheckoutResultDto
             {
@@ -158,7 +152,7 @@ public sealed class CheckoutService : ICheckoutService
         }
         catch (Exception ex)
         {
-            return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.SystemError, ex.ToString());
         }
 
     }
