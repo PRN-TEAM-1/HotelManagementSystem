@@ -109,6 +109,13 @@ public sealed class CheckoutViewModel : BaseViewModel
         }
     }
 
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        ClearMessages();
+    }
+
+
     private bool CanExecuteLoad()
     {
         return !IsBusy;
