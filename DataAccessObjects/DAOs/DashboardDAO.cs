@@ -12,6 +12,7 @@ public sealed class DashboardDao
         using var context = DbContextFactory.CreateDbContext();
 
         var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
 
         var summary = new DashboardSummaryDto
         {
@@ -55,13 +56,31 @@ public sealed class DashboardDao
                     .AsNoTracking()
                     .Count(c =>
                         c.ActualCheckInDate.HasValue &&
-                        c.ActualCheckInDate.Value.Date == today),
+                        c.ActualCheckInDate.Value >= today &&
+                        c.ActualCheckInDate.Value < tomorrow),
 
                 TodayCheckOuts = context.CheckRecords
                     .AsNoTracking()
                     .Count(c =>
                         c.ActualCheckOutDate.HasValue &&
-                        c.ActualCheckOutDate.Value.Date == today)
+                        c.ActualCheckOutDate.Value >= today &&
+                        c.ActualCheckOutDate.Value < tomorrow),
+
+                ActiveStays = context.BookingDetails
+                    .AsNoTracking()
+                    .Count(bd => bd.Status == BookingDetailStatus.CheckedIn),
+
+                DueArrivals = context.BookingDetails
+                    .AsNoTracking()
+                    .Count(bd => bd.Status == BookingDetailStatus.Reserved
+                                 && bd.CheckInDate >= today
+                                 && bd.CheckInDate < tomorrow),
+
+                DueDepartures = context.BookingDetails
+                    .AsNoTracking()
+                    .Count(bd => bd.Status == BookingDetailStatus.CheckedIn
+                                 && bd.CheckOutDate >= today
+                                 && bd.CheckOutDate < tomorrow)
             }
         };
 

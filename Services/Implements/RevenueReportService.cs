@@ -32,4 +32,14 @@ public sealed class RevenueReportService : IRevenueReportService
 
         return _repository.GetRevenueByPaymentMethod(filter);
     }
+
+    public List<ServiceRevenueDto> GetRevenueByService(ReportFilterDto filter)
+    {
+        if (filter.EndDate.Date < filter.StartDate.Date)
+        {
+            return new List<ServiceRevenueDto>();
+        }
+
+        return _repository.GetRevenueByService(filter);
+    }
 }

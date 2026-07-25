@@ -25,13 +25,15 @@ public sealed class ServiceUsageReportDao
                 (serviceOrder, service) => new
                 {
                     service.ServiceName,
+                    service.Category,
                     serviceOrder.Quantity,
                     serviceOrder.TotalPrice
                 })
-            .GroupBy(x => x.ServiceName)
+            .GroupBy(x => new { x.ServiceName, x.Category })
             .Select(g => new ServiceUsageReportDto
             {
-                ServiceName = g.Key,
+                ServiceName = g.Key.ServiceName,
+                Category = g.Key.Category,
                 QuantityOrdered = g.Sum(x => x.Quantity),
                 TotalRevenue = g.Sum(x => x.TotalPrice)
             })

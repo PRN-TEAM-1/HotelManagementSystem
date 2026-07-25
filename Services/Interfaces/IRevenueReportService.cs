@@ -6,4 +6,5 @@ public interface IRevenueReportService
 {
     List<RevenueReportDto> GetRevenueReport(ReportFilterDto filter);
     List<PaymentRevenueDto> GetRevenueByPaymentMethod(ReportFilterDto filter);
+    List<ServiceRevenueDto> GetRevenueByService(ReportFilterDto filter);
 }
