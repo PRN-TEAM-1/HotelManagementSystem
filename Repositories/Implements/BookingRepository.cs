@@ -32,9 +32,9 @@ public sealed class BookingRepository : IBookingRepository
         return _dao.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
     }
 
-    public Task<List<Booking>> GetRecentBookingsAsync(int count = 10, CancellationToken cancellationToken = default)
+    public Task<List<Booking>> GetRecentBookingsAsync(string? searchTerm = null, int count = 10, CancellationToken cancellationToken = default)
     {
-        return _dao.GetRecentBookingsAsync(count, cancellationToken);
+        return _dao.GetRecentBookingsAsync(searchTerm, count, cancellationToken);
     }
 
     public Task<Dictionary<int, decimal>> GetRoomPricesAsync(IEnumerable<int> roomIds, CancellationToken cancellationToken = default)

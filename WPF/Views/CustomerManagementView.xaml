@@ -431,14 +431,14 @@
                                                              Height="20"
                                                              Foreground="{StaticResource AccentBrush}"
                                                              Margin="0,0,8,0" />
-                                    <TextBlock Text="Available Rooms"
+                                    <TextBlock Text="Room Map Overview"
                                                Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                                Foreground="{StaticResource TextPrimaryBrush}" />
                                 </StackPanel>
                             </DockPanel>
 
                             <ListBox Grid.Row="1"
-                                     ItemsSource="{Binding AvailableRooms}"
+                                     ItemsSource="{Binding RoomMapItems}"
                                      SelectedItem="{Binding SelectedRoom}"
                                      Margin="0,12,0,0"
                                      Background="Transparent"
@@ -482,12 +482,16 @@
                                                            Text="{Binding RoomNumber}"
                                                            Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                                            Foreground="{StaticResource TextPrimaryBrush}" />
-                                                <TextBlock Grid.Row="1"
-                                                           Grid.ColumnSpan="2"
-                                                           Text="{Binding RoomTypeName}"
-                                                           Margin="0,8,0,0"
-                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0">
+                                                    <TextBlock Text="{Binding RoomTypeName}"
+                                                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                               Foreground="{StaticResource TextSecondaryBrush}" />
+                                                    <TextBlock Text="{Binding Status}"
+                                                               FontWeight="SemiBold"
+                                                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                               Foreground="{StaticResource PrimaryBrush}"
+                                                               Margin="0,4,0,0"/>
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -509,6 +513,34 @@
 
                             <DockPanel LastChildFill="True">
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <Border Background="{StaticResource SurfaceMutedBrush}"
+                                            CornerRadius="4"
+                                            Margin="0,0,16,0"
+                                            Padding="12,0"
+                                            Width="250">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Text="{Binding RecentBookingSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                                     materialDesign:HintAssist.Hint="Search booking ID or name..."
+                                                     Style="{StaticResource MaterialDesignTextBox}"
+                                                     BorderThickness="0"
+                                                     VerticalAlignment="Center">
+                                                <TextBox.InputBindings>
+                                                    <KeyBinding Key="Enter" Command="{Binding SearchRecentBookingsCommand}" />
+                                                </TextBox.InputBindings>
+                                            </TextBox>
+                                            <Button Grid.Column="1"
+                                                    Command="{Binding SearchRecentBookingsCommand}"
+                                                    Style="{StaticResource IconButtonStyle}"
+                                                    ToolTip="Search bookings"
+                                                    Margin="4,0,-8,0">
+                                                <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" />
+                                            </Button>
+                                        </Grid>
+                                    </Border>
                                     <Button Command="{Binding MarkNoShowCommand}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             ToolTip="Mark selected booking as No-Show"

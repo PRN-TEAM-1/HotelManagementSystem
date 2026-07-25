@@ -157,6 +157,7 @@ public sealed class BookingService : IBookingService
 
     public async Task<ServiceResult<List<BookingSummaryDto>>> GetRecentBookingsAsync(
         CurrentSessionDto? currentUser,
+        string? searchTerm = null,
         int count = 10,
         CancellationToken cancellationToken = default)
     {
@@ -168,7 +169,7 @@ public sealed class BookingService : IBookingService
 
         try
         {
-            var bookings = await _bookingRepository.GetRecentBookingsAsync(count, cancellationToken);
+            var bookings = await _bookingRepository.GetRecentBookingsAsync(searchTerm, count, cancellationToken);
             return ServiceResult<List<BookingSummaryDto>>.Success(bookings.Select(booking =>
             {
                 var roomNumbers = string.Join(", ", booking.BookingDetails

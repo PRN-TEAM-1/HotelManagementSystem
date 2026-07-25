@@ -70,16 +70,28 @@ public sealed class BookingDao
     }
 
     public async Task<List<Booking>> GetRecentBookingsAsync(
+        string? searchTerm = null,
         int count = 10,
         CancellationToken cancellationToken = default)
     {
         await using var context = DbContextFactory.CreateDbContext();
 
-        return await context.Bookings
+        var query = context.Bookings
             .AsNoTracking()
             .Include(booking => booking.Customer)
             .Include(booking => booking.BookingDetails)
                 .ThenInclude(detail => detail.Room)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var pattern = $"%{searchTerm.Trim()}%";
+            query = query.Where(booking =>
+                (booking.Customer != null && EF.Functions.Like(booking.Customer.FullName, pattern))
+                || booking.BookingId.ToString() == searchTerm.Trim());
+        }
+
+        return await query
             .OrderByDescending(booking => booking.CreatedAt)
             .Take(Math.Max(1, count))
             .ToListAsync(cancellationToken);

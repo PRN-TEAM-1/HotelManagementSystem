@@ -15,9 +15,11 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     private ObservableCollection<CustomerListItemDto> _customers = new();
     private ObservableCollection<RoomListItemDto> _availableRooms = new();
     private ObservableCollection<BookingSummaryDto> _bookings = new();
+    private ObservableCollection<RoomMapItemDto> _roomMapItems = new();
     private CustomerListItemDto? _selectedCustomer;
     private RoomListItemDto? _selectedRoom;
     private string _searchTerm = string.Empty;
+    private string _recentBookingSearchTerm = string.Empty;
     private string _customerName = string.Empty;
     private string _identityCard = string.Empty;
     private string _phoneNumber = string.Empty;
@@ -40,6 +42,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCustomersCommand = new AsyncRelayCommand(SearchCustomersAsync);
+        SearchRecentBookingsCommand = new AsyncRelayCommand(SearchRecentBookingsAsync);
         CreateCustomerCommand = new AsyncRelayCommand(CreateCustomerAsync);
         UpdateCustomerCommand = new AsyncRelayCommand(UpdateCustomerAsync);
         CreateBookingCommand = new AsyncRelayCommand(CreateBookingAsync);
@@ -57,6 +60,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     public AsyncRelayCommand LoadCommand { get; }
 
     public AsyncRelayCommand SearchCustomersCommand { get; }
+
+    public AsyncRelayCommand SearchRecentBookingsCommand { get; }
 
     public AsyncRelayCommand CreateCustomerCommand { get; }
 
@@ -82,6 +87,12 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     {
         get => _availableRooms;
         private set => SetProperty(ref _availableRooms, value);
+    }
+
+    public ObservableCollection<RoomMapItemDto> RoomMapItems
+    {
+        get => _roomMapItems;
+        private set => SetProperty(ref _roomMapItems, value);
     }
 
     public ObservableCollection<BookingSummaryDto> Bookings
@@ -151,6 +162,12 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     {
         get => _searchTerm;
         set => SetProperty(ref _searchTerm, value);
+    }
+
+    public string RecentBookingSearchTerm
+    {
+        get => _recentBookingSearchTerm;
+        set => SetProperty(ref _recentBookingSearchTerm, value);
     }
 
     public string CustomerName
@@ -244,13 +261,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Customers = new ObservableCollection<CustomerListItemDto>(customerResult.Data ?? new List<CustomerListItemDto>());
             }
 
-            var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, 10);
+            var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, RecentBookingSearchTerm, 10);
             if (bookingResult.IsSuccess)
             {
                 Bookings = new ObservableCollection<BookingSummaryDto>(bookingResult.Data ?? new List<BookingSummaryDto>());
             }
 
             await RefreshRoomsAsync();
+            await LoadRoomMapAsync();
         }
         catch (Exception ex)
         {
@@ -522,10 +540,19 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task RefreshRoomsAsync()
     {
-        var result = await _roomService.GetAvailableRoomsAsync(CheckInDate, CheckOutDate, SearchTerm);
+        var result = await _roomService.GetAvailableRoomsAsync(CheckInDate, CheckOutDate, null);
         if (result.IsSuccess)
         {
             AvailableRooms = new ObservableCollection<RoomListItemDto>(result.Data ?? new List<RoomListItemDto>());
+        }
+    }
+
+    private async Task LoadRoomMapAsync()
+    {
+        var result = await _roomService.GetRoomMapAsync(CheckInDate);
+        if (result.IsSuccess)
+        {
+            RoomMapItems = new ObservableCollection<RoomMapItemDto>(result.Data ?? new List<RoomMapItemDto>());
         }
     }
 
@@ -549,6 +576,27 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         {
             SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
             ErrorMessage = $"Failed to load guest history: {ex.Message}";
+        }
+    }
+
+    private async Task SearchRecentBookingsAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, RecentBookingSearchTerm, 10);
+            if (bookingResult.IsSuccess)
+            {
+                Bookings = new ObservableCollection<BookingSummaryDto>(bookingResult.Data ?? new List<BookingSummaryDto>());
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

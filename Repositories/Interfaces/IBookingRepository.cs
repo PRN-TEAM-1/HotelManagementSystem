@@ -7,6 +7,7 @@ public interface IBookingRepository
     Task<Booking> AddAsync(Booking booking, CancellationToken cancellationToken = default);
 
     Task<List<Booking>> GetRecentBookingsAsync(
+        string? searchTerm = null,
         int count = 10,
         CancellationToken cancellationToken = default);
 

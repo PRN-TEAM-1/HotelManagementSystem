@@ -11,6 +11,7 @@ public interface IBookingService
 
     Task<ServiceResult<List<BookingSummaryDto>>> GetRecentBookingsAsync(
         CurrentSessionDto? currentUser,
+        string? searchTerm = null,
         int count = 10,
         CancellationToken cancellationToken = default);
 
