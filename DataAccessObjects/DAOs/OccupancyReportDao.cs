@@ -20,7 +20,7 @@ public sealed class OccupancyReportDao
 
         int totalDays = (endDate - startDate).Days + 1;
 
-        var validStatuses = new[]
+        var validStatuses = new List<BookingDetailStatus>
         {
             BookingDetailStatus.Reserved,
             BookingDetailStatus.CheckedIn,
