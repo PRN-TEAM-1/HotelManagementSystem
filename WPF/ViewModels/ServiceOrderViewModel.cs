@@ -360,7 +360,7 @@ public sealed class ServiceOrderViewModel : BaseViewModel
                 Quantity = quantity
             };
 
-            var result = await _serviceOrderService.CreateServiceOrderAsync(request, currentUser.UserId);
+            var result = await _serviceOrderService.CreateServiceOrderAsync(request, currentUser);
 
             if (result.IsFailure)
             {

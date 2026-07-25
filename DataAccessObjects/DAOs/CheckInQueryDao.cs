@@ -27,7 +27,12 @@ public sealed class CheckInQueryDao
                 context.Bookings.AsNoTracking(),
                 x => x.BookingDetail.BookingId,
                 b => b.BookingId,
-                (x, b) => new CheckInCandidateDto
+                (x, b) => new { x.BookingDetail, x.Room, x.RoomType, Booking = b })
+            .Join(
+                context.Customers.AsNoTracking(),
+                x => x.Booking.CustomerId,
+                c => c.CustomerId,
+                (x, c) => new CheckInCandidateDto
                 {
                     BookingDetailId = x.BookingDetail.BookingDetailId,
                     BookingId = x.BookingDetail.BookingId,
@@ -35,6 +40,7 @@ public sealed class CheckInQueryDao
                     RoomNumber = x.Room.RoomNumber,
                     Floor = x.Room.Floor,
                     RoomType = x.RoomType.TypeName,
+                    CustomerName = c.FullName,
                     CheckInDate = x.BookingDetail.CheckInDate,
                     CheckOutDate = x.BookingDetail.CheckOutDate,
                     RoomPrice = x.BookingDetail.RoomPrice,
@@ -67,21 +73,31 @@ public sealed class CheckInQueryDao
                 x => x.Room.RoomTypeId,
                 rt => rt.RoomTypeId,
                 (x, rt) => new { x.BookingDetail, x.Room, RoomType = rt })
-            .Select(x => new CheckInCandidateDto
-            {
-                BookingDetailId = x.BookingDetail.BookingDetailId,
-                BookingId = x.BookingDetail.BookingId,
-                RoomId = x.Room.RoomId,
-                RoomNumber = x.Room.RoomNumber,
-                Floor = x.Room.Floor,
-                RoomType = x.RoomType.TypeName,
-                CheckInDate = x.BookingDetail.CheckInDate,
-                CheckOutDate = x.BookingDetail.CheckOutDate,
-                RoomPrice = x.BookingDetail.RoomPrice,
-                NumberOfNights = x.BookingDetail.NumberOfNights,
-                BookingDetailStatus = x.BookingDetail.Status.ToString(),
-                RoomStatus = x.Room.Status.ToString()
-            })
+            .Join(
+                context.Bookings.AsNoTracking(),
+                x => x.BookingDetail.BookingId,
+                b => b.BookingId,
+                (x, b) => new { x.BookingDetail, x.Room, x.RoomType, Booking = b })
+            .Join(
+                context.Customers.AsNoTracking(),
+                x => x.Booking.CustomerId,
+                c => c.CustomerId,
+                (x, c) => new CheckInCandidateDto
+                {
+                    BookingDetailId = x.BookingDetail.BookingDetailId,
+                    BookingId = x.BookingDetail.BookingId,
+                    RoomId = x.Room.RoomId,
+                    RoomNumber = x.Room.RoomNumber,
+                    Floor = x.Room.Floor,
+                    RoomType = x.RoomType.TypeName,
+                    CustomerName = c.FullName,
+                    CheckInDate = x.BookingDetail.CheckInDate,
+                    CheckOutDate = x.BookingDetail.CheckOutDate,
+                    RoomPrice = x.BookingDetail.RoomPrice,
+                    NumberOfNights = x.BookingDetail.NumberOfNights,
+                    BookingDetailStatus = x.BookingDetail.Status.ToString(),
+                    RoomStatus = x.Room.Status.ToString()
+                })
             .FirstOrDefaultAsync(cancellationToken);
 
         return candidate;

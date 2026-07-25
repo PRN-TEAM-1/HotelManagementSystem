@@ -25,6 +25,13 @@ public sealed class BookingRepository : IBookingRepository
         return _dao.AddBookingDetailsAsync(details, cancellationToken);
     }
 
+    public Task<Booking> CreateBookingWithTransactionAsync(Booking booking, IEnumerable<BookingDetail> details, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(booking);
+        ArgumentNullException.ThrowIfNull(details);
+        return _dao.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
+    }
+
     public Task<List<Booking>> GetRecentBookingsAsync(int count = 10, CancellationToken cancellationToken = default)
     {
         return _dao.GetRecentBookingsAsync(count, cancellationToken);

@@ -73,4 +73,99 @@ public sealed class BookingOperationDao
                room.Status != RoomOperationalStatus.Cleaning &&
                room.Status != RoomOperationalStatus.Inactive;
     }
+
+    public async Task<CheckRecord> CheckInWithTransactionAsync(
+        CheckRecord checkRecord,
+        BookingDetailStatus newDetailStatus,
+        RoomOperationalStatus newRoomStatus,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Insert CheckRecord
+            context.CheckRecords.Add(checkRecord);
+            await context.SaveChangesAsync(cancellationToken);
+
+            // Update BookingDetail
+            var bookingDetail = await context.BookingDetails.FindAsync(new object?[] { checkRecord.BookingDetailId }, cancellationToken);
+            if (bookingDetail != null)
+            {
+                bookingDetail.Status = newDetailStatus;
+                bookingDetail.UpdatedAt = DateTime.Now;
+                context.BookingDetails.Update(bookingDetail);
+            }
+
+            // Update Room
+            if (bookingDetail != null)
+            {
+                var room = await context.Rooms.FindAsync(new object?[] { bookingDetail.RoomId }, cancellationToken);
+                if (room != null)
+                {
+                    room.Status = newRoomStatus;
+                    room.UpdatedAt = DateTime.Now;
+                    context.Rooms.Update(room);
+                }
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return checkRecord;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<CheckRecord> CheckoutWithTransactionAsync(
+        CheckRecord checkRecord,
+        BookingDetailStatus newDetailStatus,
+        RoomOperationalStatus newRoomStatus,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Update CheckRecord
+            context.CheckRecords.Update(checkRecord);
+
+            // Update BookingDetail
+            var bookingDetail = await context.BookingDetails.FindAsync(new object?[] { checkRecord.BookingDetailId }, cancellationToken);
+            if (bookingDetail != null)
+            {
+                bookingDetail.Status = newDetailStatus;
+                bookingDetail.UpdatedAt = DateTime.Now;
+                context.BookingDetails.Update(bookingDetail);
+            }
+
+            // Update Room
+            if (bookingDetail != null)
+            {
+                var room = await context.Rooms.FindAsync(new object?[] { bookingDetail.RoomId }, cancellationToken);
+                if (room != null)
+                {
+                    room.Status = newRoomStatus;
+                    room.UpdatedAt = DateTime.Now;
+                    context.Rooms.Update(room);
+                }
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return checkRecord;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
 }
