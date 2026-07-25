@@ -240,10 +240,10 @@
                                     </StackPanel>
 
                                     <StackPanel Margin="12,0,0,0">
-                                        <TextBlock Text="Base"
+                                        <TextBlock Text="Subtotal"
                                                    Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                                    Foreground="{StaticResource TextSecondaryBrush}" />
-                                        <TextBlock Text="{Binding PreviewTotalAmount, StringFormat='{}{0:N0} VND'}"
+                                        <TextBlock Text="{Binding PreviewSubtotalAmount, StringFormat='{}{0:N0} VND'}"
                                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
                                                    Foreground="{StaticResource TextPrimaryBrush}" />
                                     </StackPanel>
@@ -261,14 +261,14 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBox Text="{Binding DiscountAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Text="{Binding DiscountPercentText, UpdateSourceTrigger=PropertyChanged}"
                                              IsEnabled="{Binding CanEdit}"
-                                             materialDesign:HintAssist.Hint="Discount" />
+                                             materialDesign:HintAssist.Hint="Discount %" />
 
                                     <TextBox Grid.Column="2"
-                                             Text="{Binding TaxAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                             Text="{Binding TaxPercentText, UpdateSourceTrigger=PropertyChanged}"
                                              IsEnabled="{Binding CanEdit}"
-                                             materialDesign:HintAssist.Hint="Tax" />
+                                             materialDesign:HintAssist.Hint="Tax %" />
 
                                     <TextBox Grid.Row="2"
                                              Grid.ColumnSpan="3"
@@ -284,6 +284,27 @@
 
                                 <Grid Grid.Row="6">
                                     <StackPanel>
+                                        <UniformGrid Columns="2"
+                                                     Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="Discount amount"
+                                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding PreviewDiscountAmount, StringFormat='{}{0:N0} VND'}"
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                            </StackPanel>
+
+                                            <StackPanel Margin="12,0,0,0">
+                                                <TextBlock Text="Tax amount"
+                                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding PreviewTaxAmount, StringFormat='{}{0:N0} VND'}"
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                            </StackPanel>
+                                        </UniformGrid>
+
                                         <TextBlock Text="Invoice total"
                                                    Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                                    Foreground="{StaticResource TextSecondaryBrush}" />

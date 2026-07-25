@@ -1,4 +1,6 @@
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
+using DataAccessObjects;
 using Services.Implements;
 using Services.Interfaces;
 using WPF.Helpers;
@@ -21,7 +23,24 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        try
+        {
+            using var context = DbContextFactory.CreateDbContext();
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID('dbo.CK_rooms_status', 'C') IS NOT NULL
+                BEGIN
+                    ALTER TABLE dbo.rooms DROP CONSTRAINT CK_rooms_status;
+                END
+                ALTER TABLE dbo.rooms ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
+            ");
+        }
+        catch
+        {
+            // Ignore if database is not initialized yet
+        }
+
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
 
         _currentUserService = new CurrentUserService();
         _authService = new AuthService();
