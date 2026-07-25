@@ -289,6 +289,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
+
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
@@ -306,6 +307,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             else
             {
                 ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -362,6 +364,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Note = $"Created from Customer/Room/Booking view"
             }, _currentUserService.User);
 
+
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
@@ -370,6 +373,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             else
             {
                 ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -407,6 +411,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
+
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
@@ -415,6 +420,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             else
             {
                 ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -451,6 +457,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId, _currentUserService.User);
+
             if (result.IsSuccess)
             {
                 // Gộp cả 2: Vừa gán SuccessMessage, vừa hiện popup
@@ -461,9 +468,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                // Gộp cả 2: Vừa gán ErrorMessage, vừa hiện popup
                 ErrorMessage = result.Message;
-                System.Windows.MessageBox.Show(result.Message, "Cancellation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(result.Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         catch (Exception ex)
@@ -502,6 +508,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId);
+
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
@@ -510,6 +517,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             else
             {
                 ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -526,6 +534,11 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         if (result.IsSuccess)
         {
             AvailableRooms = new ObservableCollection<RoomListItemDto>(result.Data ?? new List<RoomListItemDto>());
+        }
+        else
+        {
+            AvailableRooms = new ObservableCollection<RoomListItemDto>();
+            Message = result.Errors.FirstOrDefault() ?? result.Message;
         }
     }
 

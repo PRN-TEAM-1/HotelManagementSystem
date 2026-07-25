@@ -143,6 +143,22 @@ BEGIN
 END
 GO
 
+-- Mỗi provider AI chỉ có một bản cấu hình.
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ai_provider_settings_provider_name' AND object_id = OBJECT_ID(N'dbo.ai_provider_settings'))
+BEGIN
+    CREATE UNIQUE INDEX UX_ai_provider_settings_provider_name ON dbo.ai_provider_settings(provider_name);
+END
+GO
+
+-- Chỉ một provider được bật làm mặc định tại một thời điểm.
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ai_provider_settings_active' AND object_id = OBJECT_ID(N'dbo.ai_provider_settings'))
+BEGIN
+    CREATE UNIQUE INDEX UX_ai_provider_settings_active
+    ON dbo.ai_provider_settings(is_active)
+    WHERE is_active = 1;
+END
+GO
+
 -- User phải thuộc về một role hợp lệ có trong bảng roles.
 IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_users_roles')
 BEGIN
@@ -477,5 +493,27 @@ IF OBJECT_ID(N'dbo.CK_payments_amount', N'C') IS NULL
 BEGIN
     ALTER TABLE dbo.payments
         ADD CONSTRAINT CK_payments_amount CHECK (amount > 0);
+END
+GO
+
+-- AI provider chỉ hỗ trợ OpenAI hoặc Gemini trong phiên bản này.
+IF OBJECT_ID(N'dbo.CK_ai_provider_settings_provider', N'C') IS NULL
+BEGIN
+    ALTER TABLE dbo.ai_provider_settings
+        ADD CONSTRAINT CK_ai_provider_settings_provider CHECK (provider_name IN (N'OpenAI', N'Gemini'));
+END
+GO
+
+-- Giới hạn cấu hình model để tránh request quá rộng hoặc timeout quá lâu.
+IF OBJECT_ID(N'dbo.CK_ai_provider_settings_values', N'C') IS NULL
+BEGIN
+    ALTER TABLE dbo.ai_provider_settings
+        ADD CONSTRAINT CK_ai_provider_settings_values CHECK
+        (
+            temperature >= 0
+            AND temperature <= 2
+            AND max_output_tokens BETWEEN 100 AND 4000
+            AND timeout_seconds BETWEEN 5 AND 180
+        );
 END
 GO

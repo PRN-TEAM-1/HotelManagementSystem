@@ -136,7 +136,6 @@ public sealed class BookingService : IBookingService
             var createdBooking = await _bookingRepository.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
             var bookingTotal = details.Sum(d => d.RoomTotal);
 
-
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
             {
                 BookingId = createdBooking.BookingId,
@@ -151,7 +150,7 @@ public sealed class BookingService : IBookingService
 
         catch (Exception ex)
         {
-            return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.SystemError, ex.ToString());
+            return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 
@@ -222,9 +221,9 @@ public sealed class BookingService : IBookingService
             }
             return ServiceResult<bool>.Failure("Unable to cancel booking. It may have checked-in rooms or already be cancelled/completed/no-show.");
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 
@@ -246,9 +245,9 @@ public sealed class BookingService : IBookingService
             }
             return ServiceResult<bool>.Failure("Unable to mark booking as No-Show. It may have checked-in rooms or already be cancelled/completed/no-show.");
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 

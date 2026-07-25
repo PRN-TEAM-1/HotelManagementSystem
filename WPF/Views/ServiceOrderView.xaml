@@ -208,53 +208,153 @@
                                    Foreground="{StaticResource TextPrimaryBrush}" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
-                        <ComboBox ItemsSource="{Binding ActiveStays}"
-                                  SelectedItem="{Binding SelectedStay}"
-                                  IsEnabled="{Binding CanEdit}"
-                                  Margin="0,0,0,16"
-                                  materialDesign:HintAssist.Hint="Select Room / Stay">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Run Text="Room " FontWeight="SemiBold"/>
-                                        <Run Text="{Binding RoomNumber}" FontWeight="SemiBold"/>
-                                        <Run Text=" (Booking #"/>
-                                        <Run Text="{Binding BookingId}"/>
-                                        <Run Text=")"/>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        
-                        <ComboBox ItemsSource="{Binding AvailableServices}"
-                                  SelectedItem="{Binding SelectedService}"
-                                  DisplayMemberPath="ServiceName"
-                                  IsEnabled="{Binding CanEdit}"
-                                  Margin="0,0,0,4"
-                                  materialDesign:HintAssist.Hint="Service" />
-                                  
-                        <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}Giá: {0:N0} VND'}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   Margin="4,0,0,16">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedService}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="0,16,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding ActiveStays}"
+                                      SelectedItem="{Binding SelectedStay}"
+                                      IsEnabled="{Binding CanEdit}"
+                                      Margin="0,0,0,16"
+                                      materialDesign:HintAssist.Hint="Select Room / Stay">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <Run Text="Room " FontWeight="SemiBold"/>
+                                            <Run Text="{Binding RoomNumber}" FontWeight="SemiBold"/>
+                                            <Run Text=" (Booking #"/>
+                                            <Run Text="{Binding BookingId}"/>
+                                            <Run Text=")"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            
+                            <ComboBox ItemsSource="{Binding AvailableServices}"
+                                      SelectedItem="{Binding SelectedService}"
+                                      DisplayMemberPath="ServiceName"
+                                      IsEnabled="{Binding CanEdit}"
+                                      Margin="0,0,0,4"
+                                      materialDesign:HintAssist.Hint="Service" />
+                                      
+                            <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}Giá: {0:N0} VND'}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Margin="4,0,0,16">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignCaptionTextBlock}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedService}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
 
-                        <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
-                                 IsEnabled="{Binding CanEdit}"
-                                 TextAlignment="Left"
-                                 Margin="0,0,0,24"
-                                 materialDesign:HintAssist.Hint="Quantity" />
-                    </StackPanel>
+                            <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanEdit}"
+                                     TextAlignment="Left"
+                                     Margin="0,0,0,16"
+                                     materialDesign:HintAssist.Hint="Quantity" />
+
+                            <Border Padding="12"
+                                    Margin="0,0,0,16"
+                                    Background="{StaticResource SurfaceMutedBrush}"
+                                    CornerRadius="8">
+                                <StackPanel>
+                                    <DockPanel LastChildFill="True">
+                                        <StackPanel DockPanel.Dock="Right"
+                                                    Orientation="Horizontal"
+                                                    Margin="8,0,0,0">
+                                            <Button Command="{Binding SuggestServicesCommand}"
+                                                    Style="{StaticResource IconButtonStyle}"
+                                                    ToolTip="Suggest services with AI">
+                                                <materialDesign:PackIcon Kind="InformationOutline" Width="20" Height="20" />
+                                            </Button>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="InformationOutline"
+                                                                     Width="18"
+                                                                     Height="18"
+                                                                     Foreground="{StaticResource AccentBrush}"
+                                                                     Margin="0,0,8,0" />
+                                            <TextBlock Text="AI Suggestions"
+                                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <TextBox Text="{Binding GuestPreferenceText, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding CanEdit}"
+                                             Margin="0,12,0,8"
+                                             MinHeight="44"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             materialDesign:HintAssist.Hint="Guest preference" />
+
+                                    <ProgressBar Height="4"
+                                                 IsIndeterminate="True"
+                                                 Margin="0,0,0,8"
+                                                 Style="{StaticResource MaterialDesignLinearProgressBar}"
+                                                 Visibility="{Binding IsAiRecommendationBusy, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                    <TextBlock Text="{Binding AiRecommendationMessage}"
+                                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,8"
+                                               Visibility="{Binding AiRecommendationMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+
+                                    <DataGrid ItemsSource="{Binding AiRecommendations}"
+                                              SelectedItem="{Binding SelectedAiRecommendation}"
+                                              IsReadOnly="True"
+                                              MaxHeight="150"
+                                              SelectionMode="Single"
+                                              SelectionUnit="FullRow"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              Visibility="{Binding HasAiRecommendations, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="*" MinWidth="120" />
+                                            <DataGridTextColumn Header="Qty" Binding="{Binding SuggestedQuantity}" Width="Auto" MinWidth="48" />
+                                            <DataGridTextColumn Header="Est." Binding="{Binding EstimatedAmount, StringFormat='{}{0:N0}'}" Width="Auto" MinWidth="80" />
+                                            <DataGridTextColumn Header="Fit" Binding="{Binding Confidence, StringFormat='{}{0:P0}'}" Width="Auto" MinWidth="56" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <Border Padding="10"
+                                            Margin="0,8,0,0"
+                                            Background="White"
+                                            CornerRadius="6"
+                                            Visibility="{Binding SelectedAiRecommendation, Converter={StaticResource ObjectToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding SelectedAiRecommendation.Reason}"
+                                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding SelectedAiRecommendation.UpsellMessage}"
+                                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,4,0,0" />
+                                            <Button Command="{Binding UseRecommendationCommand}"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,8,0,0"
+                                                    ToolTip="Use selected recommendation">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="CheckCircleOutline" Width="18" Height="18" Margin="0,0,8,0" />
+                                                    <TextBlock Text="Use" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
 
                     <StackPanel Grid.Row="2"
                                 Orientation="Horizontal"

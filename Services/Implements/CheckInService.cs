@@ -34,7 +34,7 @@ public sealed class CheckInService : ICheckInService
             var candidates = await _checkInQueryRepository.GetCandidatesForCheckInAsync(cancellationToken);
             return ServiceResult<List<CheckInCandidateDto>>.Success(candidates);
         }
-        catch
+        catch (Exception)
         {
             return ServiceResult<List<CheckInCandidateDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -58,7 +58,7 @@ public sealed class CheckInService : ICheckInService
 
             return ServiceResult<CheckInCandidateDto>.Success(candidate);
         }
-        catch
+        catch (Exception)
         {
             return ServiceResult<CheckInCandidateDto>.Failure(ErrorMessages.SystemError);
         }
@@ -119,14 +119,9 @@ public sealed class CheckInService : ICheckInService
                 return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.NotFound);
             }
 
-            if (!await _bookingOperationRepository.IsRoomOperationalAsync(bookingDetail.RoomId, cancellationToken))
-            {
-                return ServiceResult<CheckRecordDto>.Failure("Room is not operational.");
-            }
-
             if (room.Status != RoomOperationalStatus.Available && room.Status != RoomOperationalStatus.Reserved)
             {
-                return ServiceResult<CheckRecordDto>.Failure("Room must be Available or Reserved to check-in.");
+                return ServiceResult<CheckRecordDto>.Failure(GetRoomNotReadyMessage(room.RoomNumber, room.Status));
             }
 
             // Check if check record already exists
@@ -154,15 +149,31 @@ public sealed class CheckInService : ICheckInService
                 RoomOperationalStatus.Occupied,
                 cancellationToken);
 
-
             var dto = MapToCheckRecordDto(createdCheckRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError, ex.Message);
         }
 
+    }
+
+    private static string GetRoomNotReadyMessage(string roomNumber, RoomOperationalStatus status)
+    {
+        return status switch
+        {
+            RoomOperationalStatus.Cleaning =>
+                $"Room {roomNumber} is still Cleaning. Please mark the room cleaned before check-in.",
+            RoomOperationalStatus.Maintenance =>
+                $"Room {roomNumber} is under Maintenance and cannot be checked in.",
+            RoomOperationalStatus.Inactive =>
+                $"Room {roomNumber} is Inactive and cannot be checked in.",
+            RoomOperationalStatus.Occupied =>
+                $"Room {roomNumber} is already Occupied and cannot be checked in.",
+            _ =>
+                $"Room {roomNumber} is currently {status} and cannot be checked in."
+        };
     }
 
     public async Task<ServiceResult<CheckRecordDto>> GetCheckRecordAsync(int checkRecordId, CancellationToken cancellationToken = default)
@@ -184,7 +195,7 @@ public sealed class CheckInService : ICheckInService
             var dto = MapToCheckRecordDto(checkRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
-        catch
+        catch (Exception)
         {
             return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError);
         }

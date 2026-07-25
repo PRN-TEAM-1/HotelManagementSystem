@@ -198,6 +198,22 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+
+    ai_provider_settings {
+        int ai_provider_setting_id PK
+        string provider_name UK
+        string model_name
+        string encrypted_api_key
+        string endpoint_url
+        decimal temperature
+        int max_output_tokens
+        int timeout_seconds
+        bool is_active
+        datetime last_tested_at
+        string last_test_status
+        datetime created_at
+        datetime updated_at
+    }
 ```
 
 ---
@@ -864,6 +880,54 @@ Khi đó bảng `payments` sẽ có 2 dòng liên kết đến cùng một `invo
 ```text
 invoices 1 - n payments
 users 1 - n payments
+```
+
+---
+
+## 3.13. Bảng `ai_provider_settings`
+
+### Mục đích
+
+Bảng `ai_provider_settings` lưu cấu hình provider AI dùng cho các tính năng trợ lý trong hệ thống, hiện hỗ trợ `OpenAI` và `Gemini`.
+
+Admin có thể chọn provider đang active, nhập model, endpoint, API key, temperature, giới hạn output token và timeout.
+
+### Cấu trúc bảng
+
+| Cột | Kiểu dữ liệu | Khóa | Ý nghĩa |
+|---|---|---|---|
+| `ai_provider_setting_id` | `int` | PK | Mã cấu hình provider. |
+| `provider_name` | `string` | UK | Provider AI: `OpenAI` hoặc `Gemini`. |
+| `model_name` | `string` |  | Tên model dùng khi gọi API. |
+| `encrypted_api_key` | `string` |  | API key đã được bảo vệ trước khi lưu DB. |
+| `endpoint_url` | `string` |  | Endpoint tùy chỉnh, có thể để mặc định. |
+| `temperature` | `decimal` |  | Độ sáng tạo của model, từ 0 đến 2. |
+| `max_output_tokens` | `int` |  | Giới hạn token output. |
+| `timeout_seconds` | `int` |  | Thời gian timeout khi gọi API. |
+| `is_active` | `bool` |  | Provider đang được dùng cho tính năng AI. |
+| `last_tested_at` | `datetime` |  | Thời điểm test kết nối gần nhất. |
+| `last_test_status` | `string` |  | Kết quả test kết nối gần nhất. |
+| `created_at` | `datetime` |  | Thời điểm tạo. |
+| `updated_at` | `datetime` |  | Thời điểm cập nhật. |
+
+### Quy tắc
+
+- Chỉ cho phép `provider_name` là `OpenAI` hoặc `Gemini`.
+- Mỗi provider chỉ có một bản cấu hình.
+- Tại một thời điểm chỉ một provider được active.
+- Temperature nằm trong khoảng 0 đến 2.
+- `max_output_tokens` nằm trong khoảng 100 đến 4000.
+- `timeout_seconds` nằm trong khoảng 5 đến 180.
+
+### Sử dụng trong nghiệp vụ
+
+```text
+Admin cấu hình AI Settings
+→ Receptionist/Manager/Admin mở Service Orders
+→ Chọn phòng đang CheckedIn
+→ Nhập preference nếu có
+→ AI Service Recommendation đọc stay context + service catalog + lịch sử service của khách
+→ Gợi ý service_id hợp lệ từ bảng services
 ```
 
 ---

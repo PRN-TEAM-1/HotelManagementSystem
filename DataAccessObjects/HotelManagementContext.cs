@@ -38,6 +38,8 @@ public sealed class HotelManagementContext : DbContext
 
     public DbSet<Payment> Payments => Set<Payment>();
 
+    public DbSet<AiProviderSetting> AiProviderSettings => Set<AiProviderSetting>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -288,6 +290,27 @@ public sealed class HotelManagementContext : DbContext
             builder.Property(p => p.Note).HasColumnName("note");
             builder.Property(p => p.CreatedAt).HasColumnName("created_at");
             builder.Property(p => p.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        // AI provider configuration
+        modelBuilder.Entity<AiProviderSetting>(builder =>
+        {
+            builder.ToTable("ai_provider_settings");
+            builder.HasKey(ai => ai.AiProviderSettingId);
+            builder.Property(ai => ai.AiProviderSettingId).HasColumnName("ai_provider_setting_id");
+            builder.Property(ai => ai.ProviderName).HasColumnName("provider_name").HasConversion<string>().HasMaxLength(30);
+            builder.Property(ai => ai.ModelName).HasColumnName("model_name").HasMaxLength(100).IsRequired();
+            builder.Property(ai => ai.EncryptedApiKey).HasColumnName("encrypted_api_key").HasMaxLength(4000).IsRequired();
+            builder.Property(ai => ai.EndpointUrl).HasColumnName("endpoint_url").HasMaxLength(500);
+            builder.Property(ai => ai.Temperature).HasColumnName("temperature").HasPrecision(5, 2);
+            builder.Property(ai => ai.MaxOutputTokens).HasColumnName("max_output_tokens");
+            builder.Property(ai => ai.TimeoutSeconds).HasColumnName("timeout_seconds");
+            builder.Property(ai => ai.IsActive).HasColumnName("is_active");
+            builder.Property(ai => ai.LastTestedAt).HasColumnName("last_tested_at");
+            builder.Property(ai => ai.LastTestStatus).HasColumnName("last_test_status").HasMaxLength(500);
+            builder.Property(ai => ai.CreatedAt).HasColumnName("created_at");
+            builder.Property(ai => ai.UpdatedAt).HasColumnName("updated_at");
+            builder.HasIndex(ai => ai.ProviderName).IsUnique();
         });
     }
 }
