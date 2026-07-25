@@ -15,5 +15,10 @@ public interface IBookingService
     Task<ServiceResult<bool>> CancelBookingAsync(
         int bookingId,
         CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<bool>> MarkNoShowAsync(
+        int bookingId,
+        CancellationToken cancellationToken = default);
+
 }
 

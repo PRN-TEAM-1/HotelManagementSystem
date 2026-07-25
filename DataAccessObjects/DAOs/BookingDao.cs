@@ -74,7 +74,15 @@ public sealed class BookingDao
             .Include(b => b.BookingDetails)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken);
 
-        if (booking is null || booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
+        if (booking is null || booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.NoShow)
+        {
+            return false;
+        }
+
+        var hasCheckedInOrOutDetails = booking.BookingDetails.Any(detail =>
+            detail.Status == BookingDetailStatus.CheckedIn || detail.Status == BookingDetailStatus.CheckedOut);
+
+        if (hasCheckedInOrOutDetails)
         {
             return false;
         }
@@ -94,6 +102,44 @@ public sealed class BookingDao
         await context.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    public async Task<bool> MarkNoShowAsync(int bookingId, CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        var booking = await context.Bookings
+            .Include(b => b.BookingDetails)
+            .FirstOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken);
+
+        if (booking is null || booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.NoShow)
+        {
+            return false;
+        }
+
+        var hasCheckedInOrOutDetails = booking.BookingDetails.Any(detail =>
+            detail.Status == BookingDetailStatus.CheckedIn || detail.Status == BookingDetailStatus.CheckedOut);
+
+        if (hasCheckedInOrOutDetails)
+        {
+            return false;
+        }
+
+        booking.Status = BookingStatus.NoShow;
+        booking.UpdatedAt = DateTime.Now;
+
+        foreach (var detail in booking.BookingDetails)
+        {
+            if (detail.Status == BookingDetailStatus.Reserved)
+            {
+                detail.Status = BookingDetailStatus.NoShow;
+                detail.UpdatedAt = DateTime.Now;
+            }
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
 
     public async Task<List<int>> GetOverlappingRoomIdsAsync(
         IEnumerable<int> roomIds,

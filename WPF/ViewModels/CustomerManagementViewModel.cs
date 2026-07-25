@@ -45,6 +45,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         UpdateCustomerCommand = new AsyncRelayCommand(UpdateCustomerAsync);
         CreateBookingCommand = new AsyncRelayCommand(CreateBookingAsync);
         CancelBookingCommand = new AsyncRelayCommand(CancelBookingAsync);
+        MarkNoShowCommand = new AsyncRelayCommand(MarkNoShowAsync);
         RefreshRoomsCommand = new AsyncRelayCommand(RefreshRoomsAsync);
     }
 
@@ -63,6 +64,9 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     public AsyncRelayCommand CreateBookingCommand { get; }
 
     public AsyncRelayCommand CancelBookingCommand { get; }
+
+    public AsyncRelayCommand MarkNoShowCommand { get; }
+
 
     public AsyncRelayCommand RefreshRoomsCommand { get; }
 
@@ -404,6 +408,17 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             return;
         }
 
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to cancel booking #{SelectedBooking.BookingId}?",
+            "Confirm Cancellation",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
+            return;
+        }
+
         IsBusy = true;
         try
         {
@@ -413,12 +428,56 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             {
                 await LoadAsync();
             }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
         }
         finally
         {
             IsBusy = false;
         }
     }
+
+    private async Task MarkNoShowAsync()
+    {
+        if (SelectedBooking is null)
+        {
+            Message = "Please select a booking to mark as No-Show.";
+            return;
+        }
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to mark booking #{SelectedBooking.BookingId} as No-Show?",
+            "Confirm No-Show",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId);
+            Message = result.Message;
+            if (result.IsSuccess)
+            {
+                await LoadAsync();
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
 
     private async Task RefreshRoomsAsync()
     {

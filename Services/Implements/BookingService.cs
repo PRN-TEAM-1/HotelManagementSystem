@@ -214,13 +214,42 @@ public sealed class BookingService : IBookingService
                 scope.Complete();
                 return ServiceResult<bool>.Success(true, "Booking cancelled successfully.");
             }
-            return ServiceResult<bool>.Failure("Unable to cancel booking. It may be already cancelled or completed.");
+            return ServiceResult<bool>.Failure("Unable to cancel booking. It may have checked-in rooms or already be cancelled/completed/no-show.");
         }
         catch
         {
             return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
+    }
 
+    public async Task<ServiceResult<bool>> MarkNoShowAsync(
+        int bookingId,
+        CancellationToken cancellationToken = default)
+    {
+        if (bookingId <= 0)
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        try
+        {
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
+            var success = await _bookingRepository.MarkNoShowAsync(bookingId, cancellationToken);
+            if (success)
+            {
+                scope.Complete();
+                return ServiceResult<bool>.Success(true, "Booking marked as No-Show successfully.");
+            }
+            return ServiceResult<bool>.Failure("Unable to mark booking as No-Show. It may have checked-in rooms or already be cancelled/completed/no-show.");
+        }
+        catch
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+        }
     }
 }
 
