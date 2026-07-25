@@ -242,6 +242,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             if (customerResult.IsSuccess)
             {
                 Customers = new ObservableCollection<CustomerListItemDto>(customerResult.Data ?? new List<CustomerListItemDto>());
+                if (SelectedCustomer == null && Customers.Count > 0)
+                {
+                    SelectedCustomer = Customers.FirstOrDefault();
+                }
+                else if (SelectedCustomer != null)
+                {
+                    await LoadSelectedCustomerBookingsAsync(SelectedCustomer.CustomerId);
+                }
             }
 
             var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, 10);

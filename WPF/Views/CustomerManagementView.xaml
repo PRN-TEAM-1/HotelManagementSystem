@@ -568,10 +568,21 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
-                                <TextBlock Text="Selected Guest Booking History" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
-                            </StackPanel>
+                            <DockPanel LastChildFill="False">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Selected Guest Booking History" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <TextBlock Text="Guest:" VerticalAlignment="Center" Margin="0,0,8,0" Style="{StaticResource MaterialDesignBody2TextBlock}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <ComboBox ItemsSource="{Binding Customers}"
+                                              SelectedItem="{Binding SelectedCustomer}"
+                                              DisplayMemberPath="FullName"
+                                              Width="220"
+                                              materialDesign:HintAssist.Hint="Select guest..." />
+                                </StackPanel>
+                            </DockPanel>
 
                             <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerBookings}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0">
                                 <DataGrid.Columns>
