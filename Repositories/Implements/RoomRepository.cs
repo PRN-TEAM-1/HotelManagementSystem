@@ -40,6 +40,11 @@ public sealed class RoomRepository : IRoomRepository
         return _dao.UpdateAsync(room, cancellationToken);
     }
 
+    public Task<bool> DeleteAsync(int roomId, CancellationToken cancellationToken = default)
+    {
+        return _dao.DeleteAsync(roomId, cancellationToken);
+    }
+
     public Task<bool> RoomNumberExistsAsync(string roomNumber, int? excludedRoomId = null, CancellationToken cancellationToken = default)
     {
         return _dao.RoomNumberExistsAsync(roomNumber, excludedRoomId, cancellationToken);

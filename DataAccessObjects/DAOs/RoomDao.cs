@@ -176,4 +176,20 @@ public sealed class RoomDao
         return await context.Rooms.AnyAsync(room =>
             room.RoomNumber == normalized && (!excludedRoomId.HasValue || room.RoomId != excludedRoomId.Value), cancellationToken);
     }
+
+    public async Task<bool> DeleteAsync(int roomId, CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+        var existing = await context.Rooms.FirstOrDefaultAsync(item => item.RoomId == roomId, cancellationToken);
+        if (existing is null)
+        {
+            return false;
+        }
+
+        existing.Status = BusinessObjects.Enums.RoomOperationalStatus.Inactive;
+        existing.UpdatedAt = DateTime.Now;
+
+        await context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 }

@@ -9,6 +9,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
 {
     private readonly IRoomTypeService _roomTypeService;
     private ObservableCollection<RoomTypeListItemDto> _roomTypes = new();
+    private RoomTypeListItemDto? _selectedRoomType;
     private string _searchTerm = string.Empty;
     private string _typeName = string.Empty;
     private string _description = string.Empty;
@@ -24,7 +25,9 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         _roomTypeService = roomTypeService;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCommand = new AsyncRelayCommand(SearchAsync);
-        CreateCommand = new AsyncRelayCommand(CreateAsync);
+        SaveCommand = new AsyncRelayCommand(SaveAsync);
+        DeleteCommand = new AsyncRelayCommand(DeleteAsync);
+        ClearCommand = new WPF.Commands.RelayCommand(ClearForm);
         ClearMessagesCommand = new WPF.Commands.RelayCommand(ClearMessages);
     }
 
@@ -36,6 +39,28 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     {
         get => _roomTypes;
         private set => SetProperty(ref _roomTypes, value);
+    }
+
+    public RoomTypeListItemDto? SelectedRoomType
+    {
+        get => _selectedRoomType;
+        set
+        {
+            if (SetProperty(ref _selectedRoomType, value))
+            {
+                if (value is null)
+                {
+                    ClearForm();
+                    return;
+                }
+
+                TypeName = value.TypeName;
+                RoomTypeDescription = value.Description ?? string.Empty;
+                BasePrice = value.BasePrice;
+                Capacity = value.Capacity;
+                Status = value.Status;
+            }
+        }
     }
 
     public string SearchTerm
@@ -93,11 +118,10 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     }
 
     public AsyncRelayCommand LoadCommand { get; }
-
     public AsyncRelayCommand SearchCommand { get; }
-
-    public AsyncRelayCommand CreateCommand { get; }
-
+    public AsyncRelayCommand SaveCommand { get; }
+    public AsyncRelayCommand DeleteCommand { get; }
+    public WPF.Commands.RelayCommand ClearCommand { get; }
     public WPF.Commands.RelayCommand ClearMessagesCommand { get; }
 
     public override async Task InitializeAsync()
@@ -138,7 +162,51 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         await LoadAsync();
     }
 
-    private async Task CreateAsync()
+    private async Task DeleteAsync()
+    {
+        if (SelectedRoomType is null) return;
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to delete room type '{SelectedRoomType.TypeName}'?",
+            "Confirm Delete",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes) return;
+
+        IsBusy = true;
+        try
+        {
+            var result = await _roomTypeService.DeleteRoomTypeAsync(SelectedRoomType.RoomTypeId);
+            if (result.IsSuccess)
+            {
+                SuccessMessage = result.Message;
+                await LoadAsync();
+                ClearForm();
+            }
+            else
+            {
+                ErrorMessage = result.Message;
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void ClearForm()
+    {
+        SelectedRoomType = null;
+        TypeName = string.Empty;
+        RoomTypeDescription = string.Empty;
+        BasePrice = 0;
+        Capacity = 2;
+        Status = "Active";
+        ClearMessages();
+    }
+
+    private async Task SaveAsync()
     {
         ClearMessages();
 
@@ -148,31 +216,55 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
             return;
         }
 
+        var actionText = SelectedRoomType is null ? "create" : "update";
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to {actionText} room type '{TypeName}'?",
+            "Confirm Save",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
+            return;
+        }
+
         IsBusy = true;
         try
         {
-            var result = await _roomTypeService.CreateRoomTypeAsync(new CreateRoomTypeRequestDto
+            ServiceResult<RoomTypeListItemDto> result;
+            if (SelectedRoomType is null)
             {
-                TypeName = TypeName,
-                Description = RoomTypeDescription,
-                BasePrice = BasePrice,
-                Capacity = Capacity,
-                Status = Status
-            });
+                result = await _roomTypeService.CreateRoomTypeAsync(new CreateRoomTypeRequestDto
+                {
+                    TypeName = TypeName,
+                    Description = RoomTypeDescription,
+                    BasePrice = BasePrice,
+                    Capacity = Capacity,
+                    Status = Status
+                });
+            }
+            else
+            {
+                result = await _roomTypeService.UpdateRoomTypeAsync(new UpdateRoomTypeRequestDto
+                {
+                    RoomTypeId = SelectedRoomType.RoomTypeId,
+                    TypeName = TypeName,
+                    Description = RoomTypeDescription,
+                    BasePrice = BasePrice,
+                    Capacity = Capacity,
+                    Status = Status
+                });
+            }
 
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
-                TypeName = string.Empty;
-                RoomTypeDescription = string.Empty;
-                BasePrice = 0;
-                Capacity = 2;
-                Status = "Active";
                 await LoadAsync();
+                ClearForm();
             }
             else
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = result.Message;
             }
         }
         finally

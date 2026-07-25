@@ -30,6 +30,11 @@ public sealed class RoomTypeRepository : IRoomTypeRepository
         return _dao.UpdateAsync(roomType, cancellationToken);
     }
 
+    public Task<bool> DeleteAsync(int roomTypeId, CancellationToken cancellationToken = default)
+    {
+        return _dao.DeleteAsync(roomTypeId, cancellationToken);
+    }
+
     public Task<bool> TypeNameExistsAsync(string typeName, int? excludedRoomTypeId = null, CancellationToken cancellationToken = default)
     {
         return _dao.TypeNameExistsAsync(typeName, excludedRoomTypeId, cancellationToken);

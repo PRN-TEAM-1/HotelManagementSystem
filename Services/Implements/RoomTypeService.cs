@@ -127,6 +127,26 @@ public sealed class RoomTypeService : IRoomTypeService
         }
     }
 
+    public async Task<ServiceResult<bool>> DeleteRoomTypeAsync(int roomTypeId, CancellationToken cancellationToken = default)
+    {
+        if (roomTypeId <= 0)
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        try
+        {
+            var result = await _roomTypeRepository.DeleteAsync(roomTypeId, cancellationToken);
+            return result
+                ? ServiceResult<bool>.Success(true, "Room type deleted successfully.")
+                : ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+        }
+        catch
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+        }
+    }
+
     private static RoomTypeListItemDto MapToListItem(RoomType roomType)
     {
         return new RoomTypeListItemDto

@@ -15,4 +15,9 @@ public interface IRoomTypeService
     Task<ServiceResult<RoomTypeListItemDto>> UpdateRoomTypeAsync(
         UpdateRoomTypeRequestDto request,
         CancellationToken cancellationToken = default);
+
+
+    Task<ServiceResult<bool>> DeleteRoomTypeAsync(
+        int roomTypeId,
+        CancellationToken cancellationToken = default);
 }

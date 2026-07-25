@@ -25,4 +25,8 @@ public interface IRoomService
     Task<ServiceResult<RoomListItemDto>> UpdateRoomAsync(
         UpdateRoomRequestDto request,
         CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<bool>> DeleteRoomAsync(
+        int roomId,
+        CancellationToken cancellationToken = default);
 }

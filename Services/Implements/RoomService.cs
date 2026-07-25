@@ -181,6 +181,26 @@ public sealed class RoomService : IRoomService
         }
     }
 
+    public async Task<ServiceResult<bool>> DeleteRoomAsync(int roomId, CancellationToken cancellationToken = default)
+    {
+        if (roomId <= 0)
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        try
+        {
+            var result = await _roomRepository.DeleteAsync(roomId, cancellationToken);
+            return result
+                ? ServiceResult<bool>.Success(true, "Room deleted successfully.")
+                : ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+        }
+        catch
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+        }
+    }
+
     private static RoomListItemDto MapToListItem(Room room)
     {
         return new RoomListItemDto

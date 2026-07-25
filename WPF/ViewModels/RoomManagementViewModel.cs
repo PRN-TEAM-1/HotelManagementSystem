@@ -31,6 +31,7 @@ public sealed class RoomManagementViewModel : BaseViewModel
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
+        DeleteCommand = new AsyncRelayCommand(DeleteAsync);
         ClearCommand = new RelayCommand(ClearForm);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
@@ -138,6 +139,8 @@ public sealed class RoomManagementViewModel : BaseViewModel
     public AsyncRelayCommand SearchCommand { get; }
 
     public AsyncRelayCommand SaveCommand { get; }
+
+    public AsyncRelayCommand DeleteCommand { get; }
 
     public RelayCommand ClearCommand { get; }
 
@@ -286,5 +289,51 @@ public sealed class RoomManagementViewModel : BaseViewModel
     {
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
+    }
+
+    private async Task DeleteAsync()
+    {
+        ClearMessages();
+
+        if (SelectedRoom is null)
+        {
+            ErrorMessage = "Please select a room to delete.";
+            return;
+        }
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to delete Room {SelectedRoom.RoomNumber}?\nThis will mark it as inactive.",
+            "Confirm Delete",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _roomService.DeleteRoomAsync(SelectedRoom.RoomId);
+            if (result.IsSuccess)
+            {
+                SuccessMessage = result.Message;
+                await LoadAsync();
+                ClearForm();
+            }
+            else
+            {
+                ErrorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

@@ -12,6 +12,8 @@ public interface IRoomTypeRepository
 
     Task<RoomType?> UpdateAsync(RoomType roomType, CancellationToken cancellationToken = default);
 
+    Task<bool> DeleteAsync(int roomTypeId, CancellationToken cancellationToken = default);
+
     Task<bool> TypeNameExistsAsync(
         string typeName,
         int? excludedRoomTypeId = null,
