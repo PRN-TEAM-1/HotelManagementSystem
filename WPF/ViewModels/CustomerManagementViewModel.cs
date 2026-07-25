@@ -25,7 +25,6 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     private string _address = string.Empty;
     private DateTime _checkInDate = DateTime.Today;
     private DateTime _checkOutDate = DateTime.Today.AddDays(1);
-    private string _message = string.Empty;
     private bool _isBusy;
 
     public CustomerManagementViewModel(
@@ -114,7 +113,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                     Email = value.Email ?? string.Empty;
                     Address = value.Address ?? string.Empty;
 
-                    _ = LoadSelectedCustomerBookingsAsync(value.CustomerId);
+                    System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                        async () => await LoadSelectedCustomerBookingsAsync(value.CustomerId));
                 }
                 else
                 {
@@ -531,10 +531,24 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task LoadSelectedCustomerBookingsAsync(int customerId)
     {
-        var result = await _customerService.GetCustomerBookingsAsync(customerId);
-        if (result.IsSuccess)
+        try
         {
-            SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>(result.Data ?? new List<BookingSummaryDto>());
+            var result = await _customerService.GetCustomerBookingsAsync(customerId);
+            if (result.IsSuccess)
+            {
+                SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>(
+                    result.Data ?? new List<BookingSummaryDto>());
+            }
+            else
+            {
+                SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
+                ErrorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
+            ErrorMessage = $"Failed to load guest history: {ex.Message}";
         }
     }
 
