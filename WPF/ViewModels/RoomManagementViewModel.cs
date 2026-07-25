@@ -32,7 +32,9 @@ public sealed class RoomManagementViewModel : BaseViewModel
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         ClearCommand = new RelayCommand(ClearForm);
+        ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
+
 
     public override string Title => "Room Management";
 
@@ -110,10 +112,19 @@ public sealed class RoomManagementViewModel : BaseViewModel
         set => SetProperty(ref _note, value);
     }
 
-    public string Message
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    public string ErrorMessage
     {
-        get => _message;
-        private set => SetProperty(ref _message, value);
+        get => _errorMessage;
+        private set => SetProperty(ref _errorMessage, value);
+    }
+
+    public string SuccessMessage
+    {
+        get => _successMessage;
+        private set => SetProperty(ref _successMessage, value);
     }
 
     public bool IsBusy
@@ -130,6 +141,15 @@ public sealed class RoomManagementViewModel : BaseViewModel
 
     public RelayCommand ClearCommand { get; }
 
+    public RelayCommand ClearMessagesCommand { get; }
+
+
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        ClearMessages();
+    }
+
     public override async Task InitializeAsync()
     {
         await LoadAsync();
@@ -138,7 +158,7 @@ public sealed class RoomManagementViewModel : BaseViewModel
     private async Task LoadAsync()
     {
         IsBusy = true;
-        Message = string.Empty;
+        ClearMessages();
 
         try
         {
@@ -155,9 +175,10 @@ public sealed class RoomManagementViewModel : BaseViewModel
             }
             else
             {
-                Message = roomResult.Message;
+                ErrorMessage = roomResult.Message;
             }
         }
+
         finally
         {
             IsBusy = false;
@@ -171,17 +192,19 @@ public sealed class RoomManagementViewModel : BaseViewModel
 
     private async Task SaveAsync()
     {
+        ClearMessages();
+
         if (string.IsNullOrWhiteSpace(RoomNumber))
         {
-            Message = "Room number is required.";
-            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Room number is required.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (SelectedRoomTypeId <= 0)
         {
-            Message = "Please select a room type.";
-            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Please select a room type.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -225,21 +248,22 @@ public sealed class RoomManagementViewModel : BaseViewModel
                 });
             }
 
-            Message = result.Message;
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 System.Windows.MessageBox.Show(result.Message, "Room Saved", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 ClearForm();
                 await LoadAsync();
             }
             else
             {
+                ErrorMessage = result.Message;
                 System.Windows.MessageBox.Show(result.Message, "Save Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         catch (Exception ex)
         {
-            Message = ex.Message;
+            ErrorMessage = ex.Message;
             System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
@@ -256,6 +280,11 @@ public sealed class RoomManagementViewModel : BaseViewModel
         Floor = 0;
         Status = "Available";
         Note = string.Empty;
-        Message = string.Empty;
+    }
+
+    private void ClearMessages()
+    {
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
     }
 }
