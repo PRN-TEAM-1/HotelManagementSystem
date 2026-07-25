@@ -94,10 +94,39 @@
                          materialDesign:HintAssist.Hint="Username"
                          materialDesign:TextFieldAssist.HasClearButton="True" />
 
-                <PasswordBox PasswordChanged="OnPasswordChanged"
+                <Grid Margin="0,8,0,8">
+                    <PasswordBox x:Name="PasswordBoxInput"
+                                 PasswordChanged="OnPasswordChanged"
+                                 IsEnabled="{Binding CanEdit}"
+                                 materialDesign:HintAssist.Hint="Password"
+                                 Padding="0,0,36,0"
+                                 Visibility="{Binding IsPasswordRevealed, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
+                    <TextBox x:Name="VisiblePasswordInput"
+                             Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
+                             TextChanged="OnVisiblePasswordChanged"
                              IsEnabled="{Binding CanEdit}"
-                             Margin="0,8,0,8"
-                             materialDesign:HintAssist.Hint="Password" />
+                             materialDesign:HintAssist.Hint="Password"
+                             Padding="0,0,36,0"
+                             Visibility="{Binding IsPasswordRevealed, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                    <ToggleButton x:Name="TogglePasswordButton"
+                                  IsChecked="{Binding IsPasswordRevealed, Mode=TwoWay}"
+                                  Style="{StaticResource MaterialDesignActionToggleButton}"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,4,0"
+                                  Width="32"
+                                  Height="32"
+                                  ToolTip="Show / Hide password">
+                        <ToggleButton.Content>
+                            <materialDesign:PackIcon Kind="EyeOff" Width="20" Height="20" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </ToggleButton.Content>
+                        <materialDesign:ToggleButtonAssist.OnContent>
+                            <materialDesign:PackIcon Kind="Eye" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" />
+                        </materialDesign:ToggleButtonAssist.OnContent>
+                    </ToggleButton>
+                </Grid>
 
                 <TextBlock Text="{Binding ErrorMessage}"
                            Margin="0,8,0,0"

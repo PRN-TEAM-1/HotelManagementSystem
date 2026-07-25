@@ -11,6 +11,7 @@ public sealed class LoginViewModel : BaseViewModel
 
     private string _username = string.Empty;
     private string _password = string.Empty;
+    private bool _isPasswordRevealed;
     private string _errorMessage = string.Empty;
     private bool _isBusy;
 
@@ -46,6 +47,12 @@ public sealed class LoginViewModel : BaseViewModel
                 LoginCommand.RaiseCanExecuteChanged();
             }
         }
+    }
+
+    public bool IsPasswordRevealed
+    {
+        get => _isPasswordRevealed;
+        set => SetProperty(ref _isPasswordRevealed, value);
     }
 
     public string ErrorMessage
