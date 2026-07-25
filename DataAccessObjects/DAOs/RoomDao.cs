@@ -51,7 +51,7 @@ public sealed class RoomDao
         var query = context.Rooms
             .AsNoTracking()
             .Include(room => room.RoomType)
-            .Where(room => !occupiedRoomIds.Contains(room.RoomId))
+            .Where(room => room.Status == RoomOperationalStatus.Available && !occupiedRoomIds.Contains(room.RoomId))
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -119,11 +119,17 @@ public sealed class RoomDao
             return null;
         }
 
-        existingRoom.RoomTypeId = room.RoomTypeId;
+        if (room.RoomTypeId > 0)
+        {
+            existingRoom.RoomTypeId = room.RoomTypeId;
+        }
         existingRoom.RoomNumber = room.RoomNumber;
         existingRoom.Floor = room.Floor;
         existingRoom.Status = room.Status;
-        existingRoom.Note = room.Note;
+        if (room.Note != null)
+        {
+            existingRoom.Note = room.Note;
+        }
         existingRoom.UpdatedAt = DateTime.Now;
 
         await context.SaveChangesAsync(cancellationToken);

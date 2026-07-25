@@ -35,7 +35,7 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="320" />
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -162,13 +162,16 @@
                     <DataGrid Grid.Row="2"
                               ItemsSource="{Binding Rooms}"
                               SelectedItem="{Binding SelectedRoom}"
+                              AutoGenerateColumns="False"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
                               Margin="0,8,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="80" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding RoomTypeName}" Width="1.5*" />
-                            <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="Auto" MinWidth="72" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="104" />
-                            <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="2*" />
+                            <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding RoomTypeName}" Width="Auto" MinWidth="110" />
+                            <DataGridTextColumn Header="Floor" Binding="{Binding Floor}" Width="Auto" MinWidth="60" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="100" />
+                            <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="*" MinWidth="220" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

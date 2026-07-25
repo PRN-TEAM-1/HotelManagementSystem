@@ -57,7 +57,7 @@
                     <DataTemplate>
                         <materialDesign:Card Margin="0,0,0,16" Padding="16" materialDesign:ElevationAssist.Elevation="Dp2">
                             <StackPanel>
-                                <DockPanel Margin="0,0,0,12">
+                                <DockPanel Margin="0,0,0,12" LastChildFill="False">
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                         <materialDesign:PackIcon Kind="Layers" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
                                         <TextBlock Text="{Binding FloorName}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" FontWeight="Bold" />
