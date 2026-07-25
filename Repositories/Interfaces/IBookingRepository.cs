@@ -25,7 +25,10 @@ public interface IBookingRepository
 
     Task<bool> CancelBookingAsync(int bookingId, CancellationToken cancellationToken = default);
 
+    Task<bool> MarkNoShowAsync(int bookingId, CancellationToken cancellationToken = default);
+
     Task<List<int>> GetOverlappingRoomIdsAsync(
+
         IEnumerable<int> roomIds,
         DateTime checkIn,
         DateTime checkOut,

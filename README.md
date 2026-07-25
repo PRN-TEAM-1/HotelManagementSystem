@@ -161,7 +161,7 @@ Hệ thống không bắt buộc có:
 - Một booking chỉ có tối đa một invoice.
 - Tính tiền phòng.
 - Tính tiền dịch vụ.
-- Áp dụng discount/tax nếu có.
+- Áp dụng discount/tax theo %, tax tính trên subtotal sau giảm giá.
 - Thanh toán một phần hoặc toàn bộ.
 - Không cho thanh toán vượt quá số tiền còn lại.
 - Cập nhật invoice status: `Unpaid`, `PartiallyPaid`, `Paid`.
@@ -662,8 +662,10 @@ service_orders.total_price = service_orders.quantity * service_orders.unit_price
 ### 10.7 Tổng tiền invoice
 
 ```text
-room_amount = SUM(booking_details.room_total)
-service_amount = SUM(service_orders.total_price)
+room_amount = SUM(booking_details.room_total where status = CheckedOut)
+service_amount = SUM(service_orders.total_price where status = Ordered and booking detail is CheckedOut)
+discount_amount = (room_amount + service_amount) * discount_percent / 100
+tax_amount = (room_amount + service_amount - discount_amount) * tax_percent / 100
 total_amount = room_amount + service_amount + tax_amount - discount_amount
 remaining_amount = total_amount - paid_amount
 ```
@@ -694,7 +696,7 @@ check_records.booking_detail_id
 
 | Nhóm | Status |
 |---|---|
-| User | `Active`, `Inactive`, `Locked` |
+| User | `Active`, `Inactive` |
 | Room Type | `Active`, `Inactive` |
 | Room | `Available`, `Cleaning`, `Maintenance`, `Inactive` |
 | Booking | `Pending`, `Confirmed`, `Cancelled`, `Completed`, `NoShow` |
@@ -916,7 +918,6 @@ Không merge nếu:
 - [ ] Login đúng username/password thành công.
 - [ ] Sai username/password hiển thị lỗi.
 - [ ] User `Inactive` không login được.
-- [ ] User `Locked` không login được.
 - [ ] Sau login có `CurrentSession` đầy đủ.
 - [ ] Logout clear `CurrentSession`.
 

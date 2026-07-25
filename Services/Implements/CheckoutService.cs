@@ -4,6 +4,9 @@ using BusinessObjects.Enums;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
+using DataAccessObjects;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Services.Implements;
 
@@ -77,6 +80,24 @@ public sealed class CheckoutService : ICheckoutService
 
         try
         {
+            // Validate user role
+            await using (var dbContext = DbContextFactory.CreateDbContext())
+            {
+                var user = await dbContext.Users.Include(u => u.Role)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == currentUser!.UserId && u.Status == UserStatus.Active, cancellationToken);
+
+                if (user is null)
+                {
+                    return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.Unauthorized);
+                }
+
+                if (user.Role?.Name is not (RoleName.Admin or RoleName.Manager or RoleName.Receptionist))
+                {
+                    return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.Forbidden);
+                }
+            }
+
             // Get booking detail
             var bookingDetail = await _bookingOperationRepository.GetBookingDetailByIdAsync(request.BookingDetailId, cancellationToken);
             if (bookingDetail is null)
@@ -104,6 +125,11 @@ public sealed class CheckoutService : ICheckoutService
                 return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.NotFound);
             }
 
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
             // Update check record
             checkRecord.ActualCheckOutDate = DateTime.Now;
             checkRecord.CheckOutByUserId = currentUser!.UserId;
@@ -115,6 +141,8 @@ public sealed class CheckoutService : ICheckoutService
                 BookingDetailStatus.CheckedOut,
                 RoomOperationalStatus.Cleaning,
                 cancellationToken);
+
+            scope.Complete();
 
             var result = new CheckoutResultDto
             {
@@ -132,6 +160,7 @@ public sealed class CheckoutService : ICheckoutService
         {
             return ServiceResult<CheckoutResultDto>.Failure(ErrorMessages.SystemError);
         }
+
     }
 
     private static ServiceResult<T>? EnsureCanManageCheckouts<T>(CurrentSessionDto? currentUser)

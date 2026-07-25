@@ -48,6 +48,11 @@ public sealed class UserManagementRepository : IUserManagementRepository
         return _dao.UpdateStatusAsync(userId, status, cancellationToken);
     }
 
+    public Task<bool> DeleteAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return _dao.DeleteAsync(userId, cancellationToken);
+    }
+
     public Task<bool> ExistsByUsernameAsync(
         string username,
         int? excludedUserId = null,

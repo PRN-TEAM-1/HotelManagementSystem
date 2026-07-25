@@ -5,6 +5,9 @@ using BusinessObjects.Enums;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
+using DataAccessObjects;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Services.Implements;
 
@@ -91,6 +94,24 @@ public sealed class ServiceOrderService : IServiceOrderService
 
         try
         {
+            // Validate user role
+            await using (var dbContext = DbContextFactory.CreateDbContext())
+            {
+                var user = await dbContext.Users.Include(u => u.Role)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == currentUser!.UserId && u.Status == UserStatus.Active, cancellationToken);
+
+                if (user is null)
+                {
+                    return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.Unauthorized);
+                }
+
+                if (user.Role?.Name is not (RoleName.Admin or RoleName.Manager or RoleName.Receptionist))
+                {
+                    return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.Forbidden);
+                }
+            }
+
             // Get booking detail
             var bookingDetail = await _bookingOperationRepository.GetBookingDetailByIdAsync(request.BookingDetailId, cancellationToken);
             if (bookingDetail is null)
@@ -117,6 +138,11 @@ public sealed class ServiceOrderService : IServiceOrderService
                 return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.BusinessRuleViolation);
             }
 
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
             // Create service order
             var totalPrice = request.Quantity * service.Price;
             var serviceOrder = new ServiceOrder
@@ -135,6 +161,8 @@ public sealed class ServiceOrderService : IServiceOrderService
             };
 
             var createdOrder = await _serviceOrderRepository.AddAsync(serviceOrder, cancellationToken);
+
+            scope.Complete();
 
             var dto = new ServiceOrderListItemDto
             {

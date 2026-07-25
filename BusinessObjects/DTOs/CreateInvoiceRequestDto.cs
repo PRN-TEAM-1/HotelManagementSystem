@@ -4,9 +4,9 @@ public sealed class CreateInvoiceRequestDto
 {
     public int BookingId { get; set; }
 
-    public decimal DiscountAmount { get; set; }
+    public decimal DiscountPercent { get; set; }
 
-    public decimal TaxAmount { get; set; }
+    public decimal TaxPercent { get; set; }
 
     public string? Note { get; set; }
 }

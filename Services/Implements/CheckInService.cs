@@ -5,6 +5,9 @@ using BusinessObjects.Enums;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
+using DataAccessObjects;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Services.Implements;
 
@@ -78,6 +81,24 @@ public sealed class CheckInService : ICheckInService
 
         try
         {
+            // Validate user role
+            await using (var dbContext = DbContextFactory.CreateDbContext())
+            {
+                var user = await dbContext.Users.Include(u => u.Role)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == currentUser!.UserId && u.Status == UserStatus.Active, cancellationToken);
+
+                if (user is null)
+                {
+                    return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.Unauthorized);
+                }
+
+                if (user.Role?.Name is not (RoleName.Admin or RoleName.Manager or RoleName.Receptionist))
+                {
+                    return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.Forbidden);
+                }
+            }
+
             // Get booking detail
             var bookingDetail = await _bookingOperationRepository.GetBookingDetailByIdAsync(request.BookingDetailId, cancellationToken);
             if (bookingDetail is null)
@@ -115,6 +136,11 @@ public sealed class CheckInService : ICheckInService
                 return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.BusinessRuleViolation);
             }
 
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
             // Create check record
             var checkRecord = new CheckRecord
             {
@@ -133,6 +159,8 @@ public sealed class CheckInService : ICheckInService
                 RoomOperationalStatus.Occupied,
                 cancellationToken);
 
+            scope.Complete();
+
             var dto = MapToCheckRecordDto(createdCheckRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
@@ -140,6 +168,7 @@ public sealed class CheckInService : ICheckInService
         {
             return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError);
         }
+
     }
 
     public async Task<ServiceResult<CheckRecordDto>> GetCheckRecordAsync(int checkRecordId, CancellationToken cancellationToken = default)

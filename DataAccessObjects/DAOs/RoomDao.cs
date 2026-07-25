@@ -42,8 +42,9 @@ public sealed class RoomDao
 
         var occupiedRoomIds = await context.BookingDetails
             .AsNoTracking()
-            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut && detail.Status != BookingDetailStatus.NoShow)
             .Where(detail => detail.CheckInDate < checkOutDate && detail.CheckOutDate > checkInDate)
+
             .Select(detail => detail.RoomId)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -78,14 +79,13 @@ public sealed class RoomDao
 
         var dateBookings = await context.BookingDetails
             .AsNoTracking()
-            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut && detail.Status != BookingDetailStatus.NoShow)
             .Where(detail => detail.CheckInDate.Date <= currentDate.Date && detail.CheckOutDate.Date > currentDate.Date) // Use .Date and handle checkout on currentDate
             .Select(detail => new { detail.RoomId, detail.Status })
             .ToListAsync(cancellationToken);
 
         var occupiedRoomIds = dateBookings.Where(b => b.Status == BookingDetailStatus.CheckedIn).Select(b => b.RoomId).ToHashSet();
         var reservedRoomIds = dateBookings.Where(b => b.Status == BookingDetailStatus.Reserved).Select(b => b.RoomId).ToHashSet();
-
         var rooms = await context.Rooms
             .AsNoTracking()
             .Include(room => room.RoomType)
@@ -95,6 +95,13 @@ public sealed class RoomDao
 
         foreach (var room in rooms)
         {
+            if (room.Status == RoomOperationalStatus.Maintenance ||
+                room.Status == RoomOperationalStatus.Inactive ||
+                room.Status == RoomOperationalStatus.Cleaning)
+            {
+                continue; // Priority 1, 2, 3 take precedence!
+            }
+
             if (occupiedRoomIds.Contains(room.RoomId))
             {
                 room.Status = RoomOperationalStatus.Occupied;
@@ -104,9 +111,9 @@ public sealed class RoomDao
                 room.Status = RoomOperationalStatus.Reserved;
             }
         }
-
         return rooms;
     }
+
 
     public async Task<Room> AddAsync(Room room, CancellationToken cancellationToken = default)
     {

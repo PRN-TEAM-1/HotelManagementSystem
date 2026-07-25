@@ -143,10 +143,10 @@
                             ToolTip="Set inactive">
                         <materialDesign:PackIcon Kind="AccountOff" Width="20" Height="20" />
                     </Button>
-                    <Button Command="{Binding LockUserCommand}"
+                    <Button Command="{Binding DeleteUserCommand}"
                             Style="{StaticResource IconButtonStyle}"
-                            ToolTip="Lock account">
-                        <materialDesign:PackIcon Kind="Lock" Width="20" Height="20" />
+                            ToolTip="Delete account">
+                        <materialDesign:PackIcon Kind="DeleteOutline" Width="20" Height="20" />
                     </Button>
                 </WrapPanel>
             </Grid>
@@ -156,6 +156,8 @@
             <DataGrid ItemsSource="{Binding Users}"
                       SelectedItem="{Binding SelectedUser}"
                       IsEnabled="{Binding CanEdit}"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
                       HorizontalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="1*" />
@@ -164,7 +166,6 @@
                     <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.6*" />
                     <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="Auto" MinWidth="108" />
                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                    <DataGridCheckBoxColumn Header="Activity" Binding="{Binding HasBusinessReferences}" Width="Auto" MinWidth="84" />
                     <DataGridTextColumn Header="Updated" Binding="{Binding UpdatedAt, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
                 </DataGrid.Columns>
             </DataGrid>

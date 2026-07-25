@@ -271,11 +271,24 @@ BEGIN
 END
 GO
 
--- Chỉ cho phép status user nằm trong 3 trạng thái hệ thống định nghĩa sẵn.
+-- Chỉ cho phép status user là Active hoặc Inactive.
+UPDATE dbo.users
+SET status = N'Inactive',
+    updated_at = SYSUTCDATETIME()
+WHERE status = N'Locked';
+GO
+
+IF OBJECT_ID(N'dbo.CK_users_status', N'C') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.users
+        DROP CONSTRAINT CK_users_status;
+END
+GO
+
 IF OBJECT_ID(N'dbo.CK_users_status', N'C') IS NULL
 BEGIN
     ALTER TABLE dbo.users
-        ADD CONSTRAINT CK_users_status CHECK (status IN (N'Active', N'Inactive', N'Locked'));
+        ADD CONSTRAINT CK_users_status CHECK (status IN (N'Active', N'Inactive'));
 END
 GO
 
@@ -296,12 +309,16 @@ END
 GO
 
 -- Trạng thái vận hành của phòng chỉ được thuộc bộ status đã thiết kế.
-IF OBJECT_ID(N'dbo.CK_rooms_status', N'C') IS NULL
+IF OBJECT_ID(N'dbo.CK_rooms_status', N'C') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.rooms
-        ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
+    ALTER TABLE dbo.rooms DROP CONSTRAINT CK_rooms_status;
 END
 GO
+
+ALTER TABLE dbo.rooms
+    ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
+GO
+
 
 -- Số tầng không được âm.
 IF OBJECT_ID(N'dbo.CK_rooms_floor', N'C') IS NULL

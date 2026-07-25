@@ -466,15 +466,25 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel LastChildFill="True">
-                                <Button DockPanel.Dock="Right"
-                                        Command="{Binding CancelBookingCommand}"
-                                        Style="{StaticResource DangerButtonStyle}"
-                                        ToolTip="Cancel selected booking">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Cancel" Width="18" Height="18" Margin="0,0,6,0" />
-                                        <TextBlock Text="Cancel Booking" />
-                                    </StackPanel>
-                                </Button>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <Button Command="{Binding MarkNoShowCommand}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            ToolTip="Mark selected booking as No-Show"
+                                            Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="AccountAlert" Width="18" Height="18" Margin="0,0,6,0" />
+                                            <TextBlock Text="Mark No-Show" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{Binding CancelBookingCommand}"
+                                            Style="{StaticResource DangerButtonStyle}"
+                                            ToolTip="Cancel selected booking">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Cancel" Width="18" Height="18" Margin="0,0,6,0" />
+                                            <TextBlock Text="Cancel Booking" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <materialDesign:PackIcon Kind="ReceiptText"
                                                              Width="20"
