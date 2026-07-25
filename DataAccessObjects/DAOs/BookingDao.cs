@@ -33,6 +33,42 @@ public sealed class BookingDao
         return details.ToList();
     }
 
+    public async Task<Booking> CreateBookingWithTransactionAsync(Booking booking, IEnumerable<BookingDetail> details, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(booking);
+        ArgumentNullException.ThrowIfNull(details);
+
+        await using var context = DbContextFactory.CreateDbContext();
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            booking.CreatedAt = DateTime.Now;
+            booking.UpdatedAt = DateTime.Now;
+
+            context.Bookings.Add(booking);
+            await context.SaveChangesAsync(cancellationToken);
+
+            foreach (var detail in details)
+            {
+                detail.BookingId = booking.BookingId;
+                detail.CreatedAt = DateTime.Now;
+                detail.UpdatedAt = DateTime.Now;
+            }
+
+            context.BookingDetails.AddRange(details);
+            await context.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            return booking;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
     public async Task<List<Booking>> GetRecentBookingsAsync(
         int count = 10,
         CancellationToken cancellationToken = default)

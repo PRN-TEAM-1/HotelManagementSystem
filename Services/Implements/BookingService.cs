@@ -19,8 +19,15 @@ public sealed class BookingService : IBookingService
 
     public async Task<ServiceResult<BookingSummaryDto>> CreateBookingAsync(
         CreateBookingRequestDto request,
+        CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageBookings<BookingSummaryDto>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         ArgumentNullException.ThrowIfNull(request);
 
         if (request.CustomerId <= 0 || request.CreatedByUserId <= 0)
@@ -68,8 +75,6 @@ public sealed class BookingService : IBookingService
             var roomPrices = await _bookingRepository.GetRoomPricesAsync(request.RoomIds, cancellationToken);
             var numberOfNights = Math.Max(1, (int)(request.CheckOutDate.Date - request.CheckInDate.Date).TotalDays);
 
-            var createdBooking = await _bookingRepository.AddAsync(booking, cancellationToken);
-
             var details = request.RoomIds.Select(roomId =>
             {
                 var price = roomPrices.TryGetValue(roomId, out var p) ? p : 0m;
@@ -77,7 +82,6 @@ public sealed class BookingService : IBookingService
 
                 return new BookingDetail
                 {
-                    BookingId = createdBooking.BookingId,
                     RoomId = roomId,
                     CheckInDate = request.CheckInDate,
                     CheckOutDate = request.CheckOutDate,
@@ -91,7 +95,7 @@ public sealed class BookingService : IBookingService
                 };
             }).ToList();
 
-            await _bookingRepository.AddBookingDetailsAsync(details, cancellationToken);
+            var createdBooking = await _bookingRepository.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
             var bookingTotal = details.Sum(d => d.RoomTotal);
 
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
@@ -112,9 +116,16 @@ public sealed class BookingService : IBookingService
     }
 
     public async Task<ServiceResult<List<BookingSummaryDto>>> GetRecentBookingsAsync(
+        CurrentSessionDto? currentUser,
         int count = 10,
         CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageBookings<List<BookingSummaryDto>>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         try
         {
             var bookings = await _bookingRepository.GetRecentBookingsAsync(count, cancellationToken);
@@ -148,8 +159,15 @@ public sealed class BookingService : IBookingService
 
     public async Task<ServiceResult<bool>> CancelBookingAsync(
         int bookingId,
+        CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageBookings<bool>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         if (bookingId <= 0)
         {
             return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
@@ -166,6 +184,21 @@ public sealed class BookingService : IBookingService
         {
             return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
+    }
+
+    private static ServiceResult<T>? EnsureCanManageBookings<T>(CurrentSessionDto? currentUser)
+    {
+        if (currentUser is null || !currentUser.IsAuthenticated)
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Unauthorized);
+        }
+
+        if (currentUser.RoleName is not (RoleName.Admin or RoleName.Receptionist or RoleName.Manager))
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Forbidden);
+        }
+
+        return null;
     }
 }
 

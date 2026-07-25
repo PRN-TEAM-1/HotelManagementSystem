@@ -207,7 +207,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Customers = new ObservableCollection<CustomerListItemDto>(customerResult.Data ?? new List<CustomerListItemDto>());
             }
 
-            var bookingResult = await _bookingService.GetRecentBookingsAsync(10);
+            var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, 10);
             if (bookingResult.IsSuccess)
             {
                 Bookings = new ObservableCollection<BookingSummaryDto>(bookingResult.Data ?? new List<BookingSummaryDto>());
@@ -260,6 +260,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Email = string.Empty;
                 Address = string.Empty;
                 await LoadAsync();
+                if (result.Data != null)
+                {
+                    SelectedCustomer = Customers.FirstOrDefault(c => c.CustomerId == result.Data.CustomerId);
+                }
             }
             else
             {
@@ -317,7 +321,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 CheckOutDate = CheckOutDate,
                 RoomIds = new List<int> { SelectedRoom.RoomId },
                 Note = $"Created from Customer/Room/Booking view"
-            });
+            }, _currentUserService.User);
 
             Message = result.Message;
             if (result.IsSuccess)
@@ -391,7 +395,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId);
+            var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId, _currentUserService.User);
             Message = result.Message;
             if (result.IsSuccess)
             {

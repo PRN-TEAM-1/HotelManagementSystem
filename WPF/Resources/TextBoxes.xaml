@@ -3,37 +3,37 @@
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
         <Setter Property="Margin" Value="0,0,0,8" />
-        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="MinHeight" Value="44" />
         <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
     <Style TargetType="PasswordBox" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
         <Setter Property="Margin" Value="0,0,0,8" />
-        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="MinHeight" Value="44" />
         <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
     <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
         <Setter Property="Margin" Value="0,0,0,8" />
-        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="MinHeight" Value="44" />
         <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 
     <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignFloatingHintDatePicker}">
         <Setter Property="FontFamily" Value="{StaticResource AppBodyFont}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
         <Setter Property="Margin" Value="0,0,0,8" />
-        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="MinHeight" Value="44" />
         <Setter Property="materialDesign:HintAssist.FloatingOffset" Value="0,-18" />
     </Style>
 </ResourceDictionary>

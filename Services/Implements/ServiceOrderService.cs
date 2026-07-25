@@ -73,19 +73,20 @@ public sealed class ServiceOrderService : IServiceOrderService
         }
     }
 
-    public async Task<ServiceResult<ServiceOrderListItemDto>> CreateServiceOrderAsync(ServiceOrderRequestDto request, int currentUserId, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<ServiceOrderListItemDto>> CreateServiceOrderAsync(ServiceOrderRequestDto request, CurrentSessionDto? currentUser, CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageServiceOrders<ServiceOrderListItemDto>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         ArgumentNullException.ThrowIfNull(request);
 
         var validation = ValidateCreateServiceOrderRequest(request);
         if (!validation.IsSuccess)
         {
             return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.ValidationFailed);
-        }
-
-        if (currentUserId <= 0)
-        {
-            return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.InvalidInput);
         }
 
         try
@@ -122,7 +123,7 @@ public sealed class ServiceOrderService : IServiceOrderService
             {
                 BookingDetailId = request.BookingDetailId,
                 ServiceId = request.ServiceId,
-                CreatedByUserId = currentUserId,
+                CreatedByUserId = currentUser!.UserId,
                 Quantity = request.Quantity,
                 UnitPrice = service.Price,
                 TotalPrice = totalPrice,
@@ -217,5 +218,20 @@ public sealed class ServiceOrderService : IServiceOrderService
         }
 
         return ServiceResult<bool>.Success(true);
+    }
+
+    private static ServiceResult<T>? EnsureCanManageServiceOrders<T>(CurrentSessionDto? currentUser)
+    {
+        if (currentUser is null || !currentUser.IsAuthenticated)
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Unauthorized);
+        }
+
+        if (currentUser.RoleName is not (RoleName.Admin or RoleName.Receptionist or RoleName.Manager))
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Forbidden);
+        }
+
+        return null;
     }
 }

@@ -299,7 +299,7 @@ GO
 IF OBJECT_ID(N'dbo.CK_rooms_status', N'C') IS NULL
 BEGIN
     ALTER TABLE dbo.rooms
-        ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive'));
+        ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
 END
 GO
 

@@ -76,20 +76,36 @@ public sealed class RoomDao
 
         var currentDate = asOfDate ?? DateTime.Today;
 
-        var occupiedRoomIds = await context.BookingDetails
+        var dateBookings = await context.BookingDetails
             .AsNoTracking()
             .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
-            .Where(detail => detail.CheckInDate <= currentDate && detail.CheckOutDate >= currentDate)
-            .Select(detail => detail.RoomId)
-            .Distinct()
+            .Where(detail => detail.CheckInDate.Date <= currentDate.Date && detail.CheckOutDate.Date > currentDate.Date) // Use .Date and handle checkout on currentDate
+            .Select(detail => new { detail.RoomId, detail.Status })
             .ToListAsync(cancellationToken);
 
-        return await context.Rooms
+        var occupiedRoomIds = dateBookings.Where(b => b.Status == BookingDetailStatus.CheckedIn).Select(b => b.RoomId).ToHashSet();
+        var reservedRoomIds = dateBookings.Where(b => b.Status == BookingDetailStatus.Reserved).Select(b => b.RoomId).ToHashSet();
+
+        var rooms = await context.Rooms
             .AsNoTracking()
             .Include(room => room.RoomType)
             .OrderBy(room => room.Floor)
             .ThenBy(room => room.RoomNumber)
             .ToListAsync(cancellationToken);
+
+        foreach (var room in rooms)
+        {
+            if (occupiedRoomIds.Contains(room.RoomId))
+            {
+                room.Status = RoomOperationalStatus.Occupied;
+            }
+            else if (reservedRoomIds.Contains(room.RoomId))
+            {
+                room.Status = RoomOperationalStatus.Reserved;
+            }
+        }
+
+        return rooms;
     }
 
     public async Task<Room> AddAsync(Room room, CancellationToken cancellationToken = default)

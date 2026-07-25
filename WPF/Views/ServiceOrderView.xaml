@@ -76,7 +76,7 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.8*" />
+                <ColumnDefinition Width="2.2*" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
@@ -159,11 +159,11 @@
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   FrozenColumnCount="1">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.5*" MinWidth="150" />
+                                <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="*" MinWidth="160" />
                                 <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="64" />
-                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
-                                <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="1.2*" MinWidth="120" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
+                                <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="Auto" MinWidth="130" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
                             </DataGrid.Columns>
                         </DataGrid>

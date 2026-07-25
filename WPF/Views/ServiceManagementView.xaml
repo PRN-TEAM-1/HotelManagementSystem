@@ -76,7 +76,7 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" MinWidth="360" MaxWidth="500" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
@@ -215,11 +215,13 @@
                               ItemsSource="{Binding Services}"
                               SelectedItem="{Binding SelectedService}"
                               IsEnabled="{Binding CanEdit}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                               Margin="0,8,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.6*" MinWidth="140" />
-                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" MinWidth="100" />
-                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat='{}{0:N0} VND'}" Width="*" MinWidth="90" />
+                            <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="*" MinWidth="160" />
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto" MinWidth="120" />
+                            <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
                             <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="96" />
                         </DataGrid.Columns>
                     </DataGrid>

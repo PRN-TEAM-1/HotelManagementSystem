@@ -38,4 +38,14 @@ public sealed class BookingOperationRepository : IBookingOperationRepository
     {
         return await _dao.IsRoomOperationalAsync(roomId, cancellationToken);
     }
+
+    public async Task<CheckRecord> CheckInWithTransactionAsync(CheckRecord checkRecord, BookingDetailStatus newDetailStatus, RoomOperationalStatus newRoomStatus, CancellationToken cancellationToken = default)
+    {
+        return await _dao.CheckInWithTransactionAsync(checkRecord, newDetailStatus, newRoomStatus, cancellationToken);
+    }
+
+    public async Task<CheckRecord> CheckoutWithTransactionAsync(CheckRecord checkRecord, BookingDetailStatus newDetailStatus, RoomOperationalStatus newRoomStatus, CancellationToken cancellationToken = default)
+    {
+        return await _dao.CheckoutWithTransactionAsync(checkRecord, newDetailStatus, newRoomStatus, cancellationToken);
+    }
 }
