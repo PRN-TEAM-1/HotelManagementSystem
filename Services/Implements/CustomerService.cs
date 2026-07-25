@@ -44,14 +44,14 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName))
+        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(identityCard))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name and Identity Card (CCCD) are required.");
         }
 
         if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, cancellationToken: cancellationToken))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "Identity card already exists.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
         }
 
         try
@@ -93,14 +93,14 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName))
+        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(identityCard))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name and Identity Card (CCCD) are required.");
         }
 
         if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, request.CustomerId, cancellationToken))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "Identity card already exists.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
         }
 
         try

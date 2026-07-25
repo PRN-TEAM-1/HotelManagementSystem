@@ -204,6 +204,7 @@ public sealed class RoomMapViewModel : BaseViewModel
             var updateResult = await _roomService.UpdateRoomAsync(new UpdateRoomRequestDto
             {
                 RoomId = roomItem.RoomId,
+                RoomTypeId = roomItem.RoomTypeId,
                 RoomNumber = roomItem.RoomNumber,
                 Floor = roomItem.Floor,
                 Status = "Available"

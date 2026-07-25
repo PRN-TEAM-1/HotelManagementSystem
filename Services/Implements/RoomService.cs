@@ -69,6 +69,7 @@ public sealed class RoomService : IRoomService
                 return new RoomMapItemDto
                 {
                     RoomId = room.RoomId,
+                    RoomTypeId = room.RoomTypeId,
                     RoomNumber = room.RoomNumber,
                     Floor = room.Floor,
                     RoomTypeName = room.RoomType?.TypeName ?? string.Empty,

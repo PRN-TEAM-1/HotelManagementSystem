@@ -232,9 +232,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task CreateCustomerAsync()
     {
-        if (string.IsNullOrWhiteSpace(CustomerName))
+        if (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(IdentityCard))
         {
-            Message = "Customer name is required.";
+            Message = "Please enter both Full Name and Identity Card (CCCD).";
+            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -260,6 +261,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = string.Empty;
                 await LoadAsync();
             }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
         }
         finally
         {
@@ -272,6 +277,32 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         if (SelectedCustomer is null || SelectedRoom is null)
         {
             Message = "Please select a customer and a room first.";
+            System.Windows.MessageBox.Show(Message, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!string.Equals(SelectedRoom.Status, "Available", StringComparison.OrdinalIgnoreCase))
+        {
+            Message = $"Room {SelectedRoom.RoomNumber} is currently '{SelectedRoom.Status}' and cannot be booked. Only 'Available' rooms can be booked.";
+            System.Windows.MessageBox.Show(Message, "Room Not Available", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirmMessage = $"Are you sure you want to create this booking?\n\n" +
+                             $"• Guest Name: {SelectedCustomer.FullName}\n" +
+                             $"• Identity Card (CCCD): {SelectedCustomer.IdentityCard}\n" +
+                             $"• Room: {SelectedRoom.RoomNumber} ({SelectedRoom.RoomTypeName})\n" +
+                             $"• Check-in: {CheckInDate:yyyy-MM-dd}\n" +
+                             $"• Check-out: {CheckOutDate:yyyy-MM-dd}";
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            confirmMessage,
+            "Confirm Booking",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -293,6 +324,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             {
                 await LoadAsync();
             }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
         }
         finally
         {
@@ -305,12 +340,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         if (SelectedCustomer is null)
         {
             Message = "Please select a customer to update.";
+            System.Windows.MessageBox.Show(Message, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(CustomerName))
+        if (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(IdentityCard))
         {
-            Message = "Customer name is required.";
+            Message = "Please enter both Full Name and Identity Card (CCCD).";
+            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -331,6 +368,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             if (result.IsSuccess)
             {
                 await LoadAsync();
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
