@@ -40,10 +40,16 @@ public sealed class BookingRepository : IBookingRepository
         return _dao.CancelBookingAsync(bookingId, cancellationToken);
     }
 
+    public Task<bool> MarkNoShowAsync(int bookingId, CancellationToken cancellationToken = default)
+    {
+        return _dao.MarkNoShowAsync(bookingId, cancellationToken);
+    }
+
     public Task<List<int>> GetOverlappingRoomIdsAsync(IEnumerable<int> roomIds, DateTime checkIn, DateTime checkOut, CancellationToken cancellationToken = default)
     {
         return _dao.GetOverlappingRoomIdsAsync(roomIds, checkIn, checkOut, cancellationToken);
     }
+
 }
 
 

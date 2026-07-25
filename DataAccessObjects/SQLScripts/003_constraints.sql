@@ -309,12 +309,16 @@ END
 GO
 
 -- Trạng thái vận hành của phòng chỉ được thuộc bộ status đã thiết kế.
-IF OBJECT_ID(N'dbo.CK_rooms_status', N'C') IS NULL
+IF OBJECT_ID(N'dbo.CK_rooms_status', N'C') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.rooms
-        ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive'));
+    ALTER TABLE dbo.rooms DROP CONSTRAINT CK_rooms_status;
 END
 GO
+
+ALTER TABLE dbo.rooms
+    ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
+GO
+
 
 -- Số tầng không được âm.
 IF OBJECT_ID(N'dbo.CK_rooms_floor', N'C') IS NULL
