@@ -26,6 +26,11 @@ public static class MoneyInputParser
         return amount.ToString("0.##", CultureInfo.CurrentCulture);
     }
 
+    public static string FormatCurrency(decimal amount)
+    {
+        return $"{amount:N0} VND";
+    }
+
     private static string NormalizeSeparators(string value)
     {
         var lastComma = value.LastIndexOf(',');

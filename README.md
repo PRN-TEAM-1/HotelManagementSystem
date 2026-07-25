@@ -39,7 +39,7 @@ Hệ thống được xây dựng dưới dạng **ứng dụng desktop WPF ch�
 - Phân quyền theo role: `Admin`, `Manager`, `Receptionist`.
 - Customer không đăng nhập, chỉ là dữ liệu khách thuê phòng.
 - Receptionist là người thao tác nghiệp vụ chính.
-- Database dùng SQL Server với 12 bảng lõi.
+- Database dùng SQL Server với 13 bảng lõi.
 - Code tuân thủ 5 project: `BusinessObjects`, `DataAccessObjects`, `Repositories`, `Services`, `WPF`.
 
 ---
@@ -100,6 +100,7 @@ Hệ thống không bắt buộc có:
 - Admin khóa/mở tài khoản.
 - Không cho tự khóa chính tài khoản đang đăng nhập.
 - Không xóa cứng user đã phát sinh dữ liệu nghiệp vụ.
+- Admin cấu hình provider AI (`OpenAI` hoặc `Gemini`), model, endpoint, API key và provider đang active.
 
 ### 3.3 Customer Management
 
@@ -154,6 +155,7 @@ Hệ thống không bắt buộc có:
 - Lưu `unit_price` tại thời điểm gọi dịch vụ.
 - Tính `total_price = quantity * unit_price`.
 - Hủy service order nếu hợp lệ.
+- AI gợi ý dịch vụ phù hợp khi khách check-in hoặc đang lưu trú, chỉ gợi ý dịch vụ đang `Active` trong catalog.
 
 ### 3.9 Invoice / Payment
 
@@ -440,7 +442,7 @@ HotelManagementSystem.sln
 
 ### 9.1 Danh sách bảng chính
 
-Database có 12 bảng lõi:
+Database có 13 bảng lõi:
 
 | Nhóm | Bảng | Vai trò |
 |---|---|---|

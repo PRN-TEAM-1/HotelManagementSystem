@@ -620,7 +620,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         try
         {
             await ReloadAfterPaymentAsync(result.InvoiceId);
-            SuccessMessage = $"Payment #{result.PaymentId} recorded successfully. Remaining amount: {result.RemainingAmount:C}.";
+            SuccessMessage = $"Payment #{result.PaymentId} recorded successfully. Remaining amount: {MoneyInputParser.FormatCurrency(result.RemainingAmount)}.";
         }
         catch (Exception ex)
         {

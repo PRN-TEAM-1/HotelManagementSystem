@@ -41,6 +41,10 @@
                 <views:UserManagementView />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:AiSettingsViewModel}">
+                <views:AiSettingsView />
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:OperationsViewModel}">
                 <views:OperationsView />
             </DataTemplate>

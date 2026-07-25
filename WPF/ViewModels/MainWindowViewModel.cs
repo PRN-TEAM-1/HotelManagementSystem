@@ -128,6 +128,12 @@ public sealed class MainWindowViewModel : BaseViewModel
                 "ShieldAccount",
                 [RoleName.Admin]),
             new NavigationItemViewModel(
+                NavigationTargets.AiSettings,
+                "AI Settings",
+                "Configure AI provider and model",
+                "InformationOutline",
+                [RoleName.Admin]),
+            new NavigationItemViewModel(
                 NavigationTargets.Operations,
                 "Operations",
                 "Booking, stay and billing tasks",

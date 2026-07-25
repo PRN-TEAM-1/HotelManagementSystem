@@ -18,6 +18,8 @@ public sealed class CheckInQueryDao
                 bd => bd.RoomId,
                 r => r.RoomId,
                 (bd, r) => new { BookingDetail = bd, Room = r })
+            .Where(x => x.Room.Status == RoomOperationalStatus.Available
+                        || x.Room.Status == RoomOperationalStatus.Reserved)
             .Join(
                 context.RoomTypes.AsNoTracking(),
                 x => x.Room.RoomTypeId,
@@ -68,6 +70,8 @@ public sealed class CheckInQueryDao
                 bd => bd.RoomId,
                 r => r.RoomId,
                 (bd, r) => new { BookingDetail = bd, Room = r })
+            .Where(x => x.Room.Status == RoomOperationalStatus.Available
+                        || x.Room.Status == RoomOperationalStatus.Reserved)
             .Join(
                 context.RoomTypes.AsNoTracking(),
                 x => x.Room.RoomTypeId,

@@ -36,7 +36,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dto = MapToServiceDto(service);
             return ServiceResult<ServiceDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<ServiceDto>.Failure(ErrorMessages.SystemError);
         }
@@ -61,7 +61,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dto = MapToServiceDto(service);
             return ServiceResult<ServiceDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<ServiceDto>.Failure(ErrorMessages.SystemError);
         }
@@ -75,7 +75,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dtos = services.Select(MapToServiceListItemDto).ToList();
             return ServiceResult<List<ServiceListItemDto>>.Success(dtos);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<List<ServiceListItemDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -89,7 +89,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dtos = services.Select(MapToServiceListItemDto).ToList();
             return ServiceResult<List<ServiceListItemDto>>.Success(dtos);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<List<ServiceListItemDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -108,7 +108,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dtos = services.Select(MapToServiceListItemDto).ToList();
             return ServiceResult<List<ServiceListItemDto>>.Success(dtos);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<List<ServiceListItemDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -158,7 +158,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dto = MapToServiceDto(createdService);
             return ServiceResult<ServiceDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<ServiceDto>.Failure(ErrorMessages.SystemError);
         }
@@ -224,7 +224,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             var dto = MapToServiceDto(updatedService);
             return ServiceResult<ServiceDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<ServiceDto>.Failure(ErrorMessages.SystemError);
         }
@@ -253,7 +253,7 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             await _serviceRepository.UpdateAsync(service, cancellationToken);
             return ServiceResult<bool>.Success(true);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
