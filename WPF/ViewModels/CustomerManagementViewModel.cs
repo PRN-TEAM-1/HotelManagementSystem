@@ -245,12 +245,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task CreateCustomerAsync()
     {
-        if (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(IdentityCard))
+        if (string.IsNullOrWhiteSpace(CustomerName))
         {
-            Message = "Please enter both Full Name and Identity Card (CCCD).";
+            Message = "Please enter the Full Name.";
             System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
+
+
 
         IsBusy = true;
         try
@@ -357,12 +359,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(IdentityCard))
+        if (string.IsNullOrWhiteSpace(CustomerName))
         {
-            Message = "Please enter both Full Name and Identity Card (CCCD).";
+            Message = "Please enter the Full Name.";
             System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
+
 
         IsBusy = true;
         try
