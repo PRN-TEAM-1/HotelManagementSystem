@@ -8,7 +8,10 @@ public interface IServiceOrderService
 
     Task<ServiceResult<ServiceOrderSummaryDto>> GetServiceOrderSummaryAsync(int bookingDetailId, CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<ServiceOrderListItemDto>> CreateServiceOrderAsync(ServiceOrderRequestDto request, int currentUserId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<ServiceOrderListItemDto>> CreateServiceOrderAsync(
+        ServiceOrderRequestDto request,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default);
 
     Task<ServiceResult<bool>> CancelServiceOrderAsync(int serviceOrderId, CancellationToken cancellationToken = default);
 

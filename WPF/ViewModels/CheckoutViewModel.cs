@@ -189,7 +189,7 @@ public sealed class CheckoutViewModel : BaseViewModel
                 CheckOutNote = CheckoutNote.Trim()
             };
 
-            var result = await _checkoutService.CheckoutAsync(request, currentUser.UserId);
+            var result = await _checkoutService.CheckoutAsync(request, currentUser);
 
             if (result.IsFailure)
             {

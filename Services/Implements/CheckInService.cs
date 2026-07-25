@@ -64,16 +64,17 @@ public sealed class CheckInService : ICheckInService
         }
     }
 
-    public async Task<ServiceResult<CheckRecordDto>> CheckInAsync(CheckInRequestDto request, int currentUserId, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<CheckRecordDto>> CheckInAsync(CheckInRequestDto request, CurrentSessionDto? currentUser, CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageCheckIns<CheckRecordDto>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         ArgumentNullException.ThrowIfNull(request);
 
         if (request.BookingDetailId <= 0)
-        {
-            return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.InvalidInput);
-        }
-
-        if (currentUserId <= 0)
         {
             return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.InvalidInput);
         }
@@ -85,7 +86,7 @@ public sealed class CheckInService : ICheckInService
             {
                 var user = await dbContext.Users.Include(u => u.Role)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.UserId == currentUserId && u.Status == UserStatus.Active, cancellationToken);
+                    .FirstOrDefaultAsync(u => u.UserId == currentUser!.UserId && u.Status == UserStatus.Active, cancellationToken);
 
                 if (user is null)
                 {
@@ -123,9 +124,9 @@ public sealed class CheckInService : ICheckInService
                 return ServiceResult<CheckRecordDto>.Failure("Room is not operational.");
             }
 
-            if (room.Status != RoomOperationalStatus.Available)
+            if (room.Status != RoomOperationalStatus.Available && room.Status != RoomOperationalStatus.Reserved)
             {
-                return ServiceResult<CheckRecordDto>.Failure("Room must be Available to check-in.");
+                return ServiceResult<CheckRecordDto>.Failure("Room must be Available or Reserved to check-in.");
             }
 
             // Check if check record already exists
@@ -144,7 +145,7 @@ public sealed class CheckInService : ICheckInService
             var checkRecord = new CheckRecord
             {
                 BookingDetailId = request.BookingDetailId,
-                CheckInByUserId = currentUserId,
+                CheckInByUserId = currentUser!.UserId,
                 ActualCheckInDate = DateTime.Now,
                 CheckInNote = request.CheckInNote,
                 Status = CheckRecordStatus.CheckedIn,
@@ -152,17 +153,9 @@ public sealed class CheckInService : ICheckInService
                 UpdatedAt = DateTime.Now
             };
 
-            var createdCheckRecord = await _checkRecordRepository.AddAsync(checkRecord, cancellationToken);
-
-            // Update booking detail status to CheckedIn
-            await _bookingOperationRepository.UpdateBookingDetailStatusAsync(
-                request.BookingDetailId,
+            var createdCheckRecord = await _bookingOperationRepository.CheckInWithTransactionAsync(
+                checkRecord,
                 BookingDetailStatus.CheckedIn,
-                cancellationToken);
-
-            // Update room status to Occupied
-            await _bookingOperationRepository.UpdateRoomStatusAsync(
-                bookingDetail.RoomId,
                 RoomOperationalStatus.Occupied,
                 cancellationToken);
 
@@ -219,5 +212,20 @@ public sealed class CheckInService : ICheckInService
             CreatedAt = checkRecord.CreatedAt,
             UpdatedAt = checkRecord.UpdatedAt
         };
+    }
+
+    private static ServiceResult<T>? EnsureCanManageCheckIns<T>(CurrentSessionDto? currentUser)
+    {
+        if (currentUser is null || !currentUser.IsAuthenticated)
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Unauthorized);
+        }
+
+        if (currentUser.RoleName is not (RoleName.Admin or RoleName.Receptionist or RoleName.Manager))
+        {
+            return ServiceResult<T>.Failure(ErrorMessages.Forbidden);
+        }
+
+        return null;
     }
 }

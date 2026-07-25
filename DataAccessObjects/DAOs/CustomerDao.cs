@@ -24,7 +24,7 @@ public sealed class CustomerDao
         }
 
         return await query
-            .OrderBy(customer => customer.FullName)
+            .OrderByDescending(customer => customer.CustomerId)
             .ToListAsync(cancellationToken);
     }
 

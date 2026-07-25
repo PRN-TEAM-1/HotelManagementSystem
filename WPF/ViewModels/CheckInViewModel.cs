@@ -189,7 +189,7 @@ public sealed class CheckInViewModel : BaseViewModel
                 CheckInNote = CheckInNote.Trim()
             };
 
-            var result = await _checkInService.CheckInAsync(request, currentUser.UserId);
+            var result = await _checkInService.CheckInAsync(request, currentUser);
 
             if (result.IsFailure)
             {

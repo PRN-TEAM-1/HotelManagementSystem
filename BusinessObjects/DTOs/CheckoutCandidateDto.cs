@@ -14,6 +14,8 @@ public sealed class CheckoutCandidateDto
 
     public string RoomType { get; set; } = string.Empty;
 
+    public string CustomerName { get; set; } = string.Empty;
+
     public DateTime CheckInDate { get; set; }
 
     public DateTime CheckOutDate { get; set; }

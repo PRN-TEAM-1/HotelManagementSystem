@@ -8,5 +8,8 @@ public interface ICheckoutService
 
     Task<ServiceResult<CheckoutCandidateDto>> GetCheckoutCandidateByIdAsync(int bookingDetailId, CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<CheckoutResultDto>> CheckoutAsync(CheckoutRequestDto request, int currentUserId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<CheckoutResultDto>> CheckoutAsync(
+        CheckoutRequestDto request,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default);
 }

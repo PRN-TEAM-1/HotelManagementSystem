@@ -8,7 +8,10 @@ public interface ICheckInService
 
     Task<ServiceResult<CheckInCandidateDto>> GetCheckInCandidateByIdAsync(int bookingDetailId, CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<CheckRecordDto>> CheckInAsync(CheckInRequestDto request, int currentUserId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<CheckRecordDto>> CheckInAsync(
+        CheckInRequestDto request,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default);
 
     Task<ServiceResult<CheckRecordDto>> GetCheckRecordAsync(int checkRecordId, CancellationToken cancellationToken = default);
 }
