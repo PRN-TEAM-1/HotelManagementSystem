@@ -141,13 +141,87 @@
 
                     <DataGrid Grid.Row="2"
                               ItemsSource="{Binding RoomTypes}"
+                              AutoGenerateColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              RowHeight="56"
                               Margin="0,8,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" Binding="{Binding TypeName}" Width="1.5*" />
-                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
-                            <DataGridTextColumn Header="Base Price" Binding="{Binding BasePrice, StringFormat='{}{0:N0} VND'}" Width="*" />
-                            <DataGridTextColumn Header="Capacity" Binding="{Binding Capacity}" Width="Auto" MinWidth="88" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="96" />
+                            <!-- Name -->
+                            <DataGridTextColumn Header="Name"
+                                                Binding="{Binding TypeName}"
+                                                Width="120"
+                                                MinWidth="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Padding" Value="4,2"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Description -->
+                            <DataGridTextColumn Header="Description"
+                                                Binding="{Binding Description}"
+                                                Width="*"
+                                                MinWidth="160">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                        <Setter Property="Padding" Value="4,2"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Base Price -->
+                            <DataGridTextColumn Header="Base Price (VND)"
+                                                Binding="{Binding BasePrice, StringFormat='{}{0:N0}'}"
+                                                Width="140"
+                                                MinWidth="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4,2"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Capacity -->
+                            <DataGridTextColumn Header="Capacity"
+                                                Binding="{Binding Capacity}"
+                                                Width="90"
+                                                MinWidth="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="4,2"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Status -->
+                            <DataGridTextColumn Header="Status"
+                                                Binding="{Binding Status}"
+                                                Width="90"
+                                                MinWidth="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="4,2"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
