@@ -90,6 +90,10 @@ public sealed class AsyncRelayCommand : ICommand
         {
             await _executeAsync();
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AsyncRelayCommand Error] {ex}");
+        }
         finally
         {
             _isExecuting = false;
@@ -137,6 +141,10 @@ public sealed class AsyncRelayCommand<T> : ICommand
         try
         {
             await _executeAsync(typed);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AsyncRelayCommand Error] {ex}");
         }
         finally
         {

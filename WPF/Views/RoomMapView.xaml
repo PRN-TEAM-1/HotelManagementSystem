@@ -74,7 +74,7 @@
 
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <materialDesign:Card Width="150" Height="110" Margin="0,0,12,12" Padding="12" materialDesign:ElevationAssist.Elevation="Dp1" Background="#FAFAFA">
+                                            <materialDesign:Card Width="170" MinHeight="115" Margin="0,0,12,12" Padding="12" materialDesign:ElevationAssist.Elevation="Dp1" Background="#FAFAFA">
                                                 <Grid>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto" />
@@ -95,10 +95,10 @@
 
                                                     <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,4,0,4">
                                                         <TextBlock Text="{Binding RoomTypeName}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VNĐ/night'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VNĐ/đêm'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
                                                     </StackPanel>
 
-                                                    <DockPanel Grid.Row="2">
+                                                    <DockPanel Grid.Row="2" Margin="0,4,0,0">
                                                         <Button Content="Mark Cleaned"
                                                                 Command="{Binding DataContext.MarkCleanedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}"
@@ -107,7 +107,7 @@
                                                                 FontSize="10"
                                                                 Style="{StaticResource PrimaryButtonStyle}"
                                                                 DockPanel.Dock="Left"
-                                                                Visibility="{Binding Status, Converter={StaticResource StringToVisibilityConverter}}" />
+                                                                Visibility="{Binding IsCleaning, Converter={StaticResource BoolToVisibilityConverter}}" />
                                                         <TextBlock Text="{Binding OccupancyLabel}" FontSize="11" FontStyle="Italic" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                                     </DockPanel>
                                                 </Grid>

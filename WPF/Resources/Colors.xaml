@@ -22,7 +22,8 @@
     <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#1A4666" />
     <SolidColorBrush x:Key="TableHeaderBrush" Color="#EAF1F7" />
 
-    <!-- Aliases used by Checkout / ServiceManagement / ServiceOrder views -->
+    <!-- Aliases used by Checkout / ServiceManagement / ServiceOrder / RoomMap views -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#1E8BA5" />
     <SolidColorBrush x:Key="TextBrush" Color="#102033" />
     <SolidColorBrush x:Key="ButtonSecondaryBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="ButtonSuccessBrush" Color="#237A57" />
