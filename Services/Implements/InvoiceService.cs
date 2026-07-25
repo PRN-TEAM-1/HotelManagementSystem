@@ -141,16 +141,17 @@ public sealed class InvoiceService : IInvoiceService
                     "Invoice can only be created when every booking room is CheckedOut or Cancelled.");
             }
 
-            var totalAmount = candidate.RoomAmount
-                + candidate.ServiceAmount
-                + request.TaxAmount
-                - request.DiscountAmount;
+            var subtotalAmount = candidate.RoomAmount + candidate.ServiceAmount;
+            var discountAmount = RoundMoney(subtotalAmount * request.DiscountPercent / 100m);
+            var taxableAmount = subtotalAmount - discountAmount;
+            var taxAmount = RoundMoney(taxableAmount * request.TaxPercent / 100m);
+            var totalAmount = taxableAmount + taxAmount;
 
             if (totalAmount < 0)
             {
                 return ServiceResult<InvoiceDetailDto>.Failure(
                     ErrorMessages.ValidationFailed,
-                    "Discount cannot exceed room, service and tax amount.");
+                    "Discount cannot exceed subtotal amount.");
             }
 
             var now = DateTime.Now;
@@ -160,8 +161,8 @@ public sealed class InvoiceService : IInvoiceService
                 CreatedByUserId = currentUser!.UserId,
                 RoomAmount = candidate.RoomAmount,
                 ServiceAmount = candidate.ServiceAmount,
-                DiscountAmount = request.DiscountAmount,
-                TaxAmount = request.TaxAmount,
+                DiscountAmount = discountAmount,
+                TaxAmount = taxAmount,
                 TotalAmount = totalAmount,
                 PaidAmount = 0m,
                 RemainingAmount = totalAmount,
@@ -209,17 +210,27 @@ public sealed class InvoiceService : IInvoiceService
     {
         var errors = new List<string>();
 
-        if (request.DiscountAmount < 0)
+        if (request.DiscountPercent < 0)
         {
-            errors.Add("Discount amount cannot be negative.");
+            errors.Add("Discount percentage cannot be negative.");
         }
 
-        if (request.TaxAmount < 0)
+        if (request.DiscountPercent > 100m)
         {
-            errors.Add("Tax amount cannot be negative.");
+            errors.Add("Discount percentage cannot exceed 100%.");
+        }
+
+        if (request.TaxPercent < 0)
+        {
+            errors.Add("Tax percentage cannot be negative.");
         }
 
         return errors;
+    }
+
+    private static decimal RoundMoney(decimal amount)
+    {
+        return Math.Round(amount, 2, MidpointRounding.AwayFromZero);
     }
 
     private static string? NormalizeOptional(string? value)

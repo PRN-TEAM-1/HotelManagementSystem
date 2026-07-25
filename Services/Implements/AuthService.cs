@@ -51,11 +51,6 @@ public sealed class AuthService : IAuthService
                 return ServiceResult<LoginResultDto>.Failure(ErrorMessages.AccountInactive);
             }
 
-            if (user.Status == UserStatus.Locked)
-            {
-                return ServiceResult<LoginResultDto>.Failure(ErrorMessages.AccountLocked);
-            }
-
             var role = user.Role ?? await _roleRepository.GetByIdAsync(user.RoleId, cancellationToken);
 
             if (role is null)

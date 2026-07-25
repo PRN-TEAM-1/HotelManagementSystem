@@ -793,7 +793,7 @@ Enums:
 #### Business Rules
 
 - User phải login thành công mới vào MainWindow.
-- User `Inactive` hoặc `Locked` không được login.
+- User `Inactive` không được login.
 - Password không lưu plain text.
 - Sau login lưu `CurrentSession`.
 - Logout phải clear `CurrentSession`.
@@ -804,7 +804,7 @@ Enums:
 
 - Login thành công với admin seed.
 - Login sai username/password hiển thị lỗi.
-- User inactive/locked không login được.
+- User inactive không login được.
 - Sau login hiển thị tên user và role.
 - Admin/Manager/Receptionist thấy menu khác nhau.
 - Logout quay về LoginWindow.
@@ -871,9 +871,10 @@ DTOs:
 - Chỉ Admin được quản lý user.
 - Username không được trùng.
 - Email không được trùng nếu có nhập.
-- Không cho tự khóa chính tài khoản đang login.
-- Không xóa cứng user đã có dữ liệu nghiệp vụ.
-- Nên dùng status `Active`, `Inactive`, `Locked`.
+- Không cho tự inactive hoặc xóa chính tài khoản đang login.
+- User chưa có dữ liệu nghiệp vụ được xóa cứng sau popup xác nhận.
+- User đã có dữ liệu nghiệp vụ không xóa cứng, chỉ chuyển `Inactive` sau popup xác nhận.
+- Chỉ dùng status `Active`, `Inactive`.
 
 #### Acceptance Criteria
 
@@ -951,8 +952,9 @@ Enums:
 - Invoice gắn với `booking_id`.
 - Một booking chỉ có tối đa một invoice.
 - Chỉ tạo invoice khi tất cả `booking_details` của booking đã `CheckedOut` hoặc `Cancelled`.
-- `room_amount = SUM(booking_details.room_total)`.
-- `service_amount = SUM(service_orders.total_price)` với status `Ordered`.
+- `room_amount = SUM(booking_details.room_total)` với booking detail `CheckedOut`, không tính `Cancelled`.
+- `service_amount = SUM(service_orders.total_price)` với status `Ordered` thuộc booking detail `CheckedOut`.
+- Discount và tax được nhập theo %, discount quy đổi trên subtotal, tax quy đổi trên subtotal sau giảm giá.
 - `total_amount = room_amount + service_amount + tax_amount - discount_amount`.
 - Invoice mới tạo có status `Unpaid`.
 - `paid_amount = 0` khi mới tạo.
@@ -2407,7 +2409,7 @@ INT-001 → INT-002 → INT-003 → INT-004 → TEST-RELEASE-001
 ### 19.1. Auth rules
 
 - User phải login thành công trước khi vào MainWindow.
-- User `Inactive` hoặc `Locked` không được login.
+- User `Inactive` không được login.
 - Password không lưu plain text.
 - Sau login phải lưu `CurrentSession`.
 - `CurrentSession` phải có `UserId`, `Username`, `FullName`, `RoleName`.
@@ -2462,8 +2464,9 @@ AND new_check_out_date > existing_check_in_date
 - Invoice gắn với `booking_id`.
 - Một booking chỉ có tối đa một invoice.
 - Chỉ tạo invoice khi tất cả booking details của booking đã `CheckedOut` hoặc `Cancelled`.
-- `room_amount = SUM(booking_details.room_total)`.
-- `service_amount = SUM(service_orders.total_price)` với status `Ordered`.
+- `room_amount = SUM(booking_details.room_total)` với booking detail `CheckedOut`, không tính `Cancelled`.
+- `service_amount = SUM(service_orders.total_price)` với status `Ordered` thuộc booking detail `CheckedOut`.
+- Discount và tax được nhập theo %, tax tính trên subtotal sau giảm giá.
 - Invoice mới tạo có status `Unpaid`.
 
 ### 19.7. Payment rules
