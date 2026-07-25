@@ -45,9 +45,7 @@ public sealed class UserManagementViewModel : BaseViewModel
         InactivateUserCommand = new AsyncRelayCommand(
             () => ChangeSelectedStatusAsync(UserStatus.Inactive, "inactivate"),
             CanInactivateSelectedUser);
-        LockUserCommand = new AsyncRelayCommand(
-            () => ChangeSelectedStatusAsync(UserStatus.Locked, "lock"),
-            CanLockSelectedUser);
+        DeleteUserCommand = new AsyncRelayCommand(DeleteUserAsync, CanDeleteSelectedUser);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
 
@@ -149,7 +147,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
     public AsyncRelayCommand InactivateUserCommand { get; }
 
-    public AsyncRelayCommand LockUserCommand { get; }
+    public AsyncRelayCommand DeleteUserCommand { get; }
 
     public RelayCommand ClearMessagesCommand { get; }
 
@@ -190,9 +188,11 @@ public sealed class UserManagementViewModel : BaseViewModel
         return !IsBusy && SelectedUser is not null && !HasSelectedStatus(UserStatus.Inactive);
     }
 
-    private bool CanLockSelectedUser()
+    private bool CanDeleteSelectedUser()
     {
-        return !IsBusy && SelectedUser is not null && !HasSelectedStatus(UserStatus.Locked);
+        return !IsBusy
+            && SelectedUser is not null
+            && SelectedUser.UserId != _currentUserService.User?.UserId;
     }
 
     private async Task LoadUsersAsync()
@@ -395,6 +395,60 @@ public sealed class UserManagementViewModel : BaseViewModel
         }
     }
 
+    private async Task DeleteUserAsync()
+    {
+        if (SelectedUser is null)
+        {
+            ErrorMessage = "Please select a user first.";
+            return;
+        }
+
+        if (SelectedUser.UserId == _currentUserService.User?.UserId)
+        {
+            ErrorMessage = "You cannot delete your own account.";
+            return;
+        }
+
+        var selectedUserId = SelectedUser.UserId;
+        var message = SelectedUser.HasBusinessReferences
+            ? $"Account '{SelectedUser.Username}' has business records and cannot be permanently deleted. Set it to Inactive instead?"
+            : $"Permanently delete account '{SelectedUser.Username}'? This action cannot be undone.";
+
+        if (!_dialogService.Confirm(message, "Confirm account deletion"))
+        {
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+
+        try
+        {
+            var result = await _userManagementService.DeleteUserAsync(
+                selectedUserId,
+                _currentUserService.User);
+
+            if (result.IsFailure)
+            {
+                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                return;
+            }
+
+            await LoadUsersAsync();
+            SelectedUser = Users.FirstOrDefault(user => user.UserId == selectedUserId);
+            SuccessMessage = result.Message;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error deleting user: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private async Task<bool> EnsureRoleOptionsAsync()
     {
         if (_roleOptions.Count > 0)
@@ -471,7 +525,7 @@ public sealed class UserManagementViewModel : BaseViewModel
         EditUserCommand.RaiseCanExecuteChanged();
         ActivateUserCommand.RaiseCanExecuteChanged();
         InactivateUserCommand.RaiseCanExecuteChanged();
-        LockUserCommand.RaiseCanExecuteChanged();
+        DeleteUserCommand.RaiseCanExecuteChanged();
     }
 
     private static List<LookupItemDto> CreateStatusOptions()

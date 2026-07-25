@@ -119,6 +119,24 @@ public sealed class UserManagementDao
             .FirstOrDefaultAsync(updatedUser => updatedUser.UserId == userId, cancellationToken);
     }
 
+    public async Task<bool> DeleteAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        await using var context = DbContextFactory.CreateDbContext();
+
+        var user = await context.Users
+            .FirstOrDefaultAsync(existingUser => existingUser.UserId == userId, cancellationToken);
+
+        if (user is null)
+        {
+            return false;
+        }
+
+        context.Users.Remove(user);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
     public async Task<bool> ExistsByUsernameAsync(
         string username,
         int? excludedUserId = null,

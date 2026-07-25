@@ -271,11 +271,24 @@ BEGIN
 END
 GO
 
--- Chỉ cho phép status user nằm trong 3 trạng thái hệ thống định nghĩa sẵn.
+-- Chỉ cho phép status user là Active hoặc Inactive.
+UPDATE dbo.users
+SET status = N'Inactive',
+    updated_at = SYSUTCDATETIME()
+WHERE status = N'Locked';
+GO
+
+IF OBJECT_ID(N'dbo.CK_users_status', N'C') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.users
+        DROP CONSTRAINT CK_users_status;
+END
+GO
+
 IF OBJECT_ID(N'dbo.CK_users_status', N'C') IS NULL
 BEGIN
     ALTER TABLE dbo.users
-        ADD CONSTRAINT CK_users_status CHECK (status IN (N'Active', N'Inactive', N'Locked'));
+        ADD CONSTRAINT CK_users_status CHECK (status IN (N'Active', N'Inactive'));
 END
 GO
 

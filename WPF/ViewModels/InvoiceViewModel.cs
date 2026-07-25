@@ -22,8 +22,8 @@ public sealed class InvoiceViewModel : BaseViewModel
     private PaymentHistoryViewModel _paymentHistory;
     private string _candidateSearchTerm = string.Empty;
     private string _invoiceSearchTerm = string.Empty;
-    private string _discountAmountText = "0";
-    private string _taxAmountText = "0";
+    private string _discountPercentText = "0";
+    private string _taxPercentText = "0";
     private string _invoiceNote = string.Empty;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
@@ -91,9 +91,10 @@ public sealed class InvoiceViewModel : BaseViewModel
         {
             if (SetProperty(ref _selectedCandidate, value))
             {
-                DiscountAmountText = "0";
-                TaxAmountText = "0";
+                DiscountPercentText = "0";
+                TaxPercentText = "0";
                 InvoiceNote = string.Empty;
+                RaisePreviewAmountPropertiesChanged();
                 CreateInvoiceCommand.RaiseCanExecuteChanged();
             }
         }
@@ -156,27 +157,27 @@ public sealed class InvoiceViewModel : BaseViewModel
         }
     }
 
-    public string DiscountAmountText
+    public string DiscountPercentText
     {
-        get => _discountAmountText;
+        get => _discountPercentText;
         set
         {
-            if (SetProperty(ref _discountAmountText, value))
+            if (SetProperty(ref _discountPercentText, value))
             {
-                OnPropertyChanged(nameof(PreviewTotalAmount));
+                RaisePreviewAmountPropertiesChanged();
                 CreateInvoiceCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
-    public string TaxAmountText
+    public string TaxPercentText
     {
-        get => _taxAmountText;
+        get => _taxPercentText;
         set
         {
-            if (SetProperty(ref _taxAmountText, value))
+            if (SetProperty(ref _taxPercentText, value))
             {
-                OnPropertyChanged(nameof(PreviewTotalAmount));
+                RaisePreviewAmountPropertiesChanged();
                 CreateInvoiceCommand.RaiseCanExecuteChanged();
             }
         }
@@ -223,7 +224,7 @@ public sealed class InvoiceViewModel : BaseViewModel
         private set => SetProperty(ref _isInvoiceWorkspaceOpen, value);
     }
 
-    public decimal PreviewTotalAmount
+    public decimal PreviewSubtotalAmount
     {
         get
         {
@@ -232,16 +233,37 @@ public sealed class InvoiceViewModel : BaseViewModel
                 return 0m;
             }
 
-            var discount = TryParseMoney(DiscountAmountText, out var discountAmount)
-                ? discountAmount
-                : 0m;
-            var tax = TryParseMoney(TaxAmountText, out var taxAmount)
-                ? taxAmount
-                : 0m;
-
-            return SelectedCandidate.RoomAmount + SelectedCandidate.ServiceAmount + tax - discount;
+            return SelectedCandidate.RoomAmount + SelectedCandidate.ServiceAmount;
         }
     }
+
+    public decimal PreviewDiscountAmount
+    {
+        get
+        {
+            return TryParsePercent(DiscountPercentText, out var discountPercent) && discountPercent >= 0m
+                ? RoundMoney(PreviewSubtotalAmount * discountPercent / 100m)
+                : 0m;
+        }
+    }
+
+    public decimal PreviewTaxAmount
+    {
+        get
+        {
+            var taxableAmount = PreviewSubtotalAmount - PreviewDiscountAmount;
+            if (taxableAmount <= 0m)
+            {
+                return 0m;
+            }
+
+            return TryParsePercent(TaxPercentText, out var taxPercent) && taxPercent >= 0m
+                ? RoundMoney(taxableAmount * taxPercent / 100m)
+                : 0m;
+        }
+    }
+
+    public decimal PreviewTotalAmount => PreviewSubtotalAmount - PreviewDiscountAmount + PreviewTaxAmount;
 
     public string CandidateEmptyMessage
     {
@@ -321,9 +343,9 @@ public sealed class InvoiceViewModel : BaseViewModel
     {
         return !IsBusy
             && SelectedCandidate is not null
-            && TryParseMoney(DiscountAmountText, out var discount)
-            && TryParseMoney(TaxAmountText, out var tax)
-            && discount >= 0m
+            && TryParsePercent(DiscountPercentText, out var discount)
+            && TryParsePercent(TaxPercentText, out var tax)
+            && discount is >= 0m and <= 100m
             && tax >= 0m
             && PreviewTotalAmount >= 0m;
     }
@@ -445,14 +467,20 @@ public sealed class InvoiceViewModel : BaseViewModel
             return;
         }
 
-        if (!TryParseMoney(DiscountAmountText, out var discountAmount)
-            || !TryParseMoney(TaxAmountText, out var taxAmount))
+        if (!TryParsePercent(DiscountPercentText, out var discountPercent)
+            || !TryParsePercent(TaxPercentText, out var taxPercent))
         {
-            ErrorMessage = "Discount and tax must be valid numbers.";
+            ErrorMessage = "Discount and tax must be valid percentages.";
             return;
         }
 
-        var confirmMessage = $"Create invoice for booking #{SelectedCandidate.BookingId} with total {PreviewTotalAmount:C}?";
+        if (discountPercent is < 0m or > 100m || taxPercent < 0m)
+        {
+            ErrorMessage = "Discount must be between 0% and 100%, and tax cannot be negative.";
+            return;
+        }
+
+        var confirmMessage = $"Create invoice for booking #{SelectedCandidate.BookingId} with total {PreviewTotalAmount:N0} VND?";
         if (!_dialogService.Confirm(confirmMessage, "Create invoice"))
         {
             return;
@@ -467,8 +495,8 @@ public sealed class InvoiceViewModel : BaseViewModel
             var request = new CreateInvoiceRequestDto
             {
                 BookingId = SelectedCandidate.BookingId,
-                DiscountAmount = discountAmount,
-                TaxAmount = taxAmount,
+                DiscountPercent = discountPercent,
+                TaxPercent = taxPercent,
                 Note = InvoiceNote
             };
 
@@ -688,8 +716,21 @@ public sealed class InvoiceViewModel : BaseViewModel
         ViewInvoiceDetailCommand.RaiseCanExecuteChanged();
     }
 
-    private static bool TryParseMoney(string value, out decimal amount)
+    private void RaisePreviewAmountPropertiesChanged()
+    {
+        OnPropertyChanged(nameof(PreviewSubtotalAmount));
+        OnPropertyChanged(nameof(PreviewDiscountAmount));
+        OnPropertyChanged(nameof(PreviewTaxAmount));
+        OnPropertyChanged(nameof(PreviewTotalAmount));
+    }
+
+    private static bool TryParsePercent(string value, out decimal amount)
     {
         return MoneyInputParser.TryParse(value, out amount);
+    }
+
+    private static decimal RoundMoney(decimal amount)
+    {
+        return Math.Round(amount, 2, MidpointRounding.AwayFromZero);
     }
 }

@@ -15,6 +15,8 @@ public interface IUserManagementRepository
 
     Task<User?> UpdateStatusAsync(int userId, UserStatus status, CancellationToken cancellationToken = default);
 
+    Task<bool> DeleteAsync(int userId, CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByUsernameAsync(
         string username,
         int? excludedUserId = null,

@@ -166,7 +166,7 @@ public sealed class UserManagementService : IUserManagementService
         {
             return ServiceResult<UserListItemDto>.Failure(
                 ErrorMessages.BusinessRuleViolation,
-                "You cannot lock or inactivate your own account.");
+                "You cannot inactivate your own account.");
         }
 
         try
@@ -234,7 +234,7 @@ public sealed class UserManagementService : IUserManagementService
         {
             return ServiceResult<UserListItemDto>.Failure(
                 ErrorMessages.BusinessRuleViolation,
-                "You cannot lock or inactivate your own account.");
+                "You cannot inactivate your own account.");
         }
 
         try
@@ -262,6 +262,66 @@ public sealed class UserManagementService : IUserManagementService
         catch
         {
             return ServiceResult<UserListItemDto>.Failure(ErrorMessages.SystemError);
+        }
+    }
+
+    public async Task<ServiceResult<bool>> DeleteUserAsync(
+        int userId,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default)
+    {
+        var authorizationResult = EnsureAdmin<bool>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
+        if (userId <= 0)
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
+        }
+
+        if (currentUser?.UserId == userId)
+        {
+            return ServiceResult<bool>.Failure(
+                ErrorMessages.BusinessRuleViolation,
+                "You cannot delete your own account.");
+        }
+
+        try
+        {
+            var existingUser = await _userManagementRepository.GetByIdAsync(userId, cancellationToken);
+            if (existingUser is null)
+            {
+                return ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+            }
+
+            var hasBusinessReferences = await _userManagementRepository.HasBusinessReferencesAsync(
+                userId,
+                cancellationToken);
+
+            if (hasBusinessReferences)
+            {
+                var inactiveUser = await _userManagementRepository.UpdateStatusAsync(
+                    userId,
+                    UserStatus.Inactive,
+                    cancellationToken);
+
+                return inactiveUser is null
+                    ? ServiceResult<bool>.Failure(ErrorMessages.NotFound)
+                    : ServiceResult<bool>.Success(
+                        true,
+                        "User has business records, so the account was set to Inactive.");
+            }
+
+            var deleted = await _userManagementRepository.DeleteAsync(userId, cancellationToken);
+            return deleted
+                ? ServiceResult<bool>.Success(true, "User deleted permanently.")
+                : ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+        }
+        catch
+        {
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
     }
 
