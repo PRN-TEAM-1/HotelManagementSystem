@@ -33,7 +33,7 @@ public sealed class CheckoutService : ICheckoutService
             var candidates = await _checkoutQueryRepository.GetCandidatesForCheckoutAsync(cancellationToken);
             return ServiceResult<List<CheckoutCandidateDto>>.Success(candidates);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<List<CheckoutCandidateDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -57,9 +57,9 @@ public sealed class CheckoutService : ICheckoutService
 
             return ServiceResult<CheckoutCandidateDto>.Success(candidate);
         }
-        catch (Exception ex)
+        catch
         {
-            return ServiceResult<CheckoutCandidateDto>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<CheckoutCandidateDto>.Failure(ErrorMessages.NotFound);
         }
     }
 

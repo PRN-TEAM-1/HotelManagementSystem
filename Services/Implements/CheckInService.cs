@@ -34,7 +34,7 @@ public sealed class CheckInService : ICheckInService
             var candidates = await _checkInQueryRepository.GetCandidatesForCheckInAsync(cancellationToken);
             return ServiceResult<List<CheckInCandidateDto>>.Success(candidates);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<List<CheckInCandidateDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -58,7 +58,7 @@ public sealed class CheckInService : ICheckInService
 
             return ServiceResult<CheckInCandidateDto>.Success(candidate);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<CheckInCandidateDto>.Failure(ErrorMessages.SystemError);
         }
@@ -158,7 +158,7 @@ public sealed class CheckInService : ICheckInService
             var dto = MapToCheckRecordDto(createdCheckRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError);
         }
@@ -184,7 +184,7 @@ public sealed class CheckInService : ICheckInService
             var dto = MapToCheckRecordDto(checkRecord);
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<CheckRecordDto>.Failure(ErrorMessages.SystemError);
         }

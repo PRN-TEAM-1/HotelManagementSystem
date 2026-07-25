@@ -40,7 +40,7 @@ public sealed class ServiceOrderService : IServiceOrderService
             var orders = summary?.ServiceOrders ?? new List<ServiceOrderListItemDto>();
             return ServiceResult<List<ServiceOrderListItemDto>>.Success(orders);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<List<ServiceOrderListItemDto>>.Failure(ErrorMessages.SystemError);
         }
@@ -70,7 +70,7 @@ public sealed class ServiceOrderService : IServiceOrderService
 
             return ServiceResult<ServiceOrderSummaryDto>.Success(summary);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<ServiceOrderSummaryDto>.Failure(ErrorMessages.SystemError);
         }
@@ -174,7 +174,7 @@ public sealed class ServiceOrderService : IServiceOrderService
 
             return ServiceResult<ServiceOrderListItemDto>.Success(dto);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<ServiceOrderListItemDto>.Failure(ErrorMessages.SystemError);
         }
@@ -198,7 +198,7 @@ public sealed class ServiceOrderService : IServiceOrderService
 
             return ServiceResult<bool>.Success(true);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
@@ -216,7 +216,7 @@ public sealed class ServiceOrderService : IServiceOrderService
             var total = await _serviceOrderRepository.GetTotalServiceAmountByBookingDetailIdAsync(bookingDetailId, cancellationToken);
             return ServiceResult<decimal>.Success(total);
         }
-        catch (Exception ex)
+        catch
         {
             return ServiceResult<decimal>.Failure(ErrorMessages.SystemError);
         }
