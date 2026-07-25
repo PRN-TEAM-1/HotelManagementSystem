@@ -538,7 +538,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         else
         {
             AvailableRooms = new ObservableCollection<RoomListItemDto>();
-            Message = result.Errors.FirstOrDefault() ?? result.Message;
+            ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
         }
     }
 
