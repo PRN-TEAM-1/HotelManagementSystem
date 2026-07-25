@@ -5,6 +5,9 @@ using BusinessObjects.Enums;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
+using DataAccessObjects;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Services.Implements;
 
@@ -53,6 +56,28 @@ public sealed class BookingService : IBookingService
 
         try
         {
+            // Validate user role
+            await using (var dbContext = DbContextFactory.CreateDbContext())
+            {
+                var user = await dbContext.Users.Include(u => u.Role)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == request.CreatedByUserId && u.Status == UserStatus.Active, cancellationToken);
+
+                if (user is null)
+                {
+                    return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.Unauthorized);
+                }
+
+                if (user.Role?.Name is not (RoleName.Admin or RoleName.Manager or RoleName.Receptionist))
+                {
+                    return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.Forbidden);
+                }
+            }
+
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
 
             var booking = new Booking
             {
@@ -94,6 +119,8 @@ public sealed class BookingService : IBookingService
             await _bookingRepository.AddBookingDetailsAsync(details, cancellationToken);
             var bookingTotal = details.Sum(d => d.RoomTotal);
 
+            scope.Complete();
+
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
             {
                 BookingId = createdBooking.BookingId,
@@ -105,6 +132,7 @@ public sealed class BookingService : IBookingService
                 RoomTotal = bookingTotal
             }, "Booking created successfully.");
         }
+
         catch
         {
             return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.SystemError);
@@ -157,15 +185,24 @@ public sealed class BookingService : IBookingService
 
         try
         {
+            using var scope = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
             var success = await _bookingRepository.CancelBookingAsync(bookingId, cancellationToken);
-            return success
-                ? ServiceResult<bool>.Success(true, "Booking cancelled successfully.")
-                : ServiceResult<bool>.Failure("Unable to cancel booking. It may be already cancelled or completed.");
+            if (success)
+            {
+                scope.Complete();
+                return ServiceResult<bool>.Success(true, "Booking cancelled successfully.");
+            }
+            return ServiceResult<bool>.Failure("Unable to cancel booking. It may be already cancelled or completed.");
         }
         catch
         {
             return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
         }
+
     }
 }
 

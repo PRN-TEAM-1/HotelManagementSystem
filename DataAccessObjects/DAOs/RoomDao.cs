@@ -76,21 +76,41 @@ public sealed class RoomDao
 
         var currentDate = asOfDate ?? DateTime.Today;
 
-        var occupiedRoomIds = await context.BookingDetails
+        var activeDetails = await context.BookingDetails
             .AsNoTracking()
             .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
             .Where(detail => detail.CheckInDate <= currentDate && detail.CheckOutDate >= currentDate)
-            .Select(detail => detail.RoomId)
-            .Distinct()
             .ToListAsync(cancellationToken);
 
-        return await context.Rooms
+        var rooms = await context.Rooms
             .AsNoTracking()
             .Include(room => room.RoomType)
             .OrderBy(room => room.Floor)
             .ThenBy(room => room.RoomNumber)
             .ToListAsync(cancellationToken);
+
+        var detailsByRoomId = activeDetails
+            .GroupBy(d => d.RoomId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        foreach (var room in rooms)
+        {
+            if (detailsByRoomId.TryGetValue(room.RoomId, out var detail))
+            {
+                if (detail.Status == BookingDetailStatus.CheckedIn)
+                {
+                    room.Status = RoomOperationalStatus.Occupied;
+                }
+                else if (detail.Status == BookingDetailStatus.Reserved)
+                {
+                    room.Status = RoomOperationalStatus.Reserved;
+                }
+            }
+        }
+
+        return rooms;
     }
+
 
     public async Task<Room> AddAsync(Room room, CancellationToken cancellationToken = default)
     {
