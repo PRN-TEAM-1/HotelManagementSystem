@@ -109,6 +109,13 @@ public sealed class CheckoutViewModel : BaseViewModel
         }
     }
 
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        ClearMessages();
+    }
+
+
     private bool CanExecuteLoad()
     {
         return !IsBusy;
@@ -154,6 +161,18 @@ public sealed class CheckoutViewModel : BaseViewModel
         if (SelectedCandidate is null)
         {
             ErrorMessage = "Please select a booking to check-out";
+            System.Windows.MessageBox.Show(ErrorMessage, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to Check-Out Booking #{SelectedCandidate.BookingId} for Room {SelectedCandidate.RoomNumber}?",
+            "Confirm Check-Out",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -167,6 +186,7 @@ public sealed class CheckoutViewModel : BaseViewModel
             if (currentUser is null)
             {
                 ErrorMessage = "User session not found";
+                System.Windows.MessageBox.Show(ErrorMessage, "Session Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 return;
             }
 
@@ -181,10 +201,12 @@ public sealed class CheckoutViewModel : BaseViewModel
             if (result.IsFailure)
             {
                 ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                System.Windows.MessageBox.Show(ErrorMessage, "Check-Out Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
             }
 
             SuccessMessage = $"Check-out successful for room {SelectedCandidate.RoomNumber}. Room is now marked for cleaning.";
+            System.Windows.MessageBox.Show(SuccessMessage, "Check-Out Successful", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
 
             // Reload the list
             await LoadCheckoutCandidatesAsync();
@@ -193,6 +215,7 @@ public sealed class CheckoutViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = $"Error during check-out: {ex.Message}";
+            System.Windows.MessageBox.Show(ErrorMessage, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {

@@ -251,6 +251,7 @@ public sealed class BookingService : IBookingService
         }
     }
 
+
     private static ServiceResult<T>? EnsureCanManageBookings<T>(CurrentSessionDto? currentUser)
     {
         if (currentUser is null || !currentUser.IsAuthenticated)

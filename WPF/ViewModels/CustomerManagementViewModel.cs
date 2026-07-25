@@ -25,7 +25,6 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     private string _address = string.Empty;
     private DateTime _checkInDate = DateTime.Today;
     private DateTime _checkOutDate = DateTime.Today.AddDays(1);
-    private string _message = string.Empty;
     private bool _isBusy;
 
     public CustomerManagementViewModel(
@@ -47,7 +46,9 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         CancelBookingCommand = new AsyncRelayCommand(CancelBookingAsync);
         MarkNoShowCommand = new AsyncRelayCommand(MarkNoShowAsync);
         RefreshRoomsCommand = new AsyncRelayCommand(RefreshRoomsAsync);
+        ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
+
 
     public override string Title => "Customer & Booking";
 
@@ -112,7 +113,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                     Email = value.Email ?? string.Empty;
                     Address = value.Address ?? string.Empty;
 
-                    _ = LoadSelectedCustomerBookingsAsync(value.CustomerId);
+                    System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                        async () => await LoadSelectedCustomerBookingsAsync(value.CustomerId));
                 }
                 else
                 {
@@ -193,16 +195,34 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         set => SetProperty(ref _checkOutDate, value);
     }
 
-    public string Message
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    public string ErrorMessage
     {
-        get => _message;
-        private set => SetProperty(ref _message, value);
+        get => _errorMessage;
+        private set => SetProperty(ref _errorMessage, value);
+    }
+
+    public string SuccessMessage
+    {
+        get => _successMessage;
+        private set => SetProperty(ref _successMessage, value);
     }
 
     public bool IsBusy
     {
         get => _isBusy;
         private set => SetProperty(ref _isBusy, value);
+    }
+
+    public RelayCommand ClearMessagesCommand { get; }
+
+
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        ClearMessages();
     }
 
     public override async Task InitializeAsync()
@@ -214,7 +234,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     private async Task LoadAsync()
     {
         IsBusy = true;
-        Message = string.Empty;
+        ClearMessages();
 
         try
         {
@@ -222,6 +242,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             if (customerResult.IsSuccess)
             {
                 Customers = new ObservableCollection<CustomerListItemDto>(customerResult.Data ?? new List<CustomerListItemDto>());
+                if (SelectedCustomer == null && Customers.Count > 0)
+                {
+                    SelectedCustomer = Customers.FirstOrDefault();
+                }
+                else if (SelectedCustomer != null)
+                {
+                    await LoadSelectedCustomerBookingsAsync(SelectedCustomer.CustomerId);
+                }
             }
 
             var bookingResult = await _bookingService.GetRecentBookingsAsync(_currentUserService.User, 10);
@@ -234,7 +262,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            Message = ex.Message;
+            ErrorMessage = ex.Message;
         }
         finally
         {
@@ -249,14 +277,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task CreateCustomerAsync()
     {
+        ClearMessages();
+
         if (string.IsNullOrWhiteSpace(CustomerName))
         {
-            Message = "Please enter the Full Name.";
-            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Please enter the Full Name.";
             return;
         }
-
-
 
         IsBusy = true;
         try
@@ -270,11 +297,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
-            Message = result.IsSuccess
-                ? result.Message
-                : result.Errors.FirstOrDefault() ?? result.Message;
+
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 CustomerName = string.Empty;
                 IdentityCard = string.Empty;
                 PhoneNumber = string.Empty;
@@ -288,7 +314,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                System.Windows.MessageBox.Show(Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -297,19 +324,20 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         }
     }
 
+
     private async Task CreateBookingAsync()
     {
+        ClearMessages();
+
         if (SelectedCustomer is null || SelectedRoom is null)
         {
-            Message = "Please select a customer and a room first.";
-            System.Windows.MessageBox.Show(Message, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Please select a customer and a room first.";
             return;
         }
 
         if (!string.Equals(SelectedRoom.Status, "Available", StringComparison.OrdinalIgnoreCase))
         {
-            Message = $"Room {SelectedRoom.RoomNumber} is currently '{SelectedRoom.Status}' and cannot be booked. Only 'Available' rooms can be booked.";
-            System.Windows.MessageBox.Show(Message, "Room Not Available", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = $"Room {SelectedRoom.RoomNumber} is currently '{SelectedRoom.Status}' and cannot be booked. Only 'Available' rooms can be booked.";
             return;
         }
 
@@ -344,16 +372,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Note = $"Created from Customer/Room/Booking view"
             }, _currentUserService.User);
 
-            Message = result.IsSuccess
-                ? result.Message
-                : result.Errors.FirstOrDefault() ?? result.Message;
+
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -364,20 +392,19 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task UpdateCustomerAsync()
     {
+        ClearMessages();
+
         if (SelectedCustomer is null)
         {
-            Message = "Please select a customer to update.";
-            System.Windows.MessageBox.Show(Message, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Please select a customer to update.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(CustomerName))
         {
-            Message = "Please enter the Full Name.";
-            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            ErrorMessage = "Please enter the Full Name.";
             return;
         }
-
 
         IsBusy = true;
         try
@@ -392,16 +419,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
-            Message = result.IsSuccess
-                ? result.Message
-                : result.Errors.FirstOrDefault() ?? result.Message;
+
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -410,17 +437,22 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         }
     }
 
+
     private async Task CancelBookingAsync()
     {
+        ClearMessages();
+
         if (SelectedBooking is null)
         {
-            Message = "Please select a booking to cancel.";
+            ErrorMessage = "Please select a booking to cancel.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
+        // Giữ lại câu hỏi xác nhận chi tiết có tên khách hàng của bạn
         var confirmResult = System.Windows.MessageBox.Show(
-            $"Are you sure you want to cancel booking #{SelectedBooking.BookingId}?",
-            "Confirm Cancellation",
+            $"Are you sure you want to cancel Booking #{SelectedBooking.BookingId} for customer '{SelectedBooking.CustomerName}'?",
+            "Confirm Cancel Booking",
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Question);
 
@@ -433,17 +465,25 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId, _currentUserService.User);
-            Message = result.IsSuccess
-                ? result.Message
-                : result.Errors.FirstOrDefault() ?? result.Message;
+
             if (result.IsSuccess)
             {
+                // Gộp cả 2: Vừa gán SuccessMessage, vừa hiện popup
+                SuccessMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Booking Cancelled", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {
@@ -453,9 +493,11 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
     private async Task MarkNoShowAsync()
     {
+        ClearMessages();
+
         if (SelectedBooking is null)
         {
-            Message = "Please select a booking to mark as No-Show.";
+            ErrorMessage = "Please select a booking to mark as No-Show.";
             return;
         }
 
@@ -474,16 +516,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId);
-            Message = result.IsSuccess
-                ? result.Message
-                : result.Errors.FirstOrDefault() ?? result.Message;
+
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = result.Message;
+                System.Windows.MessageBox.Show(result.Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -491,6 +533,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
 
 
     private async Task RefreshRoomsAsync()
@@ -503,17 +546,37 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         else
         {
             AvailableRooms = new ObservableCollection<RoomListItemDto>();
-            Message = result.Errors.FirstOrDefault() ?? result.Message;
+            ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
         }
     }
 
     private async Task LoadSelectedCustomerBookingsAsync(int customerId)
     {
-        var result = await _customerService.GetCustomerBookingsAsync(customerId);
-        if (result.IsSuccess)
+        try
         {
-            SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>(result.Data ?? new List<BookingSummaryDto>());
+            var result = await _customerService.GetCustomerBookingsAsync(customerId);
+            if (result.IsSuccess)
+            {
+                SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>(
+                    result.Data ?? new List<BookingSummaryDto>());
+            }
+            else
+            {
+                SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
+                ErrorMessage = result.Message;
+            }
         }
+        catch (Exception ex)
+        {
+            SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
+            ErrorMessage = $"Failed to load guest history: {ex.Message}";
+        }
+    }
+
+    private void ClearMessages()
+    {
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
     }
 }
 

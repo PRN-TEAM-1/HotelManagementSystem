@@ -59,7 +59,7 @@ public sealed class CheckoutService : ICheckoutService
         }
         catch (Exception)
         {
-            return ServiceResult<CheckoutCandidateDto>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<CheckoutCandidateDto>.Failure(ErrorMessages.NotFound);
         }
     }
 
@@ -136,6 +136,7 @@ public sealed class CheckoutService : ICheckoutService
                 BookingDetailStatus.CheckedOut,
                 RoomOperationalStatus.Cleaning,
                 cancellationToken);
+
 
             var result = new CheckoutResultDto
             {

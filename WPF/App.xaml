@@ -20,6 +20,7 @@
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
             <converters:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter" />
             <converters:StatusToBrushConverter x:Key="StatusToBrushConverter" />

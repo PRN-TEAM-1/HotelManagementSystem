@@ -8,30 +8,72 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Padding="12"
-                Margin="0,0,0,12"
-                Background="{StaticResource SurfaceMutedBrush}"
-                CornerRadius="8"
-                Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <StackPanel>
+            <materialDesign:Card Padding="12"
+                                 Margin="0,0,0,12"
+                                 Background="#FFF3D6"
+                                 materialDesign:ElevationAssist.Elevation="Dp1"
+                                 Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <materialDesign:PackIcon Kind="InformationOutline"
-                                         Width="20"
-                                         Height="20"
-                                         Foreground="{StaticResource AccentBrush}"
-                                         VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Message}"
-                           Margin="8,0,0,0"
-                           Style="{StaticResource MaterialDesignBody2TextBlock}"
-                           Foreground="{StaticResource TextPrimaryBrush}"
-                           TextWrapping="Wrap" />
-            </Grid>
-        </Border>
+                    <materialDesign:PackIcon Kind="AlertCircleOutline"
+                                             Width="20"
+                                             Height="20"
+                                             Foreground="{StaticResource WarningBrush}"
+                                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ErrorMessage}"
+                               Margin="8,0,8,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="#856404"
+                               TextWrapping="Wrap" />
+                    <Button Grid.Column="2"
+                            Command="{Binding ClearMessagesCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Dismiss">
+                        <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                    </Button>
+                </Grid>
+            </materialDesign:Card>
+
+            <materialDesign:Card Padding="12"
+                                 Margin="0,0,0,12"
+                                 Background="#DFF3E7"
+                                 materialDesign:ElevationAssist.Elevation="Dp1"
+                                 Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <materialDesign:PackIcon Kind="CheckCircleOutline"
+                                             Width="20"
+                                             Height="20"
+                                             Foreground="{StaticResource SuccessBrush}"
+                                             VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SuccessMessage}"
+                               Margin="8,0,8,0"
+                               Style="{StaticResource MaterialDesignBody2TextBlock}"
+                               Foreground="{StaticResource SuccessBrush}"
+                               TextWrapping="Wrap" />
+                    <Button Grid.Column="2"
+                            Command="{Binding ClearMessagesCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTip="Dismiss">
+                        <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                    </Button>
+                </Grid>
+            </materialDesign:Card>
+        </StackPanel>
+
 
         <Grid Grid.Row="1">
             <TabControl>
@@ -526,10 +568,21 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" />
-                                <TextBlock Text="Selected Guest Booking History" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" />
-                            </StackPanel>
+                            <DockPanel LastChildFill="False">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <materialDesign:PackIcon Kind="History" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Selected Guest Booking History" Style="{StaticResource MaterialDesignSubtitle2TextBlock}" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <TextBlock Text="Guest:" VerticalAlignment="Center" Margin="0,0,8,0" Style="{StaticResource MaterialDesignBody2TextBlock}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                    <ComboBox ItemsSource="{Binding Customers}"
+                                              SelectedItem="{Binding SelectedCustomer}"
+                                              DisplayMemberPath="FullName"
+                                              Width="220"
+                                              materialDesign:HintAssist.Hint="Select guest..." />
+                                </StackPanel>
+                            </DockPanel>
 
                             <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerBookings}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,12,0,0">
                                 <DataGrid.Columns>

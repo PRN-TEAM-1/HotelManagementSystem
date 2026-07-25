@@ -19,5 +19,23 @@ public partial class LoginWindow : Window
         }
 
         viewModel.Password = passwordBox.Password;
+        if (VisiblePasswordInput != null && VisiblePasswordInput.Text != passwordBox.Password)
+        {
+            VisiblePasswordInput.Text = passwordBox.Password;
+        }
+    }
+
+    private void OnVisiblePasswordChanged(object sender, TextChangedEventArgs e)
+    {
+        if (DataContext is not LoginViewModel viewModel || sender is not TextBox textBox)
+        {
+            return;
+        }
+
+        viewModel.Password = textBox.Text;
+        if (PasswordBoxInput != null && PasswordBoxInput.Password != textBox.Text)
+        {
+            PasswordBoxInput.Password = textBox.Text;
+        }
     }
 }
