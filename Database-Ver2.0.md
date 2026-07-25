@@ -268,7 +268,7 @@ Customer không nằm trong bảng này vì customer không đăng nhập hệ t
 | `full_name` | `string` |  | Họ tên đầy đủ của nhân viên. |
 | `email` | `string` | UK | Email của nhân viên. Có thể dùng để liên hệ hoặc khôi phục tài khoản. |
 | `phone_number` | `string` |  | Số điện thoại của nhân viên. |
-| `status` | `string` |  | Trạng thái tài khoản. Ví dụ: `Active`, `Inactive`, `Locked`. |
+| `status` | `string` |  | Trạng thái tài khoản. Ví dụ: `Active`, `Inactive`. |
 | `created_at` | `datetime` |  | Thời điểm tạo tài khoản. |
 | `updated_at` | `datetime` |  | Thời điểm cập nhật tài khoản gần nhất. |
 
@@ -278,7 +278,6 @@ Customer không nằm trong bảng này vì customer không đăng nhập hệ t
 |---|---|
 | `Active` | Tài khoản đang hoạt động. |
 | `Inactive` | Tài khoản bị vô hiệu hóa nhưng vẫn giữ dữ liệu. |
-| `Locked` | Tài khoản bị khóa, ví dụ do nhập sai mật khẩu nhiều lần. |
 
 ### Quan hệ
 
@@ -765,10 +764,10 @@ Khi khách check-out, hệ thống sẽ tính tiền phòng, tiền dịch vụ,
 | `invoice_id` | `int` | PK | Mã định danh duy nhất của hóa đơn. |
 | `booking_id` | `int` | FK | Booking được xuất hóa đơn. Nên đặt unique nếu mỗi booking chỉ có một invoice. |
 | `created_by_user_id` | `int` | FK | Nhân viên tạo hóa đơn. Thường là Receptionist. |
-| `room_amount` | `decimal` |  | Tổng tiền phòng từ các booking detail. |
-| `service_amount` | `decimal` |  | Tổng tiền dịch vụ từ các service order. |
-| `discount_amount` | `decimal` |  | Số tiền giảm giá nếu có. |
-| `tax_amount` | `decimal` |  | Số tiền thuế/phí nếu có. |
+| `room_amount` | `decimal` |  | Tổng tiền phòng từ các booking detail đã `CheckedOut`; không tính phòng `Cancelled`. |
+| `service_amount` | `decimal` |  | Tổng tiền dịch vụ từ service order `Ordered` thuộc các booking detail được tính hóa đơn. |
+| `discount_amount` | `decimal` |  | Số tiền giảm giá đã quy đổi từ phần trăm giảm giá khi tạo hóa đơn. |
+| `tax_amount` | `decimal` |  | Số tiền thuế/phí đã quy đổi từ phần trăm thuế, tính trên subtotal sau giảm giá. |
 | `total_amount` | `decimal` |  | Tổng tiền cuối cùng cần thanh toán. |
 | `paid_amount` | `decimal` |  | Tổng số tiền khách đã thanh toán. |
 | `remaining_amount` | `decimal` |  | Số tiền còn lại phải thanh toán. |
@@ -781,12 +780,14 @@ Khi khách check-out, hệ thống sẽ tính tiền phòng, tiền dịch vụ,
 ### Công thức tính tiền đề xuất
 
 ```text
-room_amount = tổng booking_details.room_total
-service_amount = tổng service_orders.total_price
+room_amount = tổng booking_details.room_total với status CheckedOut
+service_amount = tổng service_orders.total_price với status Ordered thuộc booking detail CheckedOut
 remaining_amount = total_amount - paid_amount
 ```
 
 ```text
+discount_amount = (room_amount + service_amount) * discount_percent / 100
+tax_amount = (room_amount + service_amount - discount_amount) * tax_percent / 100
 total_amount = room_amount + service_amount + tax_amount - discount_amount
 ```
 
@@ -955,9 +956,9 @@ Bảng liên quan:
 
 ```text
 Sau khi khách check-out
-→ Tính tổng tiền phòng từ booking_details
-→ Tính tổng tiền dịch vụ từ service_orders
-→ Áp dụng discount/tax nếu có
+→ Tính tổng tiền phòng từ booking_details CheckedOut, bỏ qua Cancelled
+→ Tính tổng tiền dịch vụ Ordered thuộc các booking detail được tính
+→ Nhập discount/tax theo %, tax tính trên subtotal sau giảm giá
 → Tạo invoices
 → invoices.status = Unpaid
 ```

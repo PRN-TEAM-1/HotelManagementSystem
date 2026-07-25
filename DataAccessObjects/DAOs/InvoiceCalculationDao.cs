@@ -128,11 +128,15 @@ public sealed class InvoiceCalculationDao
             return null;
         }
 
-        var bookingDetailIds = bookingDetails
+        var billableBookingDetails = bookingDetails
+            .Where(detail => detail.Status == BookingDetailStatus.CheckedOut)
+            .ToList();
+
+        var bookingDetailIds = billableBookingDetails
             .Select(detail => detail.BookingDetailId)
             .ToArray();
 
-        var roomAmount = bookingDetails.Sum(detail => detail.RoomTotal);
+        var roomAmount = billableBookingDetails.Sum(detail => detail.RoomTotal);
         var serviceAmount = await context.ServiceOrders
             .AsNoTracking()
             .Where(order =>
@@ -146,7 +150,7 @@ public sealed class InvoiceCalculationDao
             CustomerName = customerName,
             BookingDate = bookingDate,
             BookingStatus = bookingStatus,
-            RoomCount = bookingDetails.Count,
+            RoomCount = billableBookingDetails.Count,
             RoomAmount = roomAmount,
             ServiceAmount = serviceAmount,
             EstimatedTotalAmount = roomAmount + serviceAmount

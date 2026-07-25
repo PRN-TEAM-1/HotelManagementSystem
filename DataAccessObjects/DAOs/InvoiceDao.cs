@@ -196,7 +196,9 @@ public sealed class InvoiceDao
 
         var roomLines = await context.BookingDetails
             .AsNoTracking()
-            .Where(detail => detail.BookingId == invoice.BookingId)
+            .Where(detail =>
+                detail.BookingId == invoice.BookingId
+                && detail.Status == BookingDetailStatus.CheckedOut)
             .Join(
                 context.Rooms.AsNoTracking(),
                 detail => detail.RoomId,

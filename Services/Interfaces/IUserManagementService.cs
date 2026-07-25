@@ -24,6 +24,11 @@ public interface IUserManagementService
         CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default);
 
+    Task<ServiceResult<bool>> DeleteUserAsync(
+        int userId,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default);
+
     Task<ServiceResult<List<LookupItemDto>>> GetRoleLookupsAsync(
         CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default);

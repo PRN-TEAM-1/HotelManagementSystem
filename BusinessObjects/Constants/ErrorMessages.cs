@@ -13,7 +13,6 @@ public static class ErrorMessages
 
     public const string InvalidCredentials = "Username or password is incorrect.";
     public const string AccountInactive = "This account is inactive.";
-    public const string AccountLocked = "This account is locked.";
 
     public const string InvalidDateRange = "Check-out date must be later than check-in date.";
     public const string InvalidNumberOfNights = "Number of nights must be greater than zero.";
