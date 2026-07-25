@@ -88,6 +88,8 @@ public sealed class RoomMapItemDto
 
     public bool IsOccupied { get; set; }
 
+    public bool IsCleaning => string.Equals(Status, "Cleaning", StringComparison.OrdinalIgnoreCase);
+
     public string? OccupancyLabel { get; set; }
 
     public DateTime? CheckInDate { get; set; }
