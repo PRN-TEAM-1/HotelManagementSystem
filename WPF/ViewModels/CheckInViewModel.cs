@@ -154,6 +154,18 @@ public sealed class CheckInViewModel : BaseViewModel
         if (SelectedCandidate is null)
         {
             ErrorMessage = "Please select a booking to check-in";
+            System.Windows.MessageBox.Show(ErrorMessage, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to Check-In Booking #{SelectedCandidate.BookingId} for Room {SelectedCandidate.RoomNumber}?",
+            "Confirm Check-In",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -167,6 +179,7 @@ public sealed class CheckInViewModel : BaseViewModel
             if (currentUser is null)
             {
                 ErrorMessage = "User session not found";
+                System.Windows.MessageBox.Show(ErrorMessage, "Session Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 return;
             }
 
@@ -181,10 +194,12 @@ public sealed class CheckInViewModel : BaseViewModel
             if (result.IsFailure)
             {
                 ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                System.Windows.MessageBox.Show(ErrorMessage, "Check-In Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 return;
             }
 
             SuccessMessage = $"Check-in successful for room {SelectedCandidate.RoomNumber}";
+            System.Windows.MessageBox.Show(SuccessMessage, "Check-In Successful", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
 
             // Reload the list
             await LoadCheckInCandidatesAsync();
@@ -193,6 +208,7 @@ public sealed class CheckInViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = $"Error during check-in: {ex.Message}";
+            System.Windows.MessageBox.Show(ErrorMessage, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {

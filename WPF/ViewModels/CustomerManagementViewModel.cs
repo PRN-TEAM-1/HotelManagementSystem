@@ -385,6 +385,18 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         if (SelectedBooking is null)
         {
             Message = "Please select a booking to cancel.";
+            System.Windows.MessageBox.Show(Message, "Selection Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to cancel Booking #{SelectedBooking.BookingId} for customer '{SelectedBooking.CustomerName}'?",
+            "Confirm Cancel Booking",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -395,8 +407,18 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             Message = result.Message;
             if (result.IsSuccess)
             {
+                System.Windows.MessageBox.Show(result.Message, "Booking Cancelled", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 await LoadAsync();
             }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Cancellation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {

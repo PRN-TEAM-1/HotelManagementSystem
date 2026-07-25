@@ -198,6 +198,17 @@ public sealed class RoomMapViewModel : BaseViewModel
     {
         if (roomItem is null) return;
 
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to mark Room {roomItem.RoomNumber} as Cleaned & Available?",
+            "Confirm Room Cleaning",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
+            return;
+        }
+
         IsBusy = true;
         try
         {
@@ -213,16 +224,19 @@ public sealed class RoomMapViewModel : BaseViewModel
             if (updateResult.IsSuccess)
             {
                 Message = $"Room {roomItem.RoomNumber} marked as Cleaned & Available.";
+                System.Windows.MessageBox.Show(Message, "Room Status Updated", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 await LoadRoomMapAsync();
             }
             else
             {
                 Message = updateResult.Message ?? "Failed to update room status.";
+                System.Windows.MessageBox.Show(Message, "Update Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         catch (Exception ex)
         {
             Message = ex.Message;
+            System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {

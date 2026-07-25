@@ -174,12 +174,26 @@ public sealed class RoomManagementViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(RoomNumber))
         {
             Message = "Room number is required.";
+            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (SelectedRoomTypeId <= 0)
         {
             Message = "Please select a room type.";
+            System.Windows.MessageBox.Show(Message, "Validation Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return;
+        }
+
+        var actionText = SelectedRoom is null ? "create" : "update";
+        var confirmResult = System.Windows.MessageBox.Show(
+            $"Are you sure you want to {actionText} Room {RoomNumber}?",
+            "Confirm Room Save",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirmResult != System.Windows.MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -214,9 +228,19 @@ public sealed class RoomManagementViewModel : BaseViewModel
             Message = result.Message;
             if (result.IsSuccess)
             {
+                System.Windows.MessageBox.Show(result.Message, "Room Saved", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 ClearForm();
                 await LoadAsync();
             }
+            else
+            {
+                System.Windows.MessageBox.Show(result.Message, "Save Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {
