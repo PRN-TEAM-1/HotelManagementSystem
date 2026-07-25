@@ -17,4 +17,9 @@ public sealed class RevenueReportRepository : IRevenueReportRepository
     {
         return _dao.GetRevenueByPaymentMethod(filter);
     }
+
+    public List<ServiceRevenueDto> GetRevenueByService(ReportFilterDto filter)
+    {
+        return _dao.GetRevenueByService(filter);
+    }
 }

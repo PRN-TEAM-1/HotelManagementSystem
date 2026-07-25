@@ -93,11 +93,17 @@
                         <UniformGrid Grid.Row="1"
                                      Columns="3"
                                      Margin="0,12,0,0">
-                            <controls:DashboardCardControl Title="Bookings"
+                            <controls:DashboardCardControl Title="New Bookings"
                                                            Value="{Binding Dashboard.BookingSummary.TodayBookings}" />
-                            <controls:DashboardCardControl Title="Check-ins"
+                            <controls:DashboardCardControl Title="Active Stays"
+                                                           Value="{Binding Dashboard.TodayOperation.ActiveStays}" />
+                            <controls:DashboardCardControl Title="Due Arrivals"
+                                                           Value="{Binding Dashboard.TodayOperation.DueArrivals}" />
+                            <controls:DashboardCardControl Title="Due Departures"
+                                                           Value="{Binding Dashboard.TodayOperation.DueDepartures}" />
+                            <controls:DashboardCardControl Title="Completed Check-ins"
                                                            Value="{Binding Dashboard.TodayOperation.TodayCheckIns}" />
-                            <controls:DashboardCardControl Title="Check-outs"
+                            <controls:DashboardCardControl Title="Completed Check-outs"
                                                            Value="{Binding Dashboard.TodayOperation.TodayCheckOuts}" />
                         </UniformGrid>
                     </Grid>
