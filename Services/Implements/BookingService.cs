@@ -56,7 +56,7 @@ public sealed class BookingService : IBookingService
 
         try
         {
-            // Validate user role
+            // Validate user role and room operational status
             await using (var dbContext = DbContextFactory.CreateDbContext())
             {
                 var user = await dbContext.Users.Include(u => u.Role)
@@ -72,7 +72,25 @@ public sealed class BookingService : IBookingService
                 {
                     return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.Forbidden);
                 }
+
+                var rooms = await dbContext.Rooms
+                    .AsNoTracking()
+                    .Where(r => request.RoomIds.Contains(r.RoomId))
+                    .ToListAsync(cancellationToken);
+
+                var nonAvailableRooms = rooms
+                    .Where(r => r.Status != RoomOperationalStatus.Available)
+                    .Select(r => r.RoomNumber)
+                    .ToList();
+
+                if (nonAvailableRooms.Count > 0)
+                {
+                    return ServiceResult<BookingSummaryDto>.Failure(
+                        ErrorMessages.BusinessRuleViolation,
+                        $"Room(s) {string.Join(", ", nonAvailableRooms)} is not Available (currently Maintenance, Inactive, or Cleaning).");
+                }
             }
+
 
             using var scope = new System.Transactions.TransactionScope(
                 System.Transactions.TransactionScopeOption.Required,

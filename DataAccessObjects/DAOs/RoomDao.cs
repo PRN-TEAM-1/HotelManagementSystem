@@ -42,8 +42,9 @@ public sealed class RoomDao
 
         var occupiedRoomIds = await context.BookingDetails
             .AsNoTracking()
-            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut && detail.Status != BookingDetailStatus.NoShow)
             .Where(detail => detail.CheckInDate < checkOutDate && detail.CheckOutDate > checkInDate)
+
             .Select(detail => detail.RoomId)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -78,8 +79,9 @@ public sealed class RoomDao
 
         var activeDetails = await context.BookingDetails
             .AsNoTracking()
-            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut && detail.Status != BookingDetailStatus.NoShow)
             .Where(detail => detail.CheckInDate <= currentDate && detail.CheckOutDate >= currentDate)
+
             .ToListAsync(cancellationToken);
 
         var rooms = await context.Rooms

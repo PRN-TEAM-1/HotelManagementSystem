@@ -107,8 +107,9 @@ public sealed class BookingDao
         return await context.BookingDetails
             .AsNoTracking()
             .Where(detail => ids.Contains(detail.RoomId))
-            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut)
+            .Where(detail => detail.Status != BookingDetailStatus.Cancelled && detail.Status != BookingDetailStatus.CheckedOut && detail.Status != BookingDetailStatus.NoShow)
             .Where(detail => detail.CheckInDate < checkOut && detail.CheckOutDate > checkIn)
+
             .Select(detail => detail.RoomId)
             .Distinct()
             .ToListAsync(cancellationToken);

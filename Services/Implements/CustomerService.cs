@@ -44,15 +44,19 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(identityCard))
+        if (string.IsNullOrWhiteSpace(fullName))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name and Identity Card (CCCD) are required.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
         }
 
-        if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, cancellationToken: cancellationToken))
+        if (!string.IsNullOrWhiteSpace(identityCard))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+            if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, cancellationToken: cancellationToken))
+            {
+                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+            }
         }
+
 
         try
         {
@@ -93,15 +97,19 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(identityCard))
+        if (string.IsNullOrWhiteSpace(fullName))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name and Identity Card (CCCD) are required.");
+            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
         }
 
-        if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, request.CustomerId, cancellationToken))
+        if (!string.IsNullOrWhiteSpace(identityCard))
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+            if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, request.CustomerId, cancellationToken))
+            {
+                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+            }
         }
+
 
         try
         {
