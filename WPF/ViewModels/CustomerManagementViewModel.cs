@@ -98,18 +98,31 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         get => _selectedCustomer;
         set
         {
-            if (SetProperty(ref _selectedCustomer, value) && value != null)
+            if (SetProperty(ref _selectedCustomer, value))
             {
-                CustomerName = value.FullName;
-                IdentityCard = value.IdentityCard ?? string.Empty;
-                PhoneNumber = value.PhoneNumber ?? string.Empty;
-                Email = value.Email ?? string.Empty;
-                Address = value.Address ?? string.Empty;
+                if (value != null)
+                {
+                    CustomerName = value.FullName;
+                    IdentityCard = value.IdentityCard ?? string.Empty;
+                    PhoneNumber = value.PhoneNumber ?? string.Empty;
+                    Email = value.Email ?? string.Empty;
+                    Address = value.Address ?? string.Empty;
 
-                _ = LoadSelectedCustomerBookingsAsync(value.CustomerId);
+                    _ = LoadSelectedCustomerBookingsAsync(value.CustomerId);
+                }
+                else
+                {
+                    CustomerName = string.Empty;
+                    IdentityCard = string.Empty;
+                    PhoneNumber = string.Empty;
+                    Email = string.Empty;
+                    Address = string.Empty;
+                    SelectedCustomerBookings.Clear();
+                }
             }
         }
     }
+
 
 
     private BookingSummaryDto? _selectedBooking;

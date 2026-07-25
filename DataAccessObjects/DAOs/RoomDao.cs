@@ -95,6 +95,13 @@ public sealed class RoomDao
 
         foreach (var room in rooms)
         {
+            if (room.Status == RoomOperationalStatus.Maintenance ||
+                room.Status == RoomOperationalStatus.Inactive ||
+                room.Status == RoomOperationalStatus.Cleaning)
+            {
+                continue; // Priority 1, 2, 3 take precedence!
+            }
+
             if (detailsByRoomId.TryGetValue(room.RoomId, out var detail))
             {
                 if (detail.Status == BookingDetailStatus.CheckedIn)
@@ -107,6 +114,7 @@ public sealed class RoomDao
                 }
             }
         }
+
 
         return rooms;
     }
