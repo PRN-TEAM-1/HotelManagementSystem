@@ -32,6 +32,54 @@ public partial class App : Application
                     ALTER TABLE dbo.rooms DROP CONSTRAINT CK_rooms_status;
                 END
                 ALTER TABLE dbo.rooms ADD CONSTRAINT CK_rooms_status CHECK (status IN (N'Available', N'Cleaning', N'Maintenance', N'Inactive', N'Reserved', N'Occupied'));
+
+                IF OBJECT_ID(N'dbo.ai_provider_settings', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.ai_provider_settings
+                    (
+                        ai_provider_setting_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+                        provider_name NVARCHAR(30) NOT NULL,
+                        model_name NVARCHAR(100) NOT NULL,
+                        encrypted_api_key NVARCHAR(4000) NOT NULL CONSTRAINT DF_ai_provider_settings_api_key DEFAULT (N''),
+                        endpoint_url NVARCHAR(500) NULL,
+                        temperature DECIMAL(5,2) NOT NULL CONSTRAINT DF_ai_provider_settings_temperature DEFAULT (0.20),
+                        max_output_tokens INT NOT NULL CONSTRAINT DF_ai_provider_settings_max_output_tokens DEFAULT (900),
+                        timeout_seconds INT NOT NULL CONSTRAINT DF_ai_provider_settings_timeout_seconds DEFAULT (45),
+                        is_active BIT NOT NULL CONSTRAINT DF_ai_provider_settings_is_active DEFAULT (0),
+                        last_tested_at DATETIME2 NULL,
+                        last_test_status NVARCHAR(500) NULL,
+                        created_at DATETIME2 NOT NULL CONSTRAINT DF_ai_provider_settings_created_at DEFAULT SYSUTCDATETIME(),
+                        updated_at DATETIME2 NOT NULL CONSTRAINT DF_ai_provider_settings_updated_at DEFAULT SYSUTCDATETIME()
+                    );
+                END
+
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ai_provider_settings_provider_name' AND object_id = OBJECT_ID(N'dbo.ai_provider_settings'))
+                BEGIN
+                    CREATE UNIQUE INDEX UX_ai_provider_settings_provider_name ON dbo.ai_provider_settings(provider_name);
+                END
+
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ai_provider_settings_active' AND object_id = OBJECT_ID(N'dbo.ai_provider_settings'))
+                BEGIN
+                    CREATE UNIQUE INDEX UX_ai_provider_settings_active ON dbo.ai_provider_settings(is_active) WHERE is_active = 1;
+                END
+
+                IF OBJECT_ID(N'dbo.CK_ai_provider_settings_provider', N'C') IS NULL
+                BEGIN
+                    ALTER TABLE dbo.ai_provider_settings
+                        ADD CONSTRAINT CK_ai_provider_settings_provider CHECK (provider_name IN (N'OpenAI', N'Gemini'));
+                END
+
+                IF OBJECT_ID(N'dbo.CK_ai_provider_settings_values', N'C') IS NULL
+                BEGIN
+                    ALTER TABLE dbo.ai_provider_settings
+                        ADD CONSTRAINT CK_ai_provider_settings_values CHECK
+                        (
+                            temperature >= 0
+                            AND temperature <= 2
+                            AND max_output_tokens BETWEEN 100 AND 4000
+                            AND timeout_seconds BETWEEN 5 AND 180
+                        );
+                END
             ");
         }
         catch
@@ -61,6 +109,11 @@ public partial class App : Application
             userManagementService,
             _currentUserService,
             _dialogService);
+        var aiConfigurationService = new AiConfigurationService();
+        var aiSettingsViewModel = new AiSettingsViewModel(
+            aiConfigurationService,
+            _currentUserService);
+        var aiServiceRecommendationService = new AiServiceRecommendationService();
         // Register Member 3 ViewModels and Services
         var checkInService = new CheckInService();
         var checkoutService = new CheckoutService();
@@ -72,7 +125,7 @@ public partial class App : Application
         var checkInViewModel = new CheckInViewModel(checkInService, _currentUserService);
         var checkoutViewModel = new CheckoutViewModel(checkoutService, _currentUserService);
         var serviceManagementViewModel = new ServiceManagementViewModel(serviceCatalogService);
-        var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService, checkoutService);
+        var serviceOrderViewModel = new ServiceOrderViewModel(serviceOrderService, serviceCatalogService, _currentUserService, checkoutService, aiServiceRecommendationService);
         var invoiceViewModel = new InvoiceViewModel(invoiceService, paymentService, _currentUserService, _dialogService);
         var billingViewModel = new BillingViewModel(invoiceViewModel);
         var customerManagementViewModel = new CustomerManagementViewModel(
@@ -115,6 +168,7 @@ public partial class App : Application
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);
         _navigationService.Register(NavigationTargets.Session, () => sessionViewModel);
         _navigationService.Register(NavigationTargets.Administration, () => administrationViewModel);
+        _navigationService.Register(NavigationTargets.AiSettings, () => aiSettingsViewModel);
         _navigationService.Register(NavigationTargets.Operations, () => operationsViewModel);
         _navigationService.Register(NavigationTargets.Reports, () => reportsViewModel);
         _navigationService.Register(NavigationTargets.StyleGuide, () => styleGuideViewModel);

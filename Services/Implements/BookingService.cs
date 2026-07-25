@@ -99,11 +99,6 @@ public sealed class BookingService : IBookingService
             }
 
 
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             var booking = new Booking
             {
                 CustomerId = request.CustomerId,
@@ -141,8 +136,6 @@ public sealed class BookingService : IBookingService
             var createdBooking = await _bookingRepository.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
             var bookingTotal = details.Sum(d => d.RoomTotal);
 
-            scope.Complete();
-
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
             {
                 BookingId = createdBooking.BookingId,
@@ -155,9 +148,9 @@ public sealed class BookingService : IBookingService
             }, "Booking created successfully.");
         }
 
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<BookingSummaryDto>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 
@@ -221,22 +214,16 @@ public sealed class BookingService : IBookingService
 
         try
         {
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             var success = await _bookingRepository.CancelBookingAsync(bookingId, cancellationToken);
             if (success)
             {
-                scope.Complete();
                 return ServiceResult<bool>.Success(true, "Booking cancelled successfully.");
             }
             return ServiceResult<bool>.Failure("Unable to cancel booking. It may have checked-in rooms or already be cancelled/completed/no-show.");
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 
@@ -251,22 +238,16 @@ public sealed class BookingService : IBookingService
 
         try
         {
-            using var scope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.Required,
-                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
-                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
-
             var success = await _bookingRepository.MarkNoShowAsync(bookingId, cancellationToken);
             if (success)
             {
-                scope.Complete();
                 return ServiceResult<bool>.Success(true, "Booking marked as No-Show successfully.");
             }
             return ServiceResult<bool>.Failure("Unable to mark booking as No-Show. It may have checked-in rooms or already be cancelled/completed/no-show.");
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<bool>.Failure(ErrorMessages.SystemError, ex.Message);
         }
     }
 

@@ -10,6 +10,7 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     private readonly IServiceCatalogService _serviceCatalogService;
     private readonly ICurrentUserService _currentUserService;
     private readonly ICheckoutService _checkoutService;
+    private readonly IAiServiceRecommendationService _aiServiceRecommendationService;
 
     private int _bookingDetailId;
     private List<CheckoutCandidateDto> _activeStays = new();
@@ -18,26 +19,35 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     private List<ServiceListItemDto> _availableServices = new();
     private ServiceOrderListItemDto? _selectedServiceOrder;
     private ServiceListItemDto? _selectedService;
+    private List<AiRecommendedServiceDto> _aiRecommendations = new();
+    private AiRecommendedServiceDto? _selectedAiRecommendation;
     private string _quantityText = "1";
+    private string _guestPreferenceText = string.Empty;
+    private string _aiRecommendationMessage = string.Empty;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isBusy;
+    private bool _isAiRecommendationBusy;
 
     public ServiceOrderViewModel(
         IServiceOrderService serviceOrderService,
         IServiceCatalogService serviceCatalogService,
         ICurrentUserService currentUserService,
-        ICheckoutService checkoutService)
+        ICheckoutService checkoutService,
+        IAiServiceRecommendationService aiServiceRecommendationService)
     {
         _serviceOrderService = serviceOrderService ?? throw new ArgumentNullException(nameof(serviceOrderService));
         _serviceCatalogService = serviceCatalogService ?? throw new ArgumentNullException(nameof(serviceCatalogService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _checkoutService = checkoutService ?? throw new ArgumentNullException(nameof(checkoutService));
+        _aiServiceRecommendationService = aiServiceRecommendationService ?? throw new ArgumentNullException(nameof(aiServiceRecommendationService));
 
         LoadServicesCommand = new AsyncRelayCommand(LoadServicesAsync, CanExecuteLoad);
         LoadServiceOrdersCommand = new AsyncRelayCommand(LoadServiceOrdersAsync, CanExecuteLoad);
         CreateServiceOrderCommand = new AsyncRelayCommand(CreateServiceOrderAsync, CanCreateServiceOrder);
         CancelServiceOrderCommand = new AsyncRelayCommand(CancelServiceOrderAsync, CanCancelServiceOrder);
+        SuggestServicesCommand = new AsyncRelayCommand(SuggestServicesAsync, CanSuggestServices);
+        UseRecommendationCommand = new RelayCommand(UseSelectedRecommendation, CanUseSelectedRecommendation);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
         ResetFormCommand = new RelayCommand(ResetForm);
     }
@@ -66,11 +76,37 @@ public sealed class ServiceOrderViewModel : BaseViewModel
             if (SetProperty(ref _selectedStay, value))
             {
                 BookingDetailId = value?.BookingDetailId ?? 0;
+                ClearAiRecommendations();
                 CreateServiceOrderCommand.RaiseCanExecuteChanged();
+                SuggestServicesCommand.RaiseCanExecuteChanged();
                 if (!IsBusy)
                 {
                     _ = LoadServiceOrdersAsync();
                 }
+            }
+        }
+    }
+
+    public List<AiRecommendedServiceDto> AiRecommendations
+    {
+        get => _aiRecommendations;
+        private set
+        {
+            if (SetProperty(ref _aiRecommendations, value))
+            {
+                OnPropertyChanged(nameof(HasAiRecommendations));
+            }
+        }
+    }
+
+    public AiRecommendedServiceDto? SelectedAiRecommendation
+    {
+        get => _selectedAiRecommendation;
+        set
+        {
+            if (SetProperty(ref _selectedAiRecommendation, value))
+            {
+                UseRecommendationCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -84,7 +120,13 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     public List<ServiceListItemDto> AvailableServices
     {
         get => _availableServices;
-        private set => SetProperty(ref _availableServices, value);
+        private set
+        {
+            if (SetProperty(ref _availableServices, value))
+            {
+                SuggestServicesCommand.RaiseCanExecuteChanged();
+            }
+        }
     }
 
     public ServiceOrderListItemDto? SelectedServiceOrder
@@ -123,6 +165,18 @@ public sealed class ServiceOrderViewModel : BaseViewModel
         }
     }
 
+    public string GuestPreferenceText
+    {
+        get => _guestPreferenceText;
+        set => SetProperty(ref _guestPreferenceText, value);
+    }
+
+    public string AiRecommendationMessage
+    {
+        get => _aiRecommendationMessage;
+        private set => SetProperty(ref _aiRecommendationMessage, value);
+    }
+
     public string ErrorMessage
     {
         get => _errorMessage;
@@ -147,11 +201,29 @@ public sealed class ServiceOrderViewModel : BaseViewModel
                 LoadServiceOrdersCommand.RaiseCanExecuteChanged();
                 CreateServiceOrderCommand.RaiseCanExecuteChanged();
                 CancelServiceOrderCommand.RaiseCanExecuteChanged();
+                SuggestServicesCommand.RaiseCanExecuteChanged();
+                UseRecommendationCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
-    public bool CanEdit => !IsBusy;
+    public bool IsAiRecommendationBusy
+    {
+        get => _isAiRecommendationBusy;
+        private set
+        {
+            if (SetProperty(ref _isAiRecommendationBusy, value))
+            {
+                OnPropertyChanged(nameof(CanEdit));
+                SuggestServicesCommand.RaiseCanExecuteChanged();
+                UseRecommendationCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public bool CanEdit => !IsBusy && !IsAiRecommendationBusy;
+
+    public bool HasAiRecommendations => AiRecommendations.Count > 0;
 
     public decimal ServiceOrderTotal
     {
@@ -165,6 +237,10 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     public AsyncRelayCommand CreateServiceOrderCommand { get; }
 
     public AsyncRelayCommand CancelServiceOrderCommand { get; }
+
+    public AsyncRelayCommand SuggestServicesCommand { get; }
+
+    public RelayCommand UseRecommendationCommand { get; }
 
     public RelayCommand ClearMessagesCommand { get; }
 
@@ -208,6 +284,22 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     private bool CanCancelServiceOrder()
     {
         return !IsBusy && SelectedServiceOrder != null;
+    }
+
+    private bool CanSuggestServices()
+    {
+        return !IsBusy
+            && !IsAiRecommendationBusy
+            && SelectedStay is not null
+            && BookingDetailId > 0
+            && AvailableServices.Count > 0;
+    }
+
+    private bool CanUseSelectedRecommendation()
+    {
+        return !IsBusy
+            && !IsAiRecommendationBusy
+            && SelectedAiRecommendation is not null;
     }
 
     private async Task LoadActiveStaysAsync()
@@ -308,6 +400,7 @@ public sealed class ServiceOrderViewModel : BaseViewModel
 
             ServiceOrders = result.Data ?? new();
             OnPropertyChanged(nameof(ServiceOrderTotal));
+            SuggestServicesCommand.RaiseCanExecuteChanged();
         }
         catch (Exception ex)
         {
@@ -370,6 +463,7 @@ public sealed class ServiceOrderViewModel : BaseViewModel
 
             SuccessMessage = $"Service order for '{SelectedService.ServiceName}' created successfully";
             ResetForm();
+            ClearAiRecommendations();
             await LoadServiceOrdersAsync();
         }
         catch (Exception ex)
@@ -422,6 +516,90 @@ public sealed class ServiceOrderViewModel : BaseViewModel
     {
         SelectedService = null;
         QuantityText = "1";
+    }
+
+    private async Task SuggestServicesAsync()
+    {
+        if (BookingDetailId <= 0 || SelectedStay is null)
+        {
+            ErrorMessage = "Please select a stay before requesting AI suggestions.";
+            return;
+        }
+
+        IsAiRecommendationBusy = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        AiRecommendationMessage = string.Empty;
+        AiRecommendations = new();
+        SelectedAiRecommendation = null;
+
+        try
+        {
+            var result = await _aiServiceRecommendationService.GetRecommendationsAsync(
+                new AiServiceRecommendationRequestDto
+                {
+                    BookingDetailId = BookingDetailId,
+                    GuestPreference = GuestPreferenceText,
+                    MaxRecommendations = 3
+                },
+                _currentUserService.User);
+
+            if (result.IsFailure)
+            {
+                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                return;
+            }
+
+            var response = result.Data;
+            AiRecommendations = response?.Recommendations ?? new();
+            SelectedAiRecommendation = AiRecommendations.FirstOrDefault();
+
+            AiRecommendationMessage = response is null
+                ? string.Empty
+                : $"{response.Summary} ({response.ProviderName} / {response.ModelName})";
+
+            if (AiRecommendations.Count == 0)
+            {
+                AiRecommendationMessage = "AI did not find a new suitable service for this stay.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error loading AI recommendations: {ex.Message}";
+        }
+        finally
+        {
+            IsAiRecommendationBusy = false;
+        }
+    }
+
+    private void UseSelectedRecommendation()
+    {
+        if (SelectedAiRecommendation is null)
+        {
+            ErrorMessage = "Please select an AI recommendation first.";
+            return;
+        }
+
+        var service = AvailableServices.FirstOrDefault(item =>
+            item.ServiceId == SelectedAiRecommendation.ServiceId);
+
+        if (service is null)
+        {
+            ErrorMessage = "The recommended service is no longer active.";
+            return;
+        }
+
+        SelectedService = service;
+        QuantityText = SelectedAiRecommendation.SuggestedQuantity.ToString();
+        AiRecommendationMessage = SelectedAiRecommendation.UpsellMessage;
+    }
+
+    private void ClearAiRecommendations()
+    {
+        AiRecommendations = new();
+        SelectedAiRecommendation = null;
+        AiRecommendationMessage = string.Empty;
     }
 
     private void ClearMessages()

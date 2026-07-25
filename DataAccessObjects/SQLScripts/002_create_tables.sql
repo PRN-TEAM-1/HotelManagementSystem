@@ -208,3 +208,24 @@ BEGIN
     );
 END
 GO
+
+IF OBJECT_ID(N'dbo.ai_provider_settings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ai_provider_settings
+    (
+        ai_provider_setting_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        provider_name NVARCHAR(30) NOT NULL,
+        model_name NVARCHAR(100) NOT NULL,
+        encrypted_api_key NVARCHAR(4000) NOT NULL CONSTRAINT DF_ai_provider_settings_api_key DEFAULT (N''),
+        endpoint_url NVARCHAR(500) NULL,
+        temperature DECIMAL(5,2) NOT NULL CONSTRAINT DF_ai_provider_settings_temperature DEFAULT (0.20),
+        max_output_tokens INT NOT NULL CONSTRAINT DF_ai_provider_settings_max_output_tokens DEFAULT (900),
+        timeout_seconds INT NOT NULL CONSTRAINT DF_ai_provider_settings_timeout_seconds DEFAULT (45),
+        is_active BIT NOT NULL CONSTRAINT DF_ai_provider_settings_is_active DEFAULT (0),
+        last_tested_at DATETIME2 NULL,
+        last_test_status NVARCHAR(500) NULL,
+        created_at DATETIME2 NOT NULL CONSTRAINT DF_ai_provider_settings_created_at DEFAULT SYSUTCDATETIME(),
+        updated_at DATETIME2 NOT NULL CONSTRAINT DF_ai_provider_settings_updated_at DEFAULT SYSUTCDATETIME()
+    );
+END
+GO

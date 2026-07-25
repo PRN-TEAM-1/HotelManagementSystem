@@ -270,7 +270,9 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
-            Message = result.Message;
+            Message = result.IsSuccess
+                ? result.Message
+                : result.Errors.FirstOrDefault() ?? result.Message;
             if (result.IsSuccess)
             {
                 CustomerName = string.Empty;
@@ -286,7 +288,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                System.Windows.MessageBox.Show(result.Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -342,14 +344,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Note = $"Created from Customer/Room/Booking view"
             }, _currentUserService.User);
 
-            Message = result.Message;
+            Message = result.IsSuccess
+                ? result.Message
+                : result.Errors.FirstOrDefault() ?? result.Message;
             if (result.IsSuccess)
             {
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(result.Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Message, "Booking Failed", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -388,14 +392,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 Address = Address
             });
 
-            Message = result.Message;
+            Message = result.IsSuccess
+                ? result.Message
+                : result.Errors.FirstOrDefault() ?? result.Message;
             if (result.IsSuccess)
             {
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(result.Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -427,14 +433,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.CancelBookingAsync(SelectedBooking.BookingId, _currentUserService.User);
-            Message = result.Message;
+            Message = result.IsSuccess
+                ? result.Message
+                : result.Errors.FirstOrDefault() ?? result.Message;
             if (result.IsSuccess)
             {
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(result.Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -466,14 +474,16 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         try
         {
             var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId);
-            Message = result.Message;
+            Message = result.IsSuccess
+                ? result.Message
+                : result.Errors.FirstOrDefault() ?? result.Message;
             if (result.IsSuccess)
             {
                 await LoadAsync();
             }
             else
             {
-                System.Windows.MessageBox.Show(result.Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
         finally
@@ -489,6 +499,11 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         if (result.IsSuccess)
         {
             AvailableRooms = new ObservableCollection<RoomListItemDto>(result.Data ?? new List<RoomListItemDto>());
+        }
+        else
+        {
+            AvailableRooms = new ObservableCollection<RoomListItemDto>();
+            Message = result.Errors.FirstOrDefault() ?? result.Message;
         }
     }
 
