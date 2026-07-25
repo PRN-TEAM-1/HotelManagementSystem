@@ -15,7 +15,8 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     private decimal _basePrice;
     private int _capacity = 2;
     private string _status = "Active";
-    private string _message = string.Empty;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
     private bool _isBusy;
 
     public RoomTypeManagementViewModel(IRoomTypeService roomTypeService)
@@ -24,6 +25,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         CreateCommand = new AsyncRelayCommand(CreateAsync);
+        ClearMessagesCommand = new WPF.Commands.RelayCommand(ClearMessages);
     }
 
     public override string Title => "Room Type Management";
@@ -72,10 +74,16 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         set => SetProperty(ref _status, value);
     }
 
-    public string Message
+    public string ErrorMessage
     {
-        get => _message;
-        private set => SetProperty(ref _message, value);
+        get => _errorMessage;
+        private set => SetProperty(ref _errorMessage, value);
+    }
+
+    public string SuccessMessage
+    {
+        get => _successMessage;
+        private set => SetProperty(ref _successMessage, value);
     }
 
     public bool IsBusy
@@ -90,14 +98,23 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
 
     public AsyncRelayCommand CreateCommand { get; }
 
+    public WPF.Commands.RelayCommand ClearMessagesCommand { get; }
+
     public override async Task InitializeAsync()
     {
         await LoadAsync();
     }
 
+    public override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        ClearMessages();
+    }
+
     private async Task LoadAsync()
     {
         IsBusy = true;
+        ClearMessages();
         try
         {
             var result = await _roomTypeService.GetRoomTypesAsync(SearchTerm);
@@ -107,7 +124,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
             }
             else
             {
-                Message = result.Message;
+                ErrorMessage = result.Message;
             }
         }
         finally
@@ -123,9 +140,11 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
 
     private async Task CreateAsync()
     {
+        ClearMessages();
+
         if (string.IsNullOrWhiteSpace(TypeName))
         {
-            Message = "Room type name is required.";
+            ErrorMessage = "Room type name is required.";
             return;
         }
 
@@ -141,9 +160,9 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
                 Status = Status
             });
 
-            Message = result.Message;
             if (result.IsSuccess)
             {
+                SuccessMessage = result.Message;
                 TypeName = string.Empty;
                 RoomTypeDescription = string.Empty;
                 BasePrice = 0;
@@ -151,10 +170,20 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
                 Status = "Active";
                 await LoadAsync();
             }
+            else
+            {
+                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+            }
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    private void ClearMessages()
+    {
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
     }
 }
