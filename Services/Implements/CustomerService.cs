@@ -11,10 +11,14 @@ namespace Services.Implements;
 public sealed class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public CustomerService(ICustomerRepository? customerRepository = null)
+    public CustomerService(
+        ICustomerRepository? customerRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _customerRepository = customerRepository ?? new CustomerRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<CustomerListItemDto>>> GetCustomersAsync(
@@ -34,6 +38,7 @@ public sealed class CustomerService : ICustomerService
 
     public async Task<ServiceResult<CustomerListItemDto>> CreateCustomerAsync(
         CreateCustomerRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -72,6 +77,14 @@ public sealed class CustomerService : ICustomerService
             };
 
             var created = await _customerRepository.AddAsync(customer, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "CustomerCreated",
+                "Customer",
+                created.CustomerId.ToString(),
+                $"Created customer '{created.FullName}'.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<CustomerListItemDto>.Success(MapToListItem(created), "Customer created successfully.");
         }
         catch
@@ -82,6 +95,7 @@ public sealed class CustomerService : ICustomerService
 
     public async Task<ServiceResult<CustomerListItemDto>> UpdateCustomerAsync(
         UpdateCustomerRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -125,6 +139,17 @@ public sealed class CustomerService : ICustomerService
             };
 
             var updated = await _customerRepository.UpdateAsync(customer, cancellationToken);
+            if (updated is not null)
+            {
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "CustomerUpdated",
+                    "Customer",
+                    updated.CustomerId.ToString(),
+                    $"Updated customer '{updated.FullName}'.",
+                    cancellationToken: cancellationToken);
+            }
+
             return updated is null
                 ? ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.NotFound)
                 : ServiceResult<CustomerListItemDto>.Success(MapToListItem(updated), "Customer updated successfully.");

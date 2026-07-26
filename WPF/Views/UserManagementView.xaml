@@ -205,52 +205,123 @@
 
         <materialDesign:Card Grid.Row="3"
                              Margin="0,12,0,0"
+                             Height="280"
                              Padding="16"
                              materialDesign:ElevationAssist.Elevation="Dp1"
                              Visibility="{Binding SelectedUser, Converter={StaticResource ObjectToVisibilityConverter}}">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <StackPanel>
-                    <TextBlock Text="Selected"
-                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.Username}"
-                               Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="1">
-                    <TextBlock Text="Full name"
-                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.FullName}"
-                               Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Selected"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedUser.Username}"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
 
-                <StackPanel Grid.Column="2" Margin="24,0,0,0">
-                    <TextBlock Text="Role"
-                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.RoleName}"
-                               Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
-                </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Full name"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedUser.FullName}"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
 
-                <StackPanel Grid.Column="3" Margin="24,0,0,0">
-                    <TextBlock Text="Status"
-                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="{StaticResource TextSecondaryBrush}" />
-                    <TextBlock Text="{Binding SelectedUser.Status}"
-                               Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="{StaticResource AccentBrush}" />
-                </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="24,0,0,0">
+                        <TextBlock Text="Role"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedUser.RoleName}"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="24,0,0,0">
+                        <TextBlock Text="Status"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedUser.Status}"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   Foreground="{StaticResource AccentBrush}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4"
+                                Orientation="Horizontal"
+                                Margin="24,0,0,0"
+                                VerticalAlignment="Center">
+                        <ProgressBar Width="80"
+                                     Height="4"
+                                     IsIndeterminate="True"
+                                     Margin="0,0,8,0"
+                                     Style="{StaticResource MaterialDesignLinearProgressBar}"
+                                     Visibility="{Binding IsAuditBusy, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <Button Command="{Binding RefreshSelectedUserAuditCommand}"
+                                Style="{StaticResource IconButtonStyle}"
+                                ToolTip="Refresh account logs">
+                            <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <TabControl Grid.Row="1" Margin="0,12,0,0">
+                    <TabItem Header="Login Sessions">
+                        <DataGrid ItemsSource="{Binding SelectedUserLoginSessions}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Login" Binding="{Binding LoginAtLocal, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
+                                <DataGridTextColumn Header="Logout" Binding="{Binding LogoutAtLocal, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="84" />
+                                <DataGridTextColumn Header="Machine" Binding="{Binding MachineName}" Width="Auto" MinWidth="120" />
+                                <DataGridTextColumn Header="IP" Binding="{Binding IpAddress}" Width="Auto" MinWidth="108" />
+                                <DataGridTextColumn Header="Device" Binding="{Binding DeviceType}" Width="Auto" MinWidth="120" />
+                                <DataGridTextColumn Header="OS" Binding="{Binding OsVersion}" Width="*" MinWidth="180" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Activity Logs">
+                        <Grid>
+                            <DataGrid ItemsSource="{Binding SelectedUserActivityLogs}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding OccurredAtLocal, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
+                                    <DataGridTextColumn Header="Action" Binding="{Binding ActionType}" Width="Auto" MinWidth="140" />
+                                    <DataGridTextColumn Header="Entity" Binding="{Binding EntityName}" Width="Auto" MinWidth="100" />
+                                    <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="Auto" MinWidth="80" />
+                                    <DataGridTextColumn Header="IP" Binding="{Binding IpAddress}" Width="Auto" MinWidth="108" />
+                                    <DataGridTextColumn Header="Machine" Binding="{Binding MachineName}" Width="Auto" MinWidth="120" />
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="260" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="{Binding AuditEmptyMessage}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Visibility="{Binding AuditEmptyMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+                        </Grid>
+                    </TabItem>
+                </TabControl>
             </Grid>
         </materialDesign:Card>
     </Grid>

@@ -30,6 +30,10 @@
                 <views:SectionView />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:WorkspaceViewModel}">
+                <views:WorkspaceView />
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:SessionViewModel}">
                 <views:SessionView />
             </DataTemplate>

@@ -38,6 +38,10 @@ public sealed class HotelManagementContext : DbContext
 
     public DbSet<Payment> Payments => Set<Payment>();
 
+    public DbSet<UserLoginSession> UserLoginSessions => Set<UserLoginSession>();
+
+    public DbSet<UserActivityLog> UserActivityLogs => Set<UserActivityLog>();
+
     public DbSet<AiProviderSetting> AiProviderSettings => Set<AiProviderSetting>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -290,6 +294,65 @@ public sealed class HotelManagementContext : DbContext
             builder.Property(p => p.Note).HasColumnName("note");
             builder.Property(p => p.CreatedAt).HasColumnName("created_at");
             builder.Property(p => p.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        // User login session configuration
+        modelBuilder.Entity<UserLoginSession>(builder =>
+        {
+            builder.ToTable("user_login_sessions");
+            builder.HasKey(session => session.LoginSessionId);
+            builder.Property(session => session.LoginSessionId).HasColumnName("login_session_id");
+            builder.Property(session => session.UserId).HasColumnName("user_id");
+            builder.Property(session => session.LoginAtUtc).HasColumnName("login_at_utc");
+            builder.Property(session => session.LogoutAtUtc).HasColumnName("logout_at_utc");
+            builder.Property(session => session.LastSeenAtUtc).HasColumnName("last_seen_at_utc");
+            builder.Property(session => session.MachineName).HasColumnName("machine_name").HasMaxLength(100);
+            builder.Property(session => session.WindowsUser).HasColumnName("windows_user").HasMaxLength(100);
+            builder.Property(session => session.IpAddress).HasColumnName("ip_address").HasMaxLength(45);
+            builder.Property(session => session.OsVersion).HasColumnName("os_version").HasMaxLength(200);
+            builder.Property(session => session.AppVersion).HasColumnName("app_version").HasMaxLength(50);
+            builder.Property(session => session.DeviceType).HasColumnName("device_type").HasMaxLength(50);
+            builder.Property(session => session.Status).HasColumnName("status").HasMaxLength(20);
+            builder.HasOne(session => session.User).WithMany().HasForeignKey(session => session.UserId);
+            builder.HasMany(session => session.ActivityLogs)
+                .WithOne(log => log.LoginSession)
+                .HasForeignKey(log => log.LoginSessionId);
+            builder.HasIndex(session => new { session.UserId, session.LoginAtUtc });
+        });
+
+        // User activity log configuration
+        modelBuilder.Entity<UserActivityLog>(builder =>
+        {
+            builder.ToTable("user_activity_logs");
+            builder.HasKey(log => log.ActivityLogId);
+            builder.Property(log => log.ActivityLogId).HasColumnName("activity_log_id");
+            builder.Property(log => log.LoginSessionId).HasColumnName("login_session_id");
+            builder.Property(log => log.ActorUserId).HasColumnName("actor_user_id");
+            builder.Property(log => log.TargetUserId).HasColumnName("target_user_id");
+            builder.Property(log => log.AttemptedUsername).HasColumnName("attempted_username").HasMaxLength(50);
+            builder.Property(log => log.ActionType).HasColumnName("action_type").HasMaxLength(50);
+            builder.Property(log => log.EntityName).HasColumnName("entity_name").HasMaxLength(100);
+            builder.Property(log => log.EntityId).HasColumnName("entity_id").HasMaxLength(100);
+            builder.Property(log => log.Description).HasColumnName("description").HasMaxLength(1000);
+            builder.Property(log => log.OldValuesJson).HasColumnName("old_values_json");
+            builder.Property(log => log.NewValuesJson).HasColumnName("new_values_json");
+            builder.Property(log => log.Result).HasColumnName("result").HasMaxLength(30);
+            builder.Property(log => log.ErrorMessage).HasColumnName("error_message").HasMaxLength(1000);
+            builder.Property(log => log.OccurredAtUtc).HasColumnName("occurred_at_utc");
+            builder.Property(log => log.MachineName).HasColumnName("machine_name").HasMaxLength(100);
+            builder.Property(log => log.IpAddress).HasColumnName("ip_address").HasMaxLength(45);
+            builder.Property(log => log.DeviceType).HasColumnName("device_type").HasMaxLength(50);
+            builder.HasOne(log => log.ActorUser)
+                .WithMany()
+                .HasForeignKey(log => log.ActorUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            builder.HasOne(log => log.TargetUser)
+                .WithMany()
+                .HasForeignKey(log => log.TargetUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+            builder.HasIndex(log => log.OccurredAtUtc);
+            builder.HasIndex(log => new { log.ActorUserId, log.OccurredAtUtc });
+            builder.HasIndex(log => new { log.TargetUserId, log.OccurredAtUtc });
         });
 
         // AI provider configuration

@@ -11,10 +11,14 @@ namespace Services.Implements;
 public sealed class RoomService : IRoomService
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public RoomService(IRoomRepository? roomRepository = null)
+    public RoomService(
+        IRoomRepository? roomRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _roomRepository = roomRepository ?? new RoomRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<RoomListItemDto>>> GetRoomsAsync(
@@ -89,6 +93,7 @@ public sealed class RoomService : IRoomService
 
     public async Task<ServiceResult<RoomListItemDto>> CreateRoomAsync(
         CreateRoomRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -122,6 +127,14 @@ public sealed class RoomService : IRoomService
             };
 
             var created = await _roomRepository.AddAsync(room, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "RoomCreated",
+                "Room",
+                created.RoomId.ToString(),
+                $"Created room {created.RoomNumber}.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<RoomListItemDto>.Success(MapToListItem(created), "Room created successfully.");
         }
         catch
@@ -132,6 +145,7 @@ public sealed class RoomService : IRoomService
 
     public async Task<ServiceResult<RoomListItemDto>> UpdateRoomAsync(
         UpdateRoomRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -170,6 +184,17 @@ public sealed class RoomService : IRoomService
             };
 
             var updated = await _roomRepository.UpdateAsync(room, cancellationToken);
+            if (updated is not null)
+            {
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "RoomUpdated",
+                    "Room",
+                    updated.RoomId.ToString(),
+                    $"Updated room {updated.RoomNumber} status to {updated.Status}.",
+                    cancellationToken: cancellationToken);
+            }
+
             return updated is null
                 ? ServiceResult<RoomListItemDto>.Failure(ErrorMessages.NotFound)
                 : ServiceResult<RoomListItemDto>.Success(MapToListItem(updated), "Room updated successfully.");

@@ -17,13 +17,16 @@ public sealed class AiConfigurationService : IAiConfigurationService
 
     private readonly IAiProviderSettingRepository _repository;
     private readonly AiProviderClientFactory _clientFactory;
+    private readonly IUserActivityService _userActivityService;
 
     public AiConfigurationService(
         IAiProviderSettingRepository? repository = null,
-        AiProviderClientFactory? clientFactory = null)
+        AiProviderClientFactory? clientFactory = null,
+        IUserActivityService? userActivityService = null)
     {
         _repository = repository ?? new AiProviderSettingRepository();
         _clientFactory = clientFactory ?? new AiProviderClientFactory();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<AiProviderSettingDto>>> GetSettingsAsync(
@@ -103,6 +106,13 @@ public sealed class AiConfigurationService : IAiConfigurationService
             };
 
             var saved = await _repository.SaveAsync(setting, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "AiSettingSaved",
+                "AiProviderSetting",
+                saved.ProviderName.ToString(),
+                $"Saved AI provider setting for {saved.ProviderName}.",
+                cancellationToken: cancellationToken);
 
             return ServiceResult<AiProviderSettingDto>.Success(
                 MapToDto(saved),
@@ -150,6 +160,13 @@ public sealed class AiConfigurationService : IAiConfigurationService
                 var connected = content.Contains("ok", StringComparison.OrdinalIgnoreCase);
                 var status = connected ? "Connected" : "Connected, but response format was unexpected.";
                 await _repository.UpdateTestStatusAsync(setting.ProviderName, testedAt, status, cancellationToken);
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "AiSettingTested",
+                    "AiProviderSetting",
+                    setting.ProviderName.ToString(),
+                    $"Tested AI provider {setting.ProviderName}: {status}.",
+                    cancellationToken: cancellationToken);
 
                 return ServiceResult<AiProviderTestResultDto>.Success(new AiProviderTestResultDto
                 {
@@ -164,6 +181,15 @@ public sealed class AiConfigurationService : IAiConfigurationService
             {
                 var status = $"Failed: {ex.Message}";
                 await _repository.UpdateTestStatusAsync(setting.ProviderName, testedAt, status, cancellationToken);
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "AiSettingTested",
+                    "AiProviderSetting",
+                    setting.ProviderName.ToString(),
+                    $"Tested AI provider {setting.ProviderName}: failed.",
+                    result: "Failed",
+                    errorMessage: ex.Message,
+                    cancellationToken: cancellationToken);
 
                 return ServiceResult<AiProviderTestResultDto>.Success(new AiProviderTestResultDto
                 {

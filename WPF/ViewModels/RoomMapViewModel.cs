@@ -18,6 +18,7 @@ public sealed class FloorRoomGroupViewModel
 public sealed class RoomMapViewModel : BaseViewModel
 {
     private readonly IRoomService _roomService;
+    private readonly ICurrentUserService _currentUserService;
 
     private DateTime _asOfDate = DateTime.Today;
     private string _selectedStatusFilter = "All";
@@ -33,9 +34,12 @@ public sealed class RoomMapViewModel : BaseViewModel
     private int _cleaningCount;
     private int _maintenanceCount;
 
-    public RoomMapViewModel(IRoomService roomService)
+    public RoomMapViewModel(
+        IRoomService roomService,
+        ICurrentUserService currentUserService)
     {
         _roomService = roomService ?? throw new ArgumentNullException(nameof(roomService));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
         LoadCommand = new AsyncRelayCommand(LoadRoomMapAsync);
         RefreshCommand = new AsyncRelayCommand(LoadRoomMapAsync);
@@ -219,7 +223,7 @@ public sealed class RoomMapViewModel : BaseViewModel
                 RoomNumber = roomItem.RoomNumber,
                 Floor = roomItem.Floor,
                 Status = "Available"
-            });
+            }, _currentUserService.User);
 
             if (updateResult.IsSuccess)
             {

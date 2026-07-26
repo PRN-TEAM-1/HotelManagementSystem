@@ -12,25 +12,31 @@ public sealed class UserManagementViewModel : BaseViewModel
 {
     private readonly IUserManagementService _userManagementService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IUserActivityService _userActivityService;
     private readonly DialogService _dialogService;
     private readonly List<LookupItemDto> _statusOptions;
 
     private List<LookupItemDto> _roleOptions = new();
     private List<UserListItemDto> _users = new();
+    private List<LoginSessionDto> _selectedUserLoginSessions = new();
+    private List<ActivityLogDto> _selectedUserActivityLogs = new();
     private UserListItemDto? _selectedUser;
     private string _searchTerm = string.Empty;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isBusy;
+    private bool _isAuditBusy;
     private bool _isInitialized;
 
     public UserManagementViewModel(
         IUserManagementService userManagementService,
         ICurrentUserService currentUserService,
+        IUserActivityService userActivityService,
         DialogService dialogService)
     {
         _userManagementService = userManagementService ?? throw new ArgumentNullException(nameof(userManagementService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _userActivityService = userActivityService ?? throw new ArgumentNullException(nameof(userActivityService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _statusOptions = CreateStatusOptions();
 
@@ -46,12 +52,13 @@ public sealed class UserManagementViewModel : BaseViewModel
             () => ChangeSelectedStatusAsync(UserStatus.Inactive, "inactivate"),
             CanInactivateSelectedUser);
         DeleteUserCommand = new AsyncRelayCommand(DeleteUserAsync, CanDeleteSelectedUser);
+        RefreshSelectedUserAuditCommand = new AsyncRelayCommand(LoadSelectedUserAuditAsync, CanLoadSelectedUserAudit);
         ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
 
-    public override string Title => "User Management";
+    public override string Title => "Account Management";
 
-    public override string Description => "Create, update and control staff login access";
+    public override string Description => "Create accounts, control access and review login/activity history";
 
     public List<UserListItemDto> Users
     {
@@ -65,6 +72,30 @@ public sealed class UserManagementViewModel : BaseViewModel
         }
     }
 
+    public List<LoginSessionDto> SelectedUserLoginSessions
+    {
+        get => _selectedUserLoginSessions;
+        private set
+        {
+            if (SetProperty(ref _selectedUserLoginSessions, value))
+            {
+                OnPropertyChanged(nameof(AuditEmptyMessage));
+            }
+        }
+    }
+
+    public List<ActivityLogDto> SelectedUserActivityLogs
+    {
+        get => _selectedUserActivityLogs;
+        private set
+        {
+            if (SetProperty(ref _selectedUserActivityLogs, value))
+            {
+                OnPropertyChanged(nameof(AuditEmptyMessage));
+            }
+        }
+    }
+
     public UserListItemDto? SelectedUser
     {
         get => _selectedUser;
@@ -73,6 +104,7 @@ public sealed class UserManagementViewModel : BaseViewModel
             if (SetProperty(ref _selectedUser, value))
             {
                 RaiseSelectionCommandStates();
+                _ = LoadSelectedUserAuditAsync();
             }
         }
     }
@@ -118,6 +150,19 @@ public sealed class UserManagementViewModel : BaseViewModel
 
     public bool CanEdit => !IsBusy;
 
+    public bool IsAuditBusy
+    {
+        get => _isAuditBusy;
+        private set
+        {
+            if (SetProperty(ref _isAuditBusy, value))
+            {
+                OnPropertyChanged(nameof(AuditEmptyMessage));
+                RefreshSelectedUserAuditCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
     public string EmptyStateMessage
     {
         get
@@ -148,6 +193,8 @@ public sealed class UserManagementViewModel : BaseViewModel
     public AsyncRelayCommand InactivateUserCommand { get; }
 
     public AsyncRelayCommand DeleteUserCommand { get; }
+
+    public AsyncRelayCommand RefreshSelectedUserAuditCommand { get; }
 
     public RelayCommand ClearMessagesCommand { get; }
 
@@ -195,6 +242,11 @@ public sealed class UserManagementViewModel : BaseViewModel
             && SelectedUser.UserId != _currentUserService.User?.UserId;
     }
 
+    private bool CanLoadSelectedUserAudit()
+    {
+        return !IsAuditBusy && SelectedUser is not null;
+    }
+
     private async Task LoadUsersAsync()
     {
         IsBusy = true;
@@ -230,6 +282,55 @@ public sealed class UserManagementViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private async Task LoadSelectedUserAuditAsync()
+    {
+        if (SelectedUser is null)
+        {
+            SelectedUserLoginSessions = new();
+            SelectedUserActivityLogs = new();
+            return;
+        }
+
+        IsAuditBusy = true;
+
+        try
+        {
+            var selectedUserId = SelectedUser.UserId;
+            var sessionsResult = await _userActivityService.GetUserLoginSessionsAsync(
+                selectedUserId,
+                _currentUserService.User);
+            var logsResult = await _userActivityService.GetUserActivityLogsAsync(
+                selectedUserId,
+                _currentUserService.User);
+
+            SelectedUserLoginSessions = sessionsResult.IsSuccess
+                ? sessionsResult.Data ?? new()
+                : new();
+            SelectedUserActivityLogs = logsResult.IsSuccess
+                ? logsResult.Data ?? new()
+                : new();
+
+            if (sessionsResult.IsFailure)
+            {
+                ErrorMessage = sessionsResult.Errors.FirstOrDefault() ?? sessionsResult.Message;
+            }
+            else if (logsResult.IsFailure)
+            {
+                ErrorMessage = logsResult.Errors.FirstOrDefault() ?? logsResult.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error loading account audit history: {ex.Message}";
+            SelectedUserLoginSessions = new();
+            SelectedUserActivityLogs = new();
+        }
+        finally
+        {
+            IsAuditBusy = false;
         }
     }
 
@@ -395,6 +496,21 @@ public sealed class UserManagementViewModel : BaseViewModel
         }
     }
 
+    public string AuditEmptyMessage
+    {
+        get
+        {
+            if (IsAuditBusy || SelectedUser is null)
+            {
+                return string.Empty;
+            }
+
+            return SelectedUserLoginSessions.Count == 0 && SelectedUserActivityLogs.Count == 0
+                ? "No login sessions or activity logs found for this account."
+                : string.Empty;
+        }
+    }
+
     private async Task DeleteUserAsync()
     {
         if (SelectedUser is null)
@@ -526,6 +642,7 @@ public sealed class UserManagementViewModel : BaseViewModel
         ActivateUserCommand.RaiseCanExecuteChanged();
         InactivateUserCommand.RaiseCanExecuteChanged();
         DeleteUserCommand.RaiseCanExecuteChanged();
+        RefreshSelectedUserAuditCommand.RaiseCanExecuteChanged();
     }
 
     private static List<LookupItemDto> CreateStatusOptions()

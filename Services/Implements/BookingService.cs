@@ -14,10 +14,14 @@ namespace Services.Implements;
 public sealed class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public BookingService(IBookingRepository? bookingRepository = null)
+    public BookingService(
+        IBookingRepository? bookingRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _bookingRepository = bookingRepository ?? new BookingRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<BookingSummaryDto>> CreateBookingAsync(
@@ -136,6 +140,14 @@ public sealed class BookingService : IBookingService
             var createdBooking = await _bookingRepository.CreateBookingWithTransactionAsync(booking, details, cancellationToken);
             var bookingTotal = details.Sum(d => d.RoomTotal);
 
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "BookingCreated",
+                "Booking",
+                createdBooking.BookingId.ToString(),
+                $"Created booking #{createdBooking.BookingId} for customer #{request.CustomerId}.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<BookingSummaryDto>.Success(new BookingSummaryDto
             {
                 BookingId = createdBooking.BookingId,
@@ -217,6 +229,14 @@ public sealed class BookingService : IBookingService
             var success = await _bookingRepository.CancelBookingAsync(bookingId, cancellationToken);
             if (success)
             {
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "BookingCancelled",
+                    "Booking",
+                    bookingId.ToString(),
+                    $"Cancelled booking #{bookingId}.",
+                    cancellationToken: cancellationToken);
+
                 return ServiceResult<bool>.Success(true, "Booking cancelled successfully.");
             }
             return ServiceResult<bool>.Failure("Unable to cancel booking. It may have checked-in rooms or already be cancelled/completed/no-show.");
@@ -229,8 +249,15 @@ public sealed class BookingService : IBookingService
 
     public async Task<ServiceResult<bool>> MarkNoShowAsync(
         int bookingId,
+        CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageBookings<bool>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         if (bookingId <= 0)
         {
             return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
@@ -241,6 +268,14 @@ public sealed class BookingService : IBookingService
             var success = await _bookingRepository.MarkNoShowAsync(bookingId, cancellationToken);
             if (success)
             {
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "BookingMarkedNoShow",
+                    "Booking",
+                    bookingId.ToString(),
+                    $"Marked booking #{bookingId} as No-Show.",
+                    cancellationToken: cancellationToken);
+
                 return ServiceResult<bool>.Success(true, "Booking marked as No-Show successfully.");
             }
             return ServiceResult<bool>.Failure("Unable to mark booking as No-Show. It may have checked-in rooms or already be cancelled/completed/no-show.");

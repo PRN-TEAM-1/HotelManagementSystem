@@ -20,9 +20,11 @@ public interface IRoomService
 
     Task<ServiceResult<RoomListItemDto>> CreateRoomAsync(
         CreateRoomRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<RoomListItemDto>> UpdateRoomAsync(
         UpdateRoomRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 }

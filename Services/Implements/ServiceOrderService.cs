@@ -16,15 +16,18 @@ public sealed class ServiceOrderService : IServiceOrderService
     private readonly IServiceOrderRepository _serviceOrderRepository;
     private readonly IServiceRepository _serviceRepository;
     private readonly IBookingOperationRepository _bookingOperationRepository;
+    private readonly IUserActivityService _userActivityService;
 
     public ServiceOrderService(
         IServiceOrderRepository? serviceOrderRepository = null,
         IServiceRepository? serviceRepository = null,
-        IBookingOperationRepository? bookingOperationRepository = null)
+        IBookingOperationRepository? bookingOperationRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _serviceOrderRepository = serviceOrderRepository ?? new ServiceOrderRepository();
         _serviceRepository = serviceRepository ?? new ServiceRepository();
         _bookingOperationRepository = bookingOperationRepository ?? new BookingOperationRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<ServiceOrderListItemDto>>> GetServiceOrdersByBookingDetailAsync(int bookingDetailId, CancellationToken cancellationToken = default)
@@ -157,6 +160,13 @@ public sealed class ServiceOrderService : IServiceOrderService
 
             var createdOrder = await _serviceOrderRepository.AddAsync(serviceOrder, cancellationToken);
 
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "ServiceOrderCreated",
+                "ServiceOrder",
+                createdOrder.ServiceOrderId.ToString(),
+                $"Created service order #{createdOrder.ServiceOrderId} for booking detail #{request.BookingDetailId}.",
+                cancellationToken: cancellationToken);
 
             var dto = new ServiceOrderListItemDto
             {
@@ -180,8 +190,17 @@ public sealed class ServiceOrderService : IServiceOrderService
         }
     }
 
-    public async Task<ServiceResult<bool>> CancelServiceOrderAsync(int serviceOrderId, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<bool>> CancelServiceOrderAsync(
+        int serviceOrderId,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default)
     {
+        var authorizationResult = EnsureCanManageServiceOrders<bool>(currentUser);
+        if (authorizationResult is not null)
+        {
+            return authorizationResult;
+        }
+
         if (serviceOrderId <= 0)
         {
             return ServiceResult<bool>.Failure(ErrorMessages.InvalidInput);
@@ -195,6 +214,14 @@ public sealed class ServiceOrderService : IServiceOrderService
             {
                 return ServiceResult<bool>.Failure(ErrorMessages.NotFound);
             }
+
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "ServiceOrderCancelled",
+                "ServiceOrder",
+                serviceOrderId.ToString(),
+                $"Cancelled service order #{serviceOrderId}.",
+                cancellationToken: cancellationToken);
 
             return ServiceResult<bool>.Success(true);
         }

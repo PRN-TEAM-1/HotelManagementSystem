@@ -11,10 +11,14 @@ namespace Services.Implements;
 public sealed class ServiceCatalogService : IServiceCatalogService
 {
     private readonly IServiceRepository _serviceRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public ServiceCatalogService(IServiceRepository? serviceRepository = null)
+    public ServiceCatalogService(
+        IServiceRepository? serviceRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _serviceRepository = serviceRepository ?? new ServiceRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<ServiceDto>> GetServiceByIdAsync(int serviceId, CancellationToken cancellationToken = default)
@@ -114,7 +118,10 @@ public sealed class ServiceCatalogService : IServiceCatalogService
         }
     }
 
-    public async Task<ServiceResult<ServiceDto>> CreateServiceAsync(CreateServiceRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<ServiceDto>> CreateServiceAsync(
+        CreateServiceRequestDto request,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -154,6 +161,13 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             };
 
             var createdService = await _serviceRepository.AddAsync(service, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "ServiceCreated",
+                "Service",
+                createdService.ServiceId.ToString(),
+                $"Created service '{createdService.ServiceName}'.",
+                cancellationToken: cancellationToken);
 
             var dto = MapToServiceDto(createdService);
             return ServiceResult<ServiceDto>.Success(dto);
@@ -164,7 +178,10 @@ public sealed class ServiceCatalogService : IServiceCatalogService
         }
     }
 
-    public async Task<ServiceResult<ServiceDto>> UpdateServiceAsync(UpdateServiceRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<ServiceDto>> UpdateServiceAsync(
+        UpdateServiceRequestDto request,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -220,6 +237,13 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             existingService.UpdatedAt = DateTime.Now;
 
             var updatedService = await _serviceRepository.UpdateAsync(existingService, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "ServiceUpdated",
+                "Service",
+                updatedService.ServiceId.ToString(),
+                $"Updated service '{updatedService.ServiceName}'.",
+                cancellationToken: cancellationToken);
 
             var dto = MapToServiceDto(updatedService);
             return ServiceResult<ServiceDto>.Success(dto);
@@ -230,7 +254,10 @@ public sealed class ServiceCatalogService : IServiceCatalogService
         }
     }
 
-    public async Task<ServiceResult<bool>> InactivateServiceAsync(int serviceId, CancellationToken cancellationToken = default)
+    public async Task<ServiceResult<bool>> InactivateServiceAsync(
+        int serviceId,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default)
     {
         if (serviceId <= 0)
         {
@@ -251,6 +278,14 @@ public sealed class ServiceCatalogService : IServiceCatalogService
             service.UpdatedAt = DateTime.Now;
 
             await _serviceRepository.UpdateAsync(service, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "ServiceInactivated",
+                "Service",
+                service.ServiceId.ToString(),
+                $"Inactivated service '{service.ServiceName}'.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<bool>.Success(true);
         }
         catch (Exception)

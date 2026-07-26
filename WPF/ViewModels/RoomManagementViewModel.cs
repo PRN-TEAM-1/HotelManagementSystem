@@ -9,6 +9,7 @@ public sealed class RoomManagementViewModel : BaseViewModel
 {
     private readonly IRoomService _roomService;
     private readonly IRoomTypeService _roomTypeService;
+    private readonly ICurrentUserService _currentUserService;
 
     private ObservableCollection<RoomListItemDto> _rooms = new();
     private ObservableCollection<RoomTypeListItemDto> _roomTypes = new();
@@ -23,10 +24,14 @@ public sealed class RoomManagementViewModel : BaseViewModel
     private string _message = string.Empty;
     private bool _isBusy;
 
-    public RoomManagementViewModel(IRoomService roomService, IRoomTypeService roomTypeService)
+    public RoomManagementViewModel(
+        IRoomService roomService,
+        IRoomTypeService roomTypeService,
+        ICurrentUserService currentUserService)
     {
         _roomService = roomService ?? throw new ArgumentNullException(nameof(roomService));
         _roomTypeService = roomTypeService ?? throw new ArgumentNullException(nameof(roomTypeService));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SearchCommand = new AsyncRelayCommand(SearchAsync);
@@ -233,7 +238,7 @@ public sealed class RoomManagementViewModel : BaseViewModel
                     Floor = Floor,
                     Status = Status,
                     Note = Note
-                });
+                }, _currentUserService.User);
             }
             else
             {
@@ -245,7 +250,7 @@ public sealed class RoomManagementViewModel : BaseViewModel
                     Floor = Floor,
                     Status = Status,
                     Note = Note
-                });
+                }, _currentUserService.User);
             }
 
             if (result.IsSuccess)

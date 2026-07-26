@@ -8,6 +8,7 @@ namespace WPF.ViewModels;
 public sealed class RoomTypeManagementViewModel : BaseViewModel
 {
     private readonly IRoomTypeService _roomTypeService;
+    private readonly ICurrentUserService _currentUserService;
     private ObservableCollection<RoomTypeListItemDto> _roomTypes = new();
     private RoomTypeListItemDto? _selectedRoomType;
     private string _searchTerm = string.Empty;
@@ -21,9 +22,12 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     private bool _isBusy;
     private bool _isEditMode;
 
-    public RoomTypeManagementViewModel(IRoomTypeService roomTypeService)
+    public RoomTypeManagementViewModel(
+        IRoomTypeService roomTypeService,
+        ICurrentUserService currentUserService)
     {
         _roomTypeService = roomTypeService;
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         LoadCommand = new AsyncRelayCommand(() => LoadAsync());
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         CreateCommand = new AsyncRelayCommand(CreateAsync);
@@ -216,7 +220,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
                 BasePrice = BasePrice,
                 Capacity = Capacity,
                 Status = Status
-            });
+            }, _currentUserService.User);
 
             if (result.IsSuccess)
             {
@@ -263,7 +267,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
                 BasePrice = BasePrice,
                 Capacity = Capacity,
                 Status = Status
-            });
+            }, _currentUserService.User);
 
             if (result.IsSuccess)
             {

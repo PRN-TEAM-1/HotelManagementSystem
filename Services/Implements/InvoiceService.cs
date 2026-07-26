@@ -11,10 +11,14 @@ namespace Services.Implements;
 public sealed class InvoiceService : IInvoiceService
 {
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public InvoiceService(IInvoiceRepository? invoiceRepository = null)
+    public InvoiceService(
+        IInvoiceRepository? invoiceRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _invoiceRepository = invoiceRepository ?? new InvoiceRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<InvoiceCandidateDto>>> GetInvoiceCandidatesAsync(
@@ -182,6 +186,14 @@ public sealed class InvoiceService : IInvoiceService
             {
                 return ServiceResult<InvoiceDetailDto>.Failure(ErrorMessages.SystemError);
             }
+
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "InvoiceCreated",
+                "Invoice",
+                createdInvoice.InvoiceId.ToString(),
+                $"Created invoice #{createdInvoice.InvoiceId} for booking #{request.BookingId}.",
+                cancellationToken: cancellationToken);
 
             return ServiceResult<InvoiceDetailDto>.Success(detail, "Invoice created successfully.");
         }

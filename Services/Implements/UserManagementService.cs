@@ -13,10 +13,14 @@ namespace Services.Implements;
 public sealed class UserManagementService : IUserManagementService
 {
     private readonly IUserManagementRepository _userManagementRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public UserManagementService(IUserManagementRepository? userManagementRepository = null)
+    public UserManagementService(
+        IUserManagementRepository? userManagementRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _userManagementRepository = userManagementRepository ?? new UserManagementRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<UserListItemDto>>> GetUsersAsync(
@@ -114,6 +118,15 @@ public sealed class UserManagementService : IUserManagementService
             var createdUser = await _userManagementRepository.AddAsync(user, cancellationToken);
             var dto = await MapToListItemAsync(createdUser, cancellationToken);
 
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "AccountCreated",
+                "User",
+                createdUser.UserId.ToString(),
+                $"Created account '{createdUser.Username}'.",
+                targetUserId: createdUser.UserId,
+                cancellationToken: cancellationToken);
+
             return ServiceResult<UserListItemDto>.Success(dto, "User created successfully.");
         }
         catch
@@ -204,6 +217,15 @@ public sealed class UserManagementService : IUserManagementService
 
             var dto = await MapToListItemAsync(updatedUser, cancellationToken);
 
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "AccountUpdated",
+                "User",
+                updatedUser.UserId.ToString(),
+                $"Updated account '{updatedUser.Username}'.",
+                targetUserId: updatedUser.UserId,
+                cancellationToken: cancellationToken);
+
             return ServiceResult<UserListItemDto>.Success(dto, "User updated successfully.");
         }
         catch
@@ -257,6 +279,15 @@ public sealed class UserManagementService : IUserManagementService
 
             var dto = await MapToListItemAsync(updatedUser, cancellationToken);
 
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                request.Status == UserStatus.Active ? "AccountActivated" : "AccountInactivated",
+                "User",
+                updatedUser.UserId.ToString(),
+                $"Changed account '{updatedUser.Username}' status to {request.Status}.",
+                targetUserId: updatedUser.UserId,
+                cancellationToken: cancellationToken);
+
             return ServiceResult<UserListItemDto>.Success(dto, "User status updated successfully.");
         }
         catch
@@ -307,17 +338,41 @@ public sealed class UserManagementService : IUserManagementService
                     UserStatus.Inactive,
                     cancellationToken);
 
-                return inactiveUser is null
-                    ? ServiceResult<bool>.Failure(ErrorMessages.NotFound)
-                    : ServiceResult<bool>.Success(
-                        true,
-                        "User has business records, so the account was set to Inactive.");
+                if (inactiveUser is null)
+                {
+                    return ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+                }
+
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "AccountInactivated",
+                    "User",
+                    inactiveUser.UserId.ToString(),
+                    $"Account '{inactiveUser.Username}' has business records, so it was set to Inactive.",
+                    targetUserId: inactiveUser.UserId,
+                    cancellationToken: cancellationToken);
+
+                return ServiceResult<bool>.Success(
+                    true,
+                    "User has business records, so the account was set to Inactive.");
             }
 
+            var deletedUsername = existingUser.Username;
             var deleted = await _userManagementRepository.DeleteAsync(userId, cancellationToken);
-            return deleted
-                ? ServiceResult<bool>.Success(true, "User deleted permanently.")
-                : ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+            if (!deleted)
+            {
+                return ServiceResult<bool>.Failure(ErrorMessages.NotFound);
+            }
+
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "AccountDeleted",
+                "User",
+                userId.ToString(),
+                $"Deleted account '{deletedUsername}' permanently.",
+                cancellationToken: cancellationToken);
+
+            return ServiceResult<bool>.Success(true, "User deleted permanently.");
         }
         catch
         {
