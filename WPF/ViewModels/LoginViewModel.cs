@@ -7,19 +7,27 @@ namespace WPF.ViewModels;
 
 public sealed class LoginViewModel : BaseViewModel
 {
+    private static readonly TimeSpan RememberedLoginLifetime = TimeSpan.FromDays(3);
+
     private readonly IAuthService _authService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly RememberedLoginStore _rememberedLoginStore;
 
     private string _username = string.Empty;
     private string _password = string.Empty;
+    private bool _rememberMe;
     private bool _isPasswordRevealed;
     private string _errorMessage = string.Empty;
     private bool _isBusy;
 
-    public LoginViewModel(IAuthService authService, ICurrentUserService currentUserService)
+    public LoginViewModel(
+        IAuthService authService,
+        ICurrentUserService currentUserService,
+        RememberedLoginStore? rememberedLoginStore = null)
     {
         _authService = authService ?? throw new ArgumentNullException(nameof(authService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _rememberedLoginStore = rememberedLoginStore ?? new RememberedLoginStore();
 
         LoginCommand = new AsyncRelayCommand(LoginAsync, CanLogin);
     }
@@ -48,6 +56,12 @@ public sealed class LoginViewModel : BaseViewModel
                 LoginCommand.RaiseCanExecuteChanged();
             }
         }
+    }
+
+    public bool RememberMe
+    {
+        get => _rememberMe;
+        set => SetProperty(ref _rememberMe, value);
     }
 
     public bool IsPasswordRevealed
@@ -106,6 +120,15 @@ public sealed class LoginViewModel : BaseViewModel
             {
                 ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
                 return;
+            }
+
+            if (RememberMe)
+            {
+                _rememberedLoginStore.Save(result.Data.CurrentSession, RememberedLoginLifetime);
+            }
+            else
+            {
+                _rememberedLoginStore.Clear();
             }
 
             _currentUserService.Set(result.Data.CurrentSession);
