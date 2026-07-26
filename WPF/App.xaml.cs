@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Threading;
+using BusinessObjects.DTOs;
 using Microsoft.EntityFrameworkCore;
 using DataAccessObjects;
 using Services.Implements;
@@ -14,13 +16,16 @@ public partial class App : Application
     private ICurrentUserService _currentUserService = null!;
     private IAuthService _authService = null!;
     private IUserActivityService _userActivityService = null!;
+    private RememberedLoginStore _rememberedLoginStore = null!;
     private DialogService _dialogService = null!;
     private NavigationService _navigationService = null!;
     private MainWindow? _shellWindow;
     private LoginWindow? _loginWindow;
+    private DispatcherTimer? _sessionValidationTimer;
     private bool _isTransitioningWindows;
+    private bool _isCheckingSession;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -193,12 +198,18 @@ public partial class App : Application
         _currentUserService = new CurrentUserService();
         _userActivityService = new UserActivityService();
         _authService = new AuthService(userActivityService: _userActivityService);
+        _rememberedLoginStore = new RememberedLoginStore();
         _dialogService = new DialogService();
         _navigationService = new NavigationService();
+        ConfigureSessionValidationTimer();
         _currentUserService.SessionChanged += OnSessionChanged;
 
         BuildShellWindow();
-        ShowLoginWindow();
+
+        if (!await TryRestoreRememberedSessionAsync())
+        {
+            ShowLoginWindow();
+        }
     }
 
     private void BuildShellWindow()
@@ -316,7 +327,10 @@ public partial class App : Application
             return;
         }
 
-        var loginViewModel = new LoginViewModel(_authService, _currentUserService);
+        var loginViewModel = new LoginViewModel(
+            _authService,
+            _currentUserService,
+            _rememberedLoginStore);
         _loginWindow = new LoginWindow
         {
             DataContext = loginViewModel
@@ -327,14 +341,87 @@ public partial class App : Application
         _loginWindow.Show();
     }
 
+    private async Task<bool> TryRestoreRememberedSessionAsync()
+    {
+        if (!_rememberedLoginStore.TryLoad(out var rememberedLogin) || rememberedLogin is null)
+        {
+            return false;
+        }
+
+        var result = await _authService.RestoreRememberedSessionAsync(
+            new RememberedLoginRequestDto
+            {
+                UserId = rememberedLogin.UserId,
+                Username = rememberedLogin.Username,
+                UserUpdatedAtTicks = rememberedLogin.UserUpdatedAtTicks,
+                ExpiresAtUtc = rememberedLogin.ExpiresAtUtc,
+                ClientEnvironment = ClientEnvironmentProvider.Capture()
+            });
+
+        if (result.IsSuccess && result.Data?.CurrentSession is not null)
+        {
+            _currentUserService.Set(result.Data.CurrentSession);
+            return true;
+        }
+
+        _rememberedLoginStore.Clear();
+        return false;
+    }
+
+    private void ConfigureSessionValidationTimer()
+    {
+        _sessionValidationTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(30)
+        };
+
+        _sessionValidationTimer.Tick += OnSessionValidationTimerTick;
+    }
+
+    private async void OnSessionValidationTimerTick(object? sender, EventArgs e)
+    {
+        await ValidateCurrentSessionAsync();
+    }
+
+    private async Task ValidateCurrentSessionAsync()
+    {
+        if (_isCheckingSession || _currentUserService.User?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        _isCheckingSession = true;
+
+        try
+        {
+            var currentUser = _currentUserService.User;
+            var validationResult = await _authService.ValidateSessionAsync(currentUser);
+
+            if (validationResult.IsSuccess && validationResult.Data == true)
+            {
+                return;
+            }
+
+            _rememberedLoginStore.Clear();
+            await _userActivityService.EndLoginSessionAsync(currentUser);
+            _currentUserService.Clear();
+        }
+        finally
+        {
+            _isCheckingSession = false;
+        }
+    }
+
     private void OnSessionChanged(object? sender, EventArgs e)
     {
         if (_currentUserService.IsAuthenticated)
         {
+            _sessionValidationTimer?.Start();
             ShowShellWindow();
             return;
         }
 
+        _sessionValidationTimer?.Stop();
         ShowLoginAfterLogout();
     }
 
@@ -373,6 +460,7 @@ public partial class App : Application
 
         try
         {
+            _rememberedLoginStore.Clear();
             _shellWindow?.Hide();
             ShowLoginWindow();
         }
