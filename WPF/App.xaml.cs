@@ -214,7 +214,10 @@ public partial class App : Application
 
     private void BuildShellWindow()
     {
-        var workspaceViewModel = new WorkspaceViewModel(_currentUserService, _userActivityService);
+        var workspaceViewModel = new WorkspaceViewModel(
+            _currentUserService,
+            _userActivityService,
+            new RevenueReportService(new Repositories.Implements.RevenueReportRepository()));
         var sessionViewModel = new SessionViewModel(_currentUserService, _userActivityService);
         var userManagementService = new UserManagementService(userActivityService: _userActivityService);
         var administrationViewModel = new UserManagementViewModel(

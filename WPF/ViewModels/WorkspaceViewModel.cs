@@ -1,4 +1,5 @@
 using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.Reports;
 using BusinessObjects.Enums;
 using Services.Interfaces;
 using WPF.Commands;
@@ -9,27 +10,33 @@ public sealed class WorkspaceViewModel : BaseViewModel
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserActivityService _userActivityService;
+    private readonly IRevenueReportService _revenueReportService;
 
     private ActivityDashboardDto _dashboard = new();
+    private IReadOnlyList<ManagerPeriodSummary> _managerSummaries = [];
     private string _message = string.Empty;
     private bool _isBusy;
 
     public WorkspaceViewModel(
         ICurrentUserService currentUserService,
-        IUserActivityService userActivityService)
+        IUserActivityService userActivityService,
+        IRevenueReportService revenueReportService)
     {
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _userActivityService = userActivityService ?? throw new ArgumentNullException(nameof(userActivityService));
+        _revenueReportService = revenueReportService ?? throw new ArgumentNullException(nameof(revenueReportService));
         _currentUserService.SessionChanged += OnSessionChanged;
 
-        RefreshCommand = new AsyncRelayCommand(LoadDashboardAsync, () => !IsBusy && IsAdmin);
+        RefreshCommand = new AsyncRelayCommand(LoadWorkspaceAsync, () => !IsBusy && (IsAdmin || IsManager));
     }
 
     public override string Title => "Workspace";
 
     public override string Description => IsAdmin
         ? "System activity dashboard and recent audit events"
-        : "Role-based hotel workspace";
+        : IsManager
+            ? "Revenue and service performance at a glance"
+            : "Role-based hotel workspace";
 
     public ActivityDashboardDto Dashboard
     {
@@ -38,6 +45,17 @@ public sealed class WorkspaceViewModel : BaseViewModel
     }
 
     public bool IsAdmin => _currentUserService.HasRole(RoleName.Admin);
+    public bool IsManager => _currentUserService.HasRole(RoleName.Manager);
+    public bool IsRegularWorkspace => !IsAdmin && !IsManager;
+
+    public IReadOnlyList<ManagerPeriodSummary> ManagerSummaries
+    {
+        get => _managerSummaries;
+        private set => SetProperty(ref _managerSummaries, value);
+    }
+
+    public decimal MaxManagerRevenue => Math.Max(1, ManagerSummaries.Select(x => x.Revenue).DefaultIfEmpty().Max());
+    public int MaxManagerServiceQuantity => Math.Max(1, ManagerSummaries.Select(x => x.ServiceQuantity).DefaultIfEmpty().Max());
 
     public string Message
     {
@@ -61,30 +79,31 @@ public sealed class WorkspaceViewModel : BaseViewModel
 
     public override void OnNavigatedTo()
     {
-        if (IsAdmin)
+        if (IsAdmin || IsManager)
         {
-            _ = LoadDashboardAsync();
+            _ = LoadWorkspaceAsync();
         }
     }
 
     private void OnSessionChanged(object? sender, EventArgs e)
     {
-        OnPropertiesChanged(nameof(IsAdmin), nameof(Description));
+        OnPropertiesChanged(nameof(IsAdmin), nameof(IsManager), nameof(IsRegularWorkspace), nameof(Description));
         RefreshCommand.RaiseCanExecuteChanged();
 
-        if (IsAdmin)
+        if (IsAdmin || IsManager)
         {
-            _ = LoadDashboardAsync();
+            _ = LoadWorkspaceAsync();
         }
         else
         {
             Dashboard = new ActivityDashboardDto();
+            ManagerSummaries = [];
         }
     }
 
-    private async Task LoadDashboardAsync()
+    private async Task LoadWorkspaceAsync()
     {
-        if (!IsAdmin)
+        if (!IsAdmin && !IsManager)
         {
             return;
         }
@@ -94,14 +113,21 @@ public sealed class WorkspaceViewModel : BaseViewModel
 
         try
         {
-            var result = await _userActivityService.GetActivityDashboardAsync(_currentUserService.User);
-            if (result.IsSuccess)
+            if (IsAdmin)
             {
-                Dashboard = result.Data ?? new ActivityDashboardDto();
+                var result = await _userActivityService.GetActivityDashboardAsync(_currentUserService.User);
+                if (result.IsSuccess)
+                {
+                    Dashboard = result.Data ?? new ActivityDashboardDto();
+                }
+                else
+                {
+                    Message = result.Errors.FirstOrDefault() ?? result.Message;
+                }
             }
             else
             {
-                Message = result.Errors.FirstOrDefault() ?? result.Message;
+                LoadManagerSummaries();
             }
         }
         catch (Exception ex)
@@ -113,4 +139,49 @@ public sealed class WorkspaceViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
+    private void LoadManagerSummaries()
+    {
+        var today = DateTime.Today;
+        var startOfWeek = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        var startOfMonth = new DateTime(today.Year, today.Month, 1);
+
+        ManagerSummaries =
+        [
+            CreateManagerSummary("Today", today, today),
+            CreateManagerSummary("This Week", startOfWeek, today),
+            CreateManagerSummary("This Month", startOfMonth, today)
+        ];
+
+        OnPropertiesChanged(nameof(MaxManagerRevenue), nameof(MaxManagerServiceQuantity));
+    }
+
+    private ManagerPeriodSummary CreateManagerSummary(string label, DateTime startDate, DateTime endDate)
+    {
+        var filter = new ReportFilterDto { StartDate = startDate, EndDate = endDate };
+        var revenue = _revenueReportService.GetRevenueReport(filter);
+        var services = _revenueReportService.GetRevenueByService(filter);
+
+        return new ManagerPeriodSummary
+        {
+            Label = label,
+            DateRange = startDate == endDate
+                ? startDate.ToString("dd/MM/yyyy")
+                : $"{startDate:dd/MM} – {endDate:dd/MM/yyyy}",
+            Revenue = revenue.Sum(x => x.TotalRevenue),
+            PaymentCount = revenue.Sum(x => x.PaymentCount),
+            ServiceQuantity = services.Sum(x => x.QuantityOrdered),
+            ServiceRevenue = services.Sum(x => x.TotalRevenue)
+        };
+    }
+}
+
+public sealed class ManagerPeriodSummary
+{
+    public string Label { get; init; } = string.Empty;
+    public string DateRange { get; init; } = string.Empty;
+    public decimal Revenue { get; init; }
+    public int PaymentCount { get; init; }
+    public int ServiceQuantity { get; init; }
+    public decimal ServiceRevenue { get; init; }
 }

@@ -190,9 +190,115 @@
             </Border>
         </Grid>
 
+        <Grid Visibility="{Binding IsManager, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <DockPanel Margin="0,0,0,12">
+                <Button DockPanel.Dock="Right"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource IconButtonStyle}"
+                        ToolTip="Refresh manager overview">
+                    <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20" />
+                </Button>
+                <StackPanel>
+                    <TextBlock Text="Business Overview"
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               FontFamily="{StaticResource AppDisplayFont}"
+                               Foreground="{StaticResource TextPrimaryBrush}" />
+                    <TextBlock Text="Revenue, successful payments and ordered services"
+                               Margin="0,3,0,0"
+                               Foreground="{StaticResource TextSecondaryBrush}" />
+                </StackPanel>
+            </DockPanel>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Padding="12" Margin="0,0,0,12"
+                            Background="#FFF3D6" CornerRadius="8"
+                            Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
+                        <TextBlock Text="{Binding Message}" Foreground="#856404" TextWrapping="Wrap" />
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding ManagerSummaries}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <materialDesign:Card Padding="18" Margin="6"
+                                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Label}" FontSize="17" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{Binding DateRange}" Margin="0,2,0,16"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+
+                                        <TextBlock Text="REVENUE" FontSize="11"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                        <TextBlock Text="{Binding Revenue, StringFormat='{}{0:N0} VND'}"
+                                                   Margin="0,3,0,6" FontSize="22" FontWeight="Bold"
+                                                   Foreground="{StaticResource AccentBrush}" />
+                                        <ProgressBar Height="8" Minimum="0"
+                                                     Maximum="{Binding DataContext.MaxManagerRevenue, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                     Value="{Binding Revenue}" />
+
+                                        <Grid Margin="0,18,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Payments" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding PaymentCount}" FontSize="20" FontWeight="SemiBold" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Service items" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding ServiceQuantity}" FontSize="20" FontWeight="SemiBold" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <TextBlock Text="{Binding ServiceRevenue, StringFormat='Service revenue: {0:N0} VND'}"
+                                                   Margin="0,14,0,5"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                                        <ProgressBar Height="8" Minimum="0"
+                                                     Maximum="{Binding DataContext.MaxManagerServiceQuantity, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                     Value="{Binding ServiceQuantity}" />
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <materialDesign:Card Padding="18" Margin="6,12,6,0"
+                                         Background="{StaticResource AccentSoftBrush}"
+                                         materialDesign:ElevationAssist.Elevation="Dp1">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="InformationOutline" Width="20" Height="20"
+                                                     Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0" />
+                            <TextBlock Text="Open Reports for detailed revenue, occupancy and service analytics."
+                                       Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </materialDesign:Card>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.RowSpan="2" Background="#80000000"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="180" Height="4" IsIndeterminate="True" />
+                    <TextBlock Text="Loading overview..." Margin="0,8,0,0" Foreground="White" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <materialDesign:Card Padding="24"
                              materialDesign:ElevationAssist.Elevation="Dp2"
-                             Visibility="{Binding IsAdmin, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                             Visibility="{Binding IsRegularWorkspace, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <TextBlock Text="Workspace"
                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
