@@ -1,0 +1,41 @@
+name: .NET Desktop CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+      - "fix/**"
+      - "release/**"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    name: Build WPF application
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore WPF/WPF.csproj
+
+      - name: Build solution
+        run: dotnet build WPF/WPF.csproj --configuration Release --no-restore
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotel-management-wpf-release
+          path: WPF/bin/Release/net10.0-windows/
+          if-no-files-found: error
