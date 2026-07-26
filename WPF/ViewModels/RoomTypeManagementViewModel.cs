@@ -9,6 +9,7 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
 {
     private readonly IRoomTypeService _roomTypeService;
     private ObservableCollection<RoomTypeListItemDto> _roomTypes = new();
+    private RoomTypeListItemDto? _selectedRoomType;
     private string _searchTerm = string.Empty;
     private string _typeName = string.Empty;
     private string _description = string.Empty;
@@ -18,14 +19,17 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isBusy;
+    private bool _isEditMode;
 
     public RoomTypeManagementViewModel(IRoomTypeService roomTypeService)
     {
         _roomTypeService = roomTypeService;
-        LoadCommand = new AsyncRelayCommand(LoadAsync);
+        LoadCommand = new AsyncRelayCommand(() => LoadAsync());
         SearchCommand = new AsyncRelayCommand(SearchAsync);
         CreateCommand = new AsyncRelayCommand(CreateAsync);
-        ClearMessagesCommand = new WPF.Commands.RelayCommand(ClearMessages);
+        UpdateCommand = new AsyncRelayCommand(UpdateAsync);
+        ResetFormCommand = new RelayCommand(ResetForm);
+        ClearMessagesCommand = new RelayCommand(ClearMessages);
     }
 
     public override string Title => "Room Type Management";
@@ -36,6 +40,30 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
     {
         get => _roomTypes;
         private set => SetProperty(ref _roomTypes, value);
+    }
+
+    public RoomTypeListItemDto? SelectedRoomType
+    {
+        get => _selectedRoomType;
+        set
+        {
+            if (SetProperty(ref _selectedRoomType, value))
+            {
+                if (value is null)
+                {
+                    IsEditMode = false;
+                    ClearFormFields();
+                    return;
+                }
+
+                IsEditMode = true;
+                TypeName = value.TypeName;
+                RoomTypeDescription = value.Description ?? string.Empty;
+                BasePrice = value.BasePrice;
+                Capacity = value.Capacity;
+                Status = value.Status;
+            }
+        }
     }
 
     public string SearchTerm
@@ -74,6 +102,8 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         set => SetProperty(ref _status, value);
     }
 
+    public IReadOnlyList<string> StatusOptions { get; } = ["Active", "Inactive"];
+
     public string ErrorMessage
     {
         get => _errorMessage;
@@ -92,13 +122,31 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         private set => SetProperty(ref _isBusy, value);
     }
 
+    public bool IsEditMode
+    {
+        get => _isEditMode;
+        private set
+        {
+            if (SetProperty(ref _isEditMode, value))
+            {
+                OnPropertyChanged(nameof(IsCreateMode));
+            }
+        }
+    }
+
+    public bool IsCreateMode => !IsEditMode;
+
     public AsyncRelayCommand LoadCommand { get; }
 
     public AsyncRelayCommand SearchCommand { get; }
 
     public AsyncRelayCommand CreateCommand { get; }
 
-    public WPF.Commands.RelayCommand ClearMessagesCommand { get; }
+    public AsyncRelayCommand UpdateCommand { get; }
+
+    public RelayCommand ResetFormCommand { get; }
+
+    public RelayCommand ClearMessagesCommand { get; }
 
     public override async Task InitializeAsync()
     {
@@ -111,16 +159,26 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         ClearMessages();
     }
 
-    private async Task LoadAsync()
+    private async Task LoadAsync(bool clearMessages = true)
     {
         IsBusy = true;
-        ClearMessages();
+        if (clearMessages)
+        {
+            ClearMessages();
+        }
+
         try
         {
+            var selectedRoomTypeId = SelectedRoomType?.RoomTypeId;
             var result = await _roomTypeService.GetRoomTypesAsync(SearchTerm);
             if (result.IsSuccess)
             {
                 RoomTypes = new ObservableCollection<RoomTypeListItemDto>(result.Data ?? new List<RoomTypeListItemDto>());
+                if (selectedRoomTypeId.HasValue)
+                {
+                    SelectedRoomType = RoomTypes.FirstOrDefault(roomType =>
+                        roomType.RoomTypeId == selectedRoomTypeId.Value);
+                }
             }
             else
             {
@@ -163,12 +221,8 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
-                TypeName = string.Empty;
-                RoomTypeDescription = string.Empty;
-                BasePrice = 0;
-                Capacity = 2;
-                Status = "Active";
-                await LoadAsync();
+                ResetForm();
+                await LoadAsync(clearMessages: false);
             }
             else
             {
@@ -179,6 +233,67 @@ public sealed class RoomTypeManagementViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private async Task UpdateAsync()
+    {
+        ClearMessages();
+
+        if (SelectedRoomType is null)
+        {
+            ErrorMessage = "Please select a room type to update.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(TypeName))
+        {
+            ErrorMessage = "Room type name is required.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var updatedRoomTypeId = SelectedRoomType.RoomTypeId;
+            var result = await _roomTypeService.UpdateRoomTypeAsync(new UpdateRoomTypeRequestDto
+            {
+                RoomTypeId = updatedRoomTypeId,
+                TypeName = TypeName,
+                Description = RoomTypeDescription,
+                BasePrice = BasePrice,
+                Capacity = Capacity,
+                Status = Status
+            });
+
+            if (result.IsSuccess)
+            {
+                SuccessMessage = result.Message;
+                await LoadAsync(clearMessages: false);
+                SelectedRoomType = RoomTypes.FirstOrDefault(roomType => roomType.RoomTypeId == updatedRoomTypeId);
+            }
+            else
+            {
+                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        SelectedRoomType = null;
+    }
+
+    private void ClearFormFields()
+    {
+        TypeName = string.Empty;
+        RoomTypeDescription = string.Empty;
+        BasePrice = 0;
+        Capacity = 2;
+        Status = "Active";
     }
 
     private void ClearMessages()

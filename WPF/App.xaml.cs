@@ -136,18 +136,18 @@ public partial class App : Application
         var roomTypeManagementViewModel = new RoomTypeManagementViewModel(new RoomTypeService());
         var roomManagementViewModel = new RoomManagementViewModel(new RoomService(), new RoomTypeService());
         var roomMapViewModel = new RoomMapViewModel(new RoomService());
+        var adminSetupViewModel = new AdminSetupViewModel(
+            roomTypeManagementViewModel,
+            roomManagementViewModel,
+            serviceManagementViewModel);
 
         var operationsViewModel = new OperationsViewModel(
             checkInViewModel,
             checkoutViewModel,
-            serviceManagementViewModel,
             serviceOrderViewModel,
             billingViewModel,
             customerManagementViewModel,
-            roomTypeManagementViewModel,
-            roomManagementViewModel,
-            roomMapViewModel,
-            _currentUserService);
+            roomMapViewModel);
 
 
         var dashboardRepository = new Repositories.Implements.DashboardRepository();
@@ -168,6 +168,7 @@ public partial class App : Application
         _navigationService.Register(NavigationTargets.Workspace, () => workspaceViewModel);
         _navigationService.Register(NavigationTargets.Session, () => sessionViewModel);
         _navigationService.Register(NavigationTargets.Administration, () => administrationViewModel);
+        _navigationService.Register(NavigationTargets.AdminSetup, () => adminSetupViewModel);
         _navigationService.Register(NavigationTargets.AiSettings, () => aiSettingsViewModel);
         _navigationService.Register(NavigationTargets.Operations, () => operationsViewModel);
         _navigationService.Register(NavigationTargets.Reports, () => reportsViewModel);
@@ -296,7 +297,8 @@ public partial class App : Application
             "Overview",
             [
                 "Administration keeps staff accounts and access status current.",
-                "Operations brings together booking, stay service and billing work.",
+                "Admin Setup maintains rooms, room types and the service catalog.",
+                "Operations brings together booking, stay service and billing work for reception staff.",
                 "Reports show occupancy, revenue and service performance."
             ],
             [
@@ -304,7 +306,7 @@ public partial class App : Application
                 "Billing status updates after successful payments.",
                 "Reports use current operational data."
             ],
-            ["Accounts", "Operations", "Billing", "Reports"]);
+            ["Accounts", "Admin Setup", "Operations", "Reports"]);
     }
 
     private static SectionViewModel CreateOperationsViewModel()

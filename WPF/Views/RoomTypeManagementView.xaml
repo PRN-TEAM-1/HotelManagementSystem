@@ -127,24 +127,52 @@
                                      Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}"
                                      materialDesign:HintAssist.Hint="Capacity" />
                         </Grid>
-                        <TextBox Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
-                                 materialDesign:HintAssist.Hint="Status" />
+                        <ComboBox ItemsSource="{Binding StatusOptions}"
+                                  SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                                  materialDesign:HintAssist.Hint="Status" />
                     </StackPanel>
 
-                    <Button Grid.Row="3"
-                            Command="{Binding CreateCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Margin="0,12,0,0"
-                            ToolTip="Create room type">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="FileDocumentPlus"
-                                                     Width="18"
-                                                     Height="18"
-                                                     Margin="0,0,8,0" />
-                            <TextBlock Text="Create" />
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Row="3"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,12,0,0">
+                        <Button Command="{Binding CreateCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Visibility="{Binding IsCreateMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                                ToolTip="Create room type">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileDocumentPlus"
+                                                         Width="18"
+                                                         Height="18"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="Create" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding UpdateCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                                ToolTip="Save room type">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSave"
+                                                         Width="18"
+                                                         Height="18"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="Save" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ResetFormCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0"
+                                ToolTip="Clear form">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Close"
+                                                         Width="18"
+                                                         Height="18"
+                                                         Margin="0,0,8,0" />
+                                <TextBlock Text="Clear" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </materialDesign:Card>
 
@@ -184,6 +212,7 @@
 
                     <DataGrid Grid.Row="2"
                               ItemsSource="{Binding RoomTypes}"
+                              SelectedItem="{Binding SelectedRoomType}"
                               AutoGenerateColumns="False"
                               CanUserResizeColumns="True"
                               CanUserSortColumns="True"

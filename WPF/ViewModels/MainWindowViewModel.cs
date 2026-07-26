@@ -17,7 +17,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
     private BaseViewModel? _currentViewModel;
     private string _currentPageTitle = "Hotel Management System";
-    private string _currentPageDescription = "Operations workspace";
+    private string _currentPageDescription = "Role-based workspace";
     private string _sessionDisplayName = "No active session";
     private string _sessionRoleDisplay = "Public";
     private string _authenticationState = "Signed out";
@@ -124,8 +124,14 @@ public sealed class MainWindowViewModel : BaseViewModel
             new NavigationItemViewModel(
                 NavigationTargets.Administration,
                 "Administration",
-                "Users, rooms and catalog setup",
+                "Staff accounts and access",
                 "ShieldAccount",
+                [RoleName.Admin]),
+            new NavigationItemViewModel(
+                NavigationTargets.AdminSetup,
+                "Admin Setup",
+                "Rooms, room types and service catalog",
+                "Cog",
                 [RoleName.Admin]),
             new NavigationItemViewModel(
                 NavigationTargets.AiSettings,
@@ -138,7 +144,7 @@ public sealed class MainWindowViewModel : BaseViewModel
                 "Operations",
                 "Booking, stay and billing tasks",
                 "ClipboardList",
-                [RoleName.Admin, RoleName.Receptionist]),
+                [RoleName.Receptionist]),
             new NavigationItemViewModel(
                 NavigationTargets.Reports,
                 "Reports",

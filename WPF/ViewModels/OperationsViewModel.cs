@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using Services.Interfaces;
 using WPF.Commands;
 
 namespace WPF.ViewModels;
@@ -8,14 +7,10 @@ public sealed class OperationsViewModel : BaseViewModel
 {
     private readonly CheckInViewModel _checkInViewModel;
     private readonly CheckoutViewModel _checkoutViewModel;
-    private readonly ServiceManagementViewModel _serviceManagementViewModel;
     private readonly ServiceOrderViewModel _serviceOrderViewModel;
     private readonly BillingViewModel _billingViewModel;
     private readonly CustomerManagementViewModel _customerManagementViewModel;
-    private readonly RoomTypeManagementViewModel _roomTypeManagementViewModel;
-    private readonly RoomManagementViewModel _roomManagementViewModel;
     private readonly RoomMapViewModel _roomMapViewModel;
-    private readonly ICurrentUserService _currentUserService;
 
     private BaseViewModel _currentViewModel;
     private OperationModuleViewModel? _selectedModule;
@@ -26,32 +21,22 @@ public sealed class OperationsViewModel : BaseViewModel
     public OperationsViewModel(
         CheckInViewModel checkInViewModel,
         CheckoutViewModel checkoutViewModel,
-        ServiceManagementViewModel serviceManagementViewModel,
         ServiceOrderViewModel serviceOrderViewModel,
         BillingViewModel billingViewModel,
         CustomerManagementViewModel customerManagementViewModel,
-        RoomTypeManagementViewModel roomTypeManagementViewModel,
-        RoomManagementViewModel roomManagementViewModel,
-        RoomMapViewModel roomMapViewModel,
-        ICurrentUserService currentUserService)
+        RoomMapViewModel roomMapViewModel)
     {
         _checkInViewModel = checkInViewModel ?? throw new ArgumentNullException(nameof(checkInViewModel));
         _checkoutViewModel = checkoutViewModel ?? throw new ArgumentNullException(nameof(checkoutViewModel));
-        _serviceManagementViewModel = serviceManagementViewModel ?? throw new ArgumentNullException(nameof(serviceManagementViewModel));
         _serviceOrderViewModel = serviceOrderViewModel ?? throw new ArgumentNullException(nameof(serviceOrderViewModel));
         _billingViewModel = billingViewModel ?? throw new ArgumentNullException(nameof(billingViewModel));
         _customerManagementViewModel = customerManagementViewModel ?? throw new ArgumentNullException(nameof(customerManagementViewModel));
-        _roomTypeManagementViewModel = roomTypeManagementViewModel ?? throw new ArgumentNullException(nameof(roomTypeManagementViewModel));
-        _roomManagementViewModel = roomManagementViewModel ?? throw new ArgumentNullException(nameof(roomManagementViewModel));
         _roomMapViewModel = roomMapViewModel ?? throw new ArgumentNullException(nameof(roomMapViewModel));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
 
         _currentViewModel = checkInViewModel;
         Modules = new ObservableCollection<OperationModuleViewModel>(CreateModules());
         SelectModuleCommand = new RelayCommand<OperationModuleViewModel>(SelectModule);
-
-        _currentUserService.SessionChanged += OnSessionChanged;
 
         if (Modules.FirstOrDefault() is { } firstModule)
         {
@@ -59,28 +44,9 @@ public sealed class OperationsViewModel : BaseViewModel
         }
     }
 
-    private void OnSessionChanged(object? sender, EventArgs e)
-    {
-        if (!_currentUserService.IsAuthenticated) return;
-
-        App.Current.Dispatcher.Invoke(() =>
-        {
-            Modules.Clear();
-            foreach (var module in CreateModules())
-            {
-                Modules.Add(module);
-            }
-
-            if (Modules.FirstOrDefault() is { } firstModule)
-            {
-                SetSelectedModule(firstModule);
-            }
-        });
-    }
-
     public override string Title => "Operations";
 
-    public override string Description => "Guest operations, rooms, services and billing";
+    public override string Description => "Guest booking, stay service and billing tasks";
 
     public ObservableCollection<OperationModuleViewModel> Modules { get; }
 
@@ -90,17 +56,11 @@ public sealed class OperationsViewModel : BaseViewModel
 
     public CheckoutViewModel CheckoutViewModel => _checkoutViewModel;
 
-    public ServiceManagementViewModel ServiceManagementViewModel => _serviceManagementViewModel;
-
     public ServiceOrderViewModel ServiceOrderViewModel => _serviceOrderViewModel;
 
     public BillingViewModel BillingViewModel => _billingViewModel;
 
     public CustomerManagementViewModel CustomerManagementViewModel => _customerManagementViewModel;
-
-    public RoomTypeManagementViewModel RoomTypeManagementViewModel => _roomTypeManagementViewModel;
-
-    public RoomManagementViewModel RoomManagementViewModel => _roomManagementViewModel;
 
     public RoomMapViewModel RoomMapViewModel => _roomMapViewModel;
 
@@ -159,56 +119,30 @@ public sealed class OperationsViewModel : BaseViewModel
                 "ViewGrid",
                 _roomMapViewModel),
             new OperationModuleViewModel(
+                "customers",
+                "Customers & Booking",
+                "Create guests, find rooms and create bookings.",
+                "AccountSearch",
+                _customerManagementViewModel),
+            new OperationModuleViewModel(
                 "check-in",
                 "Check-In",
                 "Confirm reserved rooms and start a stay.",
                 "Login",
                 _checkInViewModel),
             new OperationModuleViewModel(
+                "service-orders",
+                "Service Orders",
+                "Record services used during a stay.",
+                "ReceiptText",
+                _serviceOrderViewModel),
+            new OperationModuleViewModel(
                 "checkout",
                 "Check-Out",
                 "Close active stays and prepare billing.",
                 "Logout",
-                _checkoutViewModel),
-            new OperationModuleViewModel(
-                "customers",
-                "Customers & Booking",
-                "Create guests, find rooms and create bookings.",
-                "AccountSearch",
-                _customerManagementViewModel)
+                _checkoutViewModel)
         };
-
-
-        if (_currentUserService.HasRole(BusinessObjects.Enums.RoleName.Admin, BusinessObjects.Enums.RoleName.Manager))
-        {
-            modules.Add(new OperationModuleViewModel(
-                "services",
-                "Services",
-                "Maintain the hotel service catalog.",
-                "InformationOutline",
-                _serviceManagementViewModel));
-                
-            modules.Add(new OperationModuleViewModel(
-                "room-types",
-                "Room Types",
-                "Manage room categories, price and capacity.",
-                "FileDocumentPlus",
-                _roomTypeManagementViewModel));
-                
-            modules.Add(new OperationModuleViewModel(
-                "rooms",
-                "Rooms",
-                "Manage room inventory and operating status.",
-                "OfficeBuilding",
-                _roomManagementViewModel));
-        }
-
-        modules.Add(new OperationModuleViewModel(
-            "service-orders",
-            "Service Orders",
-            "Record services used during a stay.",
-            "ReceiptText",
-            _serviceOrderViewModel));
 
         modules.Add(new OperationModuleViewModel(
             "billing",

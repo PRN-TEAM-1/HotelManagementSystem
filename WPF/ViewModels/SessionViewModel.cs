@@ -68,7 +68,8 @@ public sealed class SessionViewModel : BaseViewModel
         if (_currentUserService.HasRole(RoleName.Admin))
         {
             yield return "Administration";
-            yield return "Operations";
+            yield return "Admin Setup";
+            yield return "AI Settings";
             yield return "Reports";
             yield break;
         }
