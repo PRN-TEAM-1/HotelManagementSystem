@@ -20,6 +20,8 @@ public sealed class CurrentSessionDto
 
     public DateTime LoggedInAtUtc { get; init; } = DateTime.UtcNow;
 
+    public long UserUpdatedAtTicks { get; init; }
+
     public string MachineName { get; init; } = string.Empty;
 
     public string WindowsUser { get; init; } = string.Empty;
