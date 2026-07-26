@@ -10,9 +10,11 @@ public interface IRoomTypeService
 
     Task<ServiceResult<RoomTypeListItemDto>> CreateRoomTypeAsync(
         CreateRoomTypeRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<RoomTypeListItemDto>> UpdateRoomTypeAsync(
         UpdateRoomTypeRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 }

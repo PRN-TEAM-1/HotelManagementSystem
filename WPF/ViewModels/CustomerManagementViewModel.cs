@@ -295,7 +295,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 PhoneNumber = PhoneNumber,
                 Email = Email,
                 Address = Address
-            });
+            }, _currentUserService.User);
 
 
             if (result.IsSuccess)
@@ -417,7 +417,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 PhoneNumber = PhoneNumber,
                 Email = Email,
                 Address = Address
-            });
+            }, _currentUserService.User);
 
 
             if (result.IsSuccess)
@@ -515,7 +515,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId);
+            var result = await _bookingService.MarkNoShowAsync(SelectedBooking.BookingId, _currentUserService.User);
 
             if (result.IsSuccess)
             {

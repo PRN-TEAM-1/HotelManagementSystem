@@ -10,10 +10,14 @@ namespace Services.Implements;
 public sealed class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public PaymentService(IPaymentRepository? paymentRepository = null)
+    public PaymentService(
+        IPaymentRepository? paymentRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _paymentRepository = paymentRepository ?? new PaymentRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<PaymentResultDto>> RecordPaymentAsync(
@@ -52,6 +56,14 @@ public sealed class PaymentService : IPaymentService
                 sanitizedRequest,
                 currentUser!.UserId,
                 cancellationToken);
+
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "PaymentRecorded",
+                "Payment",
+                result.PaymentId.ToString(),
+                $"Recorded payment #{result.PaymentId} for invoice #{request.InvoiceId}, amount {request.Amount:N0}.",
+                cancellationToken: cancellationToken);
 
             return ServiceResult<PaymentResultDto>.Success(result, "Payment recorded successfully.");
         }

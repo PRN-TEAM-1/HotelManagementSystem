@@ -16,15 +16,18 @@ public sealed class CheckInService : ICheckInService
     private readonly ICheckInQueryRepository _checkInQueryRepository;
     private readonly ICheckRecordRepository _checkRecordRepository;
     private readonly IBookingOperationRepository _bookingOperationRepository;
+    private readonly IUserActivityService _userActivityService;
 
     public CheckInService(
         ICheckInQueryRepository? checkInQueryRepository = null,
         ICheckRecordRepository? checkRecordRepository = null,
-        IBookingOperationRepository? bookingOperationRepository = null)
+        IBookingOperationRepository? bookingOperationRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _checkInQueryRepository = checkInQueryRepository ?? new CheckInQueryRepository();
         _checkRecordRepository = checkRecordRepository ?? new CheckRecordRepository();
         _bookingOperationRepository = bookingOperationRepository ?? new BookingOperationRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<CheckInCandidateDto>>> GetCheckInCandidatesAsync(CancellationToken cancellationToken = default)
@@ -150,6 +153,14 @@ public sealed class CheckInService : ICheckInService
                 cancellationToken);
 
             var dto = MapToCheckRecordDto(createdCheckRecord);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "CheckInCompleted",
+                "BookingDetail",
+                request.BookingDetailId.ToString(),
+                $"Checked in booking detail #{request.BookingDetailId}.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<CheckRecordDto>.Success(dto);
         }
         catch (Exception ex)

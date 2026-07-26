@@ -14,9 +14,18 @@ public interface IServiceCatalogService
 
     Task<ServiceResult<List<ServiceListItemDto>>> SearchServicesAsync(string searchTerm, CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<ServiceDto>> CreateServiceAsync(CreateServiceRequestDto request, CancellationToken cancellationToken = default);
+    Task<ServiceResult<ServiceDto>> CreateServiceAsync(
+        CreateServiceRequestDto request,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<ServiceDto>> UpdateServiceAsync(UpdateServiceRequestDto request, CancellationToken cancellationToken = default);
+    Task<ServiceResult<ServiceDto>> UpdateServiceAsync(
+        UpdateServiceRequestDto request,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<bool>> InactivateServiceAsync(int serviceId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<bool>> InactivateServiceAsync(
+        int serviceId,
+        CurrentSessionDto? currentUser = null,
+        CancellationToken cancellationToken = default);
 }

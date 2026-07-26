@@ -11,10 +11,14 @@ namespace Services.Implements;
 public sealed class RoomTypeService : IRoomTypeService
 {
     private readonly IRoomTypeRepository _roomTypeRepository;
+    private readonly IUserActivityService _userActivityService;
 
-    public RoomTypeService(IRoomTypeRepository? roomTypeRepository = null)
+    public RoomTypeService(
+        IRoomTypeRepository? roomTypeRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _roomTypeRepository = roomTypeRepository ?? new RoomTypeRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<RoomTypeListItemDto>>> GetRoomTypesAsync(
@@ -34,6 +38,7 @@ public sealed class RoomTypeService : IRoomTypeService
 
     public async Task<ServiceResult<RoomTypeListItemDto>> CreateRoomTypeAsync(
         CreateRoomTypeRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -68,6 +73,14 @@ public sealed class RoomTypeService : IRoomTypeService
             };
 
             var created = await _roomTypeRepository.AddAsync(roomType, cancellationToken);
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "RoomTypeCreated",
+                "RoomType",
+                created.RoomTypeId.ToString(),
+                $"Created room type '{created.TypeName}'.",
+                cancellationToken: cancellationToken);
+
             return ServiceResult<RoomTypeListItemDto>.Success(MapToListItem(created), "Room type created successfully.");
         }
         catch
@@ -78,6 +91,7 @@ public sealed class RoomTypeService : IRoomTypeService
 
     public async Task<ServiceResult<RoomTypeListItemDto>> UpdateRoomTypeAsync(
         UpdateRoomTypeRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -117,6 +131,17 @@ public sealed class RoomTypeService : IRoomTypeService
             };
 
             var updated = await _roomTypeRepository.UpdateAsync(roomType, cancellationToken);
+            if (updated is not null)
+            {
+                await _userActivityService.RecordActivityAsync(
+                    currentUser,
+                    "RoomTypeUpdated",
+                    "RoomType",
+                    updated.RoomTypeId.ToString(),
+                    $"Updated room type '{updated.TypeName}'.",
+                    cancellationToken: cancellationToken);
+            }
+
             return updated is null
                 ? ServiceResult<RoomTypeListItemDto>.Failure(ErrorMessages.NotFound)
                 : ServiceResult<RoomTypeListItemDto>.Success(MapToListItem(updated), "Room type updated successfully.");

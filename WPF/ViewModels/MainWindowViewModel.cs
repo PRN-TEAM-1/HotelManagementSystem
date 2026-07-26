@@ -10,6 +10,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 {
     private readonly NavigationService _navigationService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IUserActivityService _userActivityService;
     private readonly DialogService _dialogService;
     private readonly RelayCommand _goBackCommand;
     private readonly RelayCommand _logoutCommand;
@@ -25,10 +26,12 @@ public sealed class MainWindowViewModel : BaseViewModel
     public MainWindowViewModel(
         NavigationService navigationService,
         ICurrentUserService currentUserService,
+        IUserActivityService userActivityService,
         DialogService dialogService)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _userActivityService = userActivityService ?? throw new ArgumentNullException(nameof(userActivityService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
         NavigationItems = new ObservableCollection<NavigationItemViewModel>(CreateNavigationItems());
@@ -123,7 +126,7 @@ public sealed class MainWindowViewModel : BaseViewModel
                 "AccountCircle"),
             new NavigationItemViewModel(
                 NavigationTargets.Administration,
-                "Administration",
+                "Account Management",
                 "Staff accounts and access",
                 "ShieldAccount",
                 [RoleName.Admin]),
@@ -185,7 +188,7 @@ public sealed class MainWindowViewModel : BaseViewModel
         }
     }
 
-    private void Logout()
+    private async void Logout()
     {
         if (!_currentUserService.IsAuthenticated)
         {
@@ -194,6 +197,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
         if (_dialogService.Confirm("Sign out of the current account and return to the login window?", "Logout"))
         {
+            await _userActivityService.EndLoginSessionAsync(_currentUserService.User);
             _currentUserService.Clear();
         }
     }

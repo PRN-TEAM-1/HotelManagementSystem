@@ -490,7 +490,9 @@ public sealed class ServiceOrderViewModel : BaseViewModel
 
         try
         {
-            var result = await _serviceOrderService.CancelServiceOrderAsync(SelectedServiceOrder.ServiceOrderId);
+            var result = await _serviceOrderService.CancelServiceOrderAsync(
+                SelectedServiceOrder.ServiceOrderId,
+                _currentUserService.User);
 
             if (result.IsFailure)
             {

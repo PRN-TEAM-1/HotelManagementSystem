@@ -1,6 +1,7 @@
 using BusinessObjects.DTOs;
 using Services.Interfaces;
 using WPF.Commands;
+using WPF.Helpers;
 
 namespace WPF.ViewModels;
 
@@ -95,7 +96,8 @@ public sealed class LoginViewModel : BaseViewModel
             var request = new LoginRequestDto
             {
                 Username = Username.Trim(),
-                Password = Password
+                Password = Password,
+                ClientEnvironment = ClientEnvironmentProvider.Capture()
             };
 
             var result = await _authService.LoginAsync(request);

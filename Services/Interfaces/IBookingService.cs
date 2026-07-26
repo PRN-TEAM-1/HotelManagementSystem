@@ -21,6 +21,7 @@ public interface IBookingService
 
     Task<ServiceResult<bool>> MarkNoShowAsync(
         int bookingId,
+        CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default);
 
 }

@@ -7,6 +7,7 @@ namespace WPF.ViewModels;
 public sealed class ServiceManagementViewModel : BaseViewModel
 {
     private readonly IServiceCatalogService _serviceCatalogService;
+    private readonly ICurrentUserService _currentUserService;
 
     private List<ServiceListItemDto> _services = new();
     private ServiceListItemDto? _selectedService;
@@ -21,9 +22,12 @@ public sealed class ServiceManagementViewModel : BaseViewModel
     private bool _isBusy;
     private bool _isEditMode;
 
-    public ServiceManagementViewModel(IServiceCatalogService serviceCatalogService)
+    public ServiceManagementViewModel(
+        IServiceCatalogService serviceCatalogService,
+        ICurrentUserService currentUserService)
     {
         _serviceCatalogService = serviceCatalogService ?? throw new ArgumentNullException(nameof(serviceCatalogService));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
         LoadServicesCommand = new AsyncRelayCommand(LoadServicesAsync, CanExecuteLoad);
         SearchServicesCommand = new AsyncRelayCommand(SearchServicesAsync, CanExecuteSearch);
@@ -314,7 +318,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
                 Price = price
             };
 
-            var result = await _serviceCatalogService.CreateServiceAsync(request);
+            var result = await _serviceCatalogService.CreateServiceAsync(request, _currentUserService.User);
 
             if (result.IsFailure)
             {
@@ -365,7 +369,7 @@ public sealed class ServiceManagementViewModel : BaseViewModel
                 Status = SelectedStatus
             };
 
-            var result = await _serviceCatalogService.UpdateServiceAsync(request);
+            var result = await _serviceCatalogService.UpdateServiceAsync(request, _currentUserService.User);
 
             if (result.IsFailure)
             {

@@ -12,13 +12,16 @@ public sealed class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly IUserActivityService _userActivityService;
 
     public AuthService(
         IUserRepository? userRepository = null,
-        IRoleRepository? roleRepository = null)
+        IRoleRepository? roleRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _userRepository = userRepository ?? new UserRepository();
         _roleRepository = roleRepository ?? new RoleRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<LoginResultDto>> LoginAsync(
@@ -43,11 +46,25 @@ public sealed class AuthService : IAuthService
 
             if (user is null || !PasswordHasher.Verify(password, user.PasswordHash))
             {
+                await _userActivityService.RecordLoginFailureAsync(
+                    username,
+                    user?.UserId,
+                    request.ClientEnvironment,
+                    ErrorMessages.InvalidCredentials,
+                    cancellationToken);
+
                 return ServiceResult<LoginResultDto>.Failure(ErrorMessages.InvalidCredentials);
             }
 
             if (user.Status == UserStatus.Inactive)
             {
+                await _userActivityService.RecordLoginFailureAsync(
+                    username,
+                    user.UserId,
+                    request.ClientEnvironment,
+                    ErrorMessages.AccountInactive,
+                    cancellationToken);
+
                 return ServiceResult<LoginResultDto>.Failure(ErrorMessages.AccountInactive);
             }
 
@@ -58,16 +75,38 @@ public sealed class AuthService : IAuthService
                 return ServiceResult<LoginResultDto>.Failure(ErrorMessages.UnexpectedError);
             }
 
+            var loginSessionResult = await _userActivityService.StartLoginSessionAsync(
+                user.UserId,
+                request.ClientEnvironment,
+                cancellationToken);
+            var loginSession = loginSessionResult.Data;
+
             var session = new CurrentSessionDto
             {
                 UserId = user.UserId,
                 RoleId = user.RoleId,
+                LoginSessionId = loginSession?.LoginSessionId,
                 Username = user.Username,
                 FullName = user.FullName,
                 Email = user.Email,
                 RoleName = role.Name,
-                LoggedInAtUtc = DateTime.UtcNow
+                LoggedInAtUtc = loginSession?.LoginAtUtc ?? DateTime.UtcNow,
+                MachineName = loginSession?.MachineName ?? request.ClientEnvironment.MachineName,
+                WindowsUser = loginSession?.WindowsUser ?? request.ClientEnvironment.WindowsUser,
+                IpAddress = loginSession?.IpAddress ?? request.ClientEnvironment.IpAddress,
+                OsVersion = loginSession?.OsVersion ?? request.ClientEnvironment.OsVersion,
+                AppVersion = loginSession?.AppVersion ?? request.ClientEnvironment.AppVersion,
+                DeviceType = loginSession?.DeviceType ?? request.ClientEnvironment.DeviceType
             };
+
+            await _userActivityService.RecordActivityAsync(
+                session,
+                "LoginSuccess",
+                "Auth",
+                user.UserId.ToString(),
+                $"Account '{user.Username}' signed in.",
+                targetUserId: user.UserId,
+                cancellationToken: cancellationToken);
 
             var result = new LoginResultDto
             {

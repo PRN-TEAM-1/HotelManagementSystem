@@ -10,10 +10,12 @@ public interface ICustomerService
 
     Task<ServiceResult<CustomerListItemDto>> CreateCustomerAsync(
         CreateCustomerRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<CustomerListItemDto>> UpdateCustomerAsync(
         UpdateCustomerRequestDto request,
+        CurrentSessionDto? currentUser = null,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<List<BookingSummaryDto>>> GetCustomerBookingsAsync(

@@ -13,7 +13,10 @@ public interface IServiceOrderService
         CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default);
 
-    Task<ServiceResult<bool>> CancelServiceOrderAsync(int serviceOrderId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<bool>> CancelServiceOrderAsync(
+        int serviceOrderId,
+        CurrentSessionDto? currentUser,
+        CancellationToken cancellationToken = default);
 
     Task<ServiceResult<decimal>> GetServiceOrderTotalByBookingDetailAsync(int bookingDetailId, CancellationToken cancellationToken = default);
 }

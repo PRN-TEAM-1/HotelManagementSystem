@@ -15,15 +15,18 @@ public sealed class CheckoutService : ICheckoutService
     private readonly ICheckoutQueryRepository _checkoutQueryRepository;
     private readonly ICheckRecordRepository _checkRecordRepository;
     private readonly IBookingOperationRepository _bookingOperationRepository;
+    private readonly IUserActivityService _userActivityService;
 
     public CheckoutService(
         ICheckoutQueryRepository? checkoutQueryRepository = null,
         ICheckRecordRepository? checkRecordRepository = null,
-        IBookingOperationRepository? bookingOperationRepository = null)
+        IBookingOperationRepository? bookingOperationRepository = null,
+        IUserActivityService? userActivityService = null)
     {
         _checkoutQueryRepository = checkoutQueryRepository ?? new CheckoutQueryRepository();
         _checkRecordRepository = checkRecordRepository ?? new CheckRecordRepository();
         _bookingOperationRepository = bookingOperationRepository ?? new BookingOperationRepository();
+        _userActivityService = userActivityService ?? new UserActivityService();
     }
 
     public async Task<ServiceResult<List<CheckoutCandidateDto>>> GetCheckoutCandidatesAsync(CancellationToken cancellationToken = default)
@@ -147,6 +150,14 @@ public sealed class CheckoutService : ICheckoutService
                 Message = "Checkout successful.",
                 IsSuccess = true
             };
+
+            await _userActivityService.RecordActivityAsync(
+                currentUser,
+                "CheckoutCompleted",
+                "BookingDetail",
+                request.BookingDetailId.ToString(),
+                $"Checked out room {room.RoomNumber} for booking detail #{request.BookingDetailId}.",
+                cancellationToken: cancellationToken);
 
             return ServiceResult<CheckoutResultDto>.Success(result);
         }
