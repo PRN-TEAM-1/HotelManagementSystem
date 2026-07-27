@@ -42,6 +42,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         SearchCustomersCommand = new AsyncRelayCommand(SearchCustomersAsync);
         CreateCustomerCommand = new AsyncRelayCommand(CreateCustomerAsync);
         UpdateCustomerCommand = new AsyncRelayCommand(UpdateCustomerAsync);
+        NewCustomerCommand = new RelayCommand(StartNewCustomer);
         CreateBookingCommand = new AsyncRelayCommand(CreateBookingAsync);
         CancelBookingCommand = new AsyncRelayCommand(CancelBookingAsync);
         MarkNoShowCommand = new AsyncRelayCommand(MarkNoShowAsync);
@@ -61,6 +62,8 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     public AsyncRelayCommand CreateCustomerCommand { get; }
 
     public AsyncRelayCommand UpdateCustomerCommand { get; }
+
+    public RelayCommand NewCustomerCommand { get; }
 
     public AsyncRelayCommand CreateBookingCommand { get; }
 
@@ -118,11 +121,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
                 }
                 else
                 {
-                    CustomerName = string.Empty;
-                    IdentityCard = string.Empty;
-                    PhoneNumber = string.Empty;
-                    Email = string.Empty;
-                    Address = string.Empty;
+                    ClearCustomerForm();
                     SelectedCustomerBookings.Clear();
                 }
             }
@@ -186,7 +185,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     public DateTime CheckInDate
     {
         get => _checkInDate;
-        set => SetProperty(ref _checkInDate, value);
+        set
+        {
+            if (SetProperty(ref _checkInDate, value))
+            {
+                CheckOutDate = value.Date.AddDays(1);
+            }
+        }
     }
 
     public DateTime CheckOutDate
@@ -241,14 +246,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             var customerResult = await _customerService.GetCustomersAsync(SearchTerm);
             if (customerResult.IsSuccess)
             {
+                var selectedCustomerId = SelectedCustomer?.CustomerId;
                 Customers = new ObservableCollection<CustomerListItemDto>(customerResult.Data ?? new List<CustomerListItemDto>());
-                if (SelectedCustomer == null && Customers.Count > 0)
+
+                if (selectedCustomerId.HasValue)
                 {
-                    SelectedCustomer = Customers.FirstOrDefault();
-                }
-                else if (SelectedCustomer != null)
-                {
-                    await LoadSelectedCustomerBookingsAsync(SelectedCustomer.CustomerId);
+                    SelectedCustomer = Customers.FirstOrDefault(customer =>
+                        customer.CustomerId == selectedCustomerId.Value);
                 }
             }
 
@@ -279,6 +283,12 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     {
         ClearMessages();
 
+        if (SelectedCustomer is not null)
+        {
+            ErrorMessage = "A customer is currently selected. Click 'New / Clear' before creating a new customer.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(CustomerName))
         {
             ErrorMessage = "Please enter the Full Name.";
@@ -301,11 +311,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             if (result.IsSuccess)
             {
                 SuccessMessage = result.Message;
-                CustomerName = string.Empty;
-                IdentityCard = string.Empty;
-                PhoneNumber = string.Empty;
-                Email = string.Empty;
-                Address = string.Empty;
+                ClearCustomerForm();
                 await LoadAsync();
                 if (result.Data != null)
                 {
@@ -577,6 +583,23 @@ public sealed class CustomerManagementViewModel : BaseViewModel
     {
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
+    }
+
+    private void StartNewCustomer()
+    {
+        ClearMessages();
+        SelectedCustomer = null;
+        SelectedBooking = null;
+        ClearCustomerForm();
+    }
+
+    private void ClearCustomerForm()
+    {
+        CustomerName = string.Empty;
+        IdentityCard = string.Empty;
+        PhoneNumber = string.Empty;
+        Email = string.Empty;
+        Address = string.Empty;
     }
 }
 
