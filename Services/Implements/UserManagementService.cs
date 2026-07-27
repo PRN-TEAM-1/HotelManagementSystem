@@ -157,6 +157,7 @@ public sealed class UserManagementService : IUserManagementService
         var fullName = NormalizeRequired(request.FullName);
         var email = NormalizeRequired(request.Email);
         var phoneNumber = NormalizeOptional(request.PhoneNumber);
+        var newPassword = NormalizeOptional(request.NewPassword);
 
         var validationErrors = ValidateUserFields(
             username,
@@ -165,7 +166,7 @@ public sealed class UserManagementService : IUserManagementService
             phoneNumber,
             request.RoleId,
             request.Status,
-            password: null,
+            newPassword,
             requirePassword: false);
 
         if (validationErrors.Count > 0)
@@ -207,6 +208,10 @@ public sealed class UserManagementService : IUserManagementService
             existingUser.FullName = fullName;
             existingUser.Email = email;
             existingUser.PhoneNumber = phoneNumber;
+            if (!string.IsNullOrWhiteSpace(newPassword))
+            {
+                existingUser.PasswordHash = PasswordHasher.HashPassword(newPassword);
+            }
             existingUser.Status = request.Status;
 
             var updatedUser = await _userManagementRepository.UpdateAsync(existingUser, cancellationToken);
@@ -432,25 +437,28 @@ public sealed class UserManagementService : IUserManagementService
         int? excludedUserId,
         CancellationToken cancellationToken)
     {
+        var errors = new List<string>();
+
         if (!await _userManagementRepository.RoleExistsAsync(roleId, cancellationToken))
         {
-            return ServiceResult<UserListItemDto>.Failure(
-                ErrorMessages.ValidationFailed,
-                "Selected role does not exist.");
+            errors.Add("Selected role does not exist.");
         }
 
         if (await _userManagementRepository.ExistsByUsernameAsync(username, excludedUserId, cancellationToken))
         {
-            return ServiceResult<UserListItemDto>.Failure(
-                ErrorMessages.DuplicateRecord,
-                "Username is already used by another account.");
+            errors.Add("Username is already used by another account.");
         }
 
         if (await _userManagementRepository.ExistsByEmailAsync(email, excludedUserId, cancellationToken))
         {
+            errors.Add("Email is already used by another account.");
+        }
+
+        if (errors.Count > 0)
+        {
             return ServiceResult<UserListItemDto>.Failure(
-                ErrorMessages.DuplicateRecord,
-                "Email is already used by another account.");
+                ErrorMessages.ValidationFailed,
+                errors.ToArray());
         }
 
         return null;
@@ -483,10 +491,14 @@ public sealed class UserManagementService : IUserManagementService
             {
                 errors.Add("Password is required.");
             }
-            else if (password.Length < ValidationRules.PasswordMinLength)
+            else if (!IsValidPassword(password))
             {
-                errors.Add($"Password must be at least {ValidationRules.PasswordMinLength} characters.");
+                errors.Add($"Password must be at least {ValidationRules.PasswordMinLength} characters and include both letters and numbers.");
             }
+        }
+        else if (!string.IsNullOrWhiteSpace(password) && !IsValidPassword(password))
+        {
+            errors.Add($"New password must be at least {ValidationRules.PasswordMinLength} characters and include both letters and numbers.");
         }
 
         if (string.IsNullOrWhiteSpace(fullName))
@@ -507,9 +519,13 @@ public sealed class UserManagementService : IUserManagementService
             errors.Add("Email is not valid.");
         }
 
-        if (!string.IsNullOrWhiteSpace(phoneNumber) && phoneNumber.Length > ValidationRules.PhoneNumberMaxLength)
+        if (string.IsNullOrWhiteSpace(phoneNumber))
         {
-            errors.Add($"Phone number cannot exceed {ValidationRules.PhoneNumberMaxLength} characters.");
+            errors.Add("Phone number is required.");
+        }
+        else if (!IsExactlyDigits(phoneNumber, ValidationRules.PhoneNumberLength))
+        {
+            errors.Add($"Phone number must contain exactly {ValidationRules.PhoneNumberLength} digits.");
         }
 
         if (roleId <= 0)
@@ -579,5 +595,17 @@ public sealed class UserManagementService : IUserManagementService
         {
             return false;
         }
+    }
+
+    private static bool IsValidPassword(string password)
+    {
+        return password.Length >= ValidationRules.PasswordMinLength
+            && password.Any(char.IsLetter)
+            && password.Any(char.IsDigit);
+    }
+
+    private static bool IsExactlyDigits(string value, int length)
+    {
+        return value.Length == length && value.All(char.IsDigit);
     }
 }

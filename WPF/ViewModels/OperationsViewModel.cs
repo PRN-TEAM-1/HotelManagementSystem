@@ -34,7 +34,7 @@ public sealed class OperationsViewModel : BaseViewModel
         _roomMapViewModel = roomMapViewModel ?? throw new ArgumentNullException(nameof(roomMapViewModel));
 
 
-        _currentViewModel = checkInViewModel;
+        _currentViewModel = roomMapViewModel;
         Modules = new ObservableCollection<OperationModuleViewModel>(CreateModules());
         SelectModuleCommand = new RelayCommand<OperationModuleViewModel>(SelectModule);
 

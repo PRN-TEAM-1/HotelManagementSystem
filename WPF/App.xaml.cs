@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
 using BusinessObjects.DTOs;
+using BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
 using DataAccessObjects;
 using Services.Implements;
@@ -454,7 +455,7 @@ public partial class App : Application
                 _loginWindow = null;
             }
 
-            _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
+            _navigationService.Navigate(GetDefaultNavigationTarget(), addToHistory: false);
 
             if (_shellWindow is not null && !_shellWindow.IsVisible)
             {
@@ -468,6 +469,21 @@ public partial class App : Application
         {
             _isTransitioningWindows = false;
         }
+    }
+
+    private string GetDefaultNavigationTarget()
+    {
+        if (_currentUserService.HasRole(RoleName.Receptionist))
+        {
+            return NavigationTargets.Operations;
+        }
+
+        if (_currentUserService.HasRole(RoleName.Admin) || _currentUserService.HasRole(RoleName.Manager))
+        {
+            return NavigationTargets.Workspace;
+        }
+
+        return NavigationTargets.Session;
     }
 
     private void ShowLoginAfterLogout()

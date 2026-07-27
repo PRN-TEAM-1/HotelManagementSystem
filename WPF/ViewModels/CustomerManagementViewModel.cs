@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Net.Mail;
+using BusinessObjects.Constants;
 using BusinessObjects.DTOs;
 using Services.Interfaces;
 using WPF.Commands;
@@ -264,9 +266,9 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
             await RefreshRoomsAsync();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = "Unable to load customer and booking data. Please try again.";
         }
         finally
         {
@@ -289,9 +291,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(CustomerName))
+        var validationErrors = ValidateCustomerForm();
+        if (validationErrors.Count > 0)
         {
-            ErrorMessage = "Please enter the Full Name.";
+            ErrorMessage = string.Join(Environment.NewLine, validationErrors);
             return;
         }
 
@@ -320,9 +323,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                ErrorMessage = result.Message;
-                System.Windows.MessageBox.Show(result.Message, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = FormatResultErrors(result);
+                System.Windows.MessageBox.Show(ErrorMessage, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Unable to create customer. Please check the form and try again.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Create Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
         }
         finally
         {
@@ -406,9 +414,10 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(CustomerName))
+        var validationErrors = ValidateCustomerForm();
+        if (validationErrors.Count > 0)
         {
-            ErrorMessage = "Please enter the Full Name.";
+            ErrorMessage = string.Join(Environment.NewLine, validationErrors);
             return;
         }
 
@@ -433,9 +442,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                ErrorMessage = result.Message;
-                System.Windows.MessageBox.Show(result.Message, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = FormatResultErrors(result);
+                System.Windows.MessageBox.Show(ErrorMessage, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Unable to update customer. Please check the form and try again.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Update Customer Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
         }
         finally
         {
@@ -480,14 +494,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                ErrorMessage = result.Message;
-                System.Windows.MessageBox.Show(result.Message, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = FormatResultErrors(result);
+                System.Windows.MessageBox.Show(ErrorMessage, "Cancel Booking Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = ex.Message;
-            System.Windows.MessageBox.Show(ex.Message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            ErrorMessage = "Unable to cancel booking. Please try again.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {
@@ -528,9 +542,14 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             }
             else
             {
-                ErrorMessage = result.Message;
-                System.Windows.MessageBox.Show(result.Message, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ErrorMessage = FormatResultErrors(result);
+                System.Windows.MessageBox.Show(ErrorMessage, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "Unable to mark booking as No-Show. Please try again.";
+            System.Windows.MessageBox.Show(ErrorMessage, "Mark No-Show Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
         }
         finally
         {
@@ -567,13 +586,13 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             else
             {
                 SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
-                ErrorMessage = result.Message;
+                ErrorMessage = FormatResultErrors(result);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             SelectedCustomerBookings = new ObservableCollection<BookingSummaryDto>();
-            ErrorMessage = $"Failed to load guest history: {ex.Message}";
+            ErrorMessage = "Unable to load guest history. Please try again.";
         }
     }
 
@@ -598,6 +617,83 @@ public sealed class CustomerManagementViewModel : BaseViewModel
         PhoneNumber = string.Empty;
         Email = string.Empty;
         Address = string.Empty;
+    }
+
+    private List<string> ValidateCustomerForm()
+    {
+        var errors = new List<string>();
+        var fullName = CustomerName.Trim();
+        var identityCard = IdentityCard.Trim();
+        var phoneNumber = PhoneNumber.Trim();
+        var email = Email.Trim();
+        var address = Address.Trim();
+
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            errors.Add("Full name is required.");
+        }
+        else if (fullName.Length > ValidationRules.FullNameMaxLength)
+        {
+            errors.Add($"Full name cannot exceed {ValidationRules.FullNameMaxLength} characters.");
+        }
+
+        if (string.IsNullOrWhiteSpace(identityCard))
+        {
+            errors.Add("Identity card is required.");
+        }
+        else if (!IsExactlyDigits(identityCard, ValidationRules.IdentityCardLength))
+        {
+            errors.Add($"Identity card must contain exactly {ValidationRules.IdentityCardLength} digits.");
+        }
+
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            errors.Add("Phone number is required.");
+        }
+        else if (!IsExactlyDigits(phoneNumber, ValidationRules.PhoneNumberLength))
+        {
+            errors.Add($"Phone number must contain exactly {ValidationRules.PhoneNumberLength} digits.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            if (email.Length > ValidationRules.EmailMaxLength || !IsValidEmail(email))
+            {
+                errors.Add("Email is not valid.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(address) && address.Length > ValidationRules.AddressMaxLength)
+        {
+            errors.Add($"Address cannot exceed {ValidationRules.AddressMaxLength} characters.");
+        }
+
+        return errors;
+    }
+
+    private static string FormatResultErrors(ServiceResult result)
+    {
+        return result.Errors.Count > 0
+            ? string.Join(Environment.NewLine, result.Errors)
+            : result.Message;
+    }
+
+    private static bool IsValidEmail(string email)
+    {
+        try
+        {
+            var address = new MailAddress(email);
+            return string.Equals(address.Address, email, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool IsExactlyDigits(string value, int length)
+    {
+        return value.Length == length && value.All(char.IsDigit);
     }
 }
 
