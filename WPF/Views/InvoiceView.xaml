@@ -115,11 +115,14 @@
                         </Button>
                     </Grid>
 
-                    <Grid Grid.Row="2">
+                    <ScrollViewer Grid.Row="2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled">
+                    <Grid MinWidth="820">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="31*" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="18*" />
+                            <ColumnDefinition Width="*" MinWidth="488" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="320" MinWidth="300" MaxWidth="360" />
                         </Grid.ColumnDefinitions>
 
                         <Grid>
@@ -152,13 +155,15 @@
                             <Grid Grid.Row="2">
                                 <DataGrid ItemsSource="{Binding InvoiceCandidates}"
                                           SelectedItem="{Binding SelectedCandidate}"
-                                          IsEnabled="{Binding CanEdit}">
+                                          IsEnabled="{Binding CanEdit}"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="72" />
-                                        <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.5*" />
+                                        <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.4*" MinWidth="140" />
                                         <DataGridTextColumn Header="Rooms" Binding="{Binding RoomCount}" Width="Auto" MinWidth="64" />
-                                        <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                        <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                        <DataGridTextColumn Header="Room" Binding="{Binding RoomAmount, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="112" />
+                                        <DataGridTextColumn Header="Service" Binding="{Binding ServiceAmount, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="112" />
                                     </DataGrid.Columns>
                                 </DataGrid>
 
@@ -185,6 +190,7 @@
 
                         <Border Grid.Column="2"
                                 Padding="12"
+                                MinWidth="300"
                                 Background="{StaticResource SurfaceMutedBrush}"
                                 CornerRadius="8">
                             <Grid>
@@ -198,27 +204,13 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel>
-                                        <TextBlock Text="Create Invoice"
-                                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                                   Foreground="{StaticResource TextPrimaryBrush}" />
-                                        <TextBlock Text="{Binding SelectedCandidate.CustomerName, TargetNullValue='Select a booking'}"
-                                                   Margin="0,2,0,0"
-                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                                   Foreground="{StaticResource TextSecondaryBrush}" />
-                                    </StackPanel>
-
-                                    <Button Grid.Column="1"
+                                <DockPanel LastChildFill="True">
+                                    <Button DockPanel.Dock="Right"
                                             Command="{Binding CreateInvoiceCommand}"
                                             Style="{StaticResource PrimaryButtonStyle}"
+                                            MinWidth="104"
                                             VerticalAlignment="Center"
-                                            Margin="8,0,0,0">
+                                            Margin="12,0,0,0">
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="FileDocumentPlus"
                                                                      Width="18"
@@ -227,7 +219,18 @@
                                             <TextBlock Text="Create" />
                                         </StackPanel>
                                     </Button>
-                                </Grid>
+
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Create Invoice"
+                                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{Binding SelectedCandidate.CustomerName, TargetNullValue='Select a booking'}"
+                                                   Margin="0,2,0,0"
+                                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DockPanel>
 
                                 <UniformGrid Grid.Row="2" Columns="2">
                                     <StackPanel>
@@ -316,6 +319,7 @@
                             </Grid>
                         </Border>
                     </Grid>
+                    </ScrollViewer>
                 </Grid>
             </materialDesign:Card>
 
@@ -332,7 +336,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="320" />
+                            <ColumnDefinition Width="280" MinWidth="220" />
                             <ColumnDefinition Width="8" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -387,13 +391,15 @@
                     <Grid Grid.Row="2">
                         <DataGrid ItemsSource="{Binding Invoices}"
                                   SelectedItem="{Binding SelectedInvoice}"
-                                  IsEnabled="{Binding CanEdit}">
+                                  IsEnabled="{Binding CanEdit}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceId}" Width="Auto" MinWidth="72" />
                                 <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
-                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.6*" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                                <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.4*" MinWidth="150" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="112" />
+                                <DataGridTextColumn Header="Remain" Binding="{Binding RemainingAmount, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="112" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
                             </DataGrid.Columns>
                         </DataGrid>

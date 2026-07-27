@@ -41,8 +41,7 @@
                                  materialDesign:TextFieldAssist.HasClearButton="True" />
 
                         <PasswordBox PasswordChanged="OnPasswordChanged"
-                                     materialDesign:HintAssist.Hint="Password"
-                                     Visibility="{Binding IsPasswordRequired, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                     materialDesign:HintAssist.Hint="{Binding PasswordHint}" />
 
                         <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
                                  materialDesign:HintAssist.Hint="Full name"

@@ -14,7 +14,9 @@ public static class ValidationRules
 
     public const int FullNameMaxLength = 150;
     public const int EmailMaxLength = 255;
+    public const int PhoneNumberLength = 10;
     public const int PhoneNumberMaxLength = 20;
+    public const int IdentityCardLength = 12;
     public const int IdentityCardMaxLength = 30;
     public const int AddressMaxLength = 255;
     public const int RoomNumberMaxLength = 20;

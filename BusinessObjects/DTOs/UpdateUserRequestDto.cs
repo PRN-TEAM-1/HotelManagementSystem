@@ -16,5 +16,7 @@ public sealed class UpdateUserRequestDto
 
     public string? PhoneNumber { get; set; }
 
+    public string? NewPassword { get; set; }
+
     public UserStatus Status { get; set; } = UserStatus.Active;
 }

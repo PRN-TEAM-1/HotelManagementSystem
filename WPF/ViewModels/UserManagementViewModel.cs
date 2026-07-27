@@ -261,7 +261,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 Users = new();
                 SelectedUser = null;
                 return;
@@ -273,9 +273,9 @@ public sealed class UserManagementViewModel : BaseViewModel
                 ? Users.FirstOrDefault(user => user.UserId == selectedUserId.Value)
                 : null;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error loading users: {ex.Message}";
+            ErrorMessage = "Unable to load accounts. Please try again.";
             Users = new();
             SelectedUser = null;
         }
@@ -315,16 +315,16 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (sessionsResult.IsFailure)
             {
-                ErrorMessage = sessionsResult.Errors.FirstOrDefault() ?? sessionsResult.Message;
+                ErrorMessage = FormatResultErrors(sessionsResult);
             }
             else if (logsResult.IsFailure)
             {
-                ErrorMessage = logsResult.Errors.FirstOrDefault() ?? logsResult.Message;
+                ErrorMessage = FormatResultErrors(logsResult);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error loading account audit history: {ex.Message}";
+            ErrorMessage = "Unable to load account audit history. Please try again.";
             SelectedUserLoginSessions = new();
             SelectedUserActivityLogs = new();
         }
@@ -371,7 +371,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 return;
             }
 
@@ -381,9 +381,9 @@ public sealed class UserManagementViewModel : BaseViewModel
                 ? null
                 : Users.FirstOrDefault(user => user.UserId == result.Data.UserId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error creating user: {ex.Message}";
+            ErrorMessage = "Unable to create account. Please check the form and try again.";
         }
         finally
         {
@@ -426,7 +426,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 return;
             }
 
@@ -436,9 +436,9 @@ public sealed class UserManagementViewModel : BaseViewModel
                 ? null
                 : Users.FirstOrDefault(user => user.UserId == result.Data.UserId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error updating user: {ex.Message}";
+            ErrorMessage = "Unable to update account. Please check the form and try again.";
         }
         finally
         {
@@ -476,7 +476,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 return;
             }
 
@@ -486,9 +486,9 @@ public sealed class UserManagementViewModel : BaseViewModel
                 ? null
                 : Users.FirstOrDefault(user => user.UserId == result.Data.UserId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error changing status: {ex.Message}";
+            ErrorMessage = "Unable to change account status. Please try again.";
         }
         finally
         {
@@ -547,7 +547,7 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 return;
             }
 
@@ -555,9 +555,9 @@ public sealed class UserManagementViewModel : BaseViewModel
             SelectedUser = Users.FirstOrDefault(user => user.UserId == selectedUserId);
             SuccessMessage = result.Message;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error deleting user: {ex.Message}";
+            ErrorMessage = "Unable to delete account. Please try again.";
         }
         finally
         {
@@ -581,16 +581,16 @@ public sealed class UserManagementViewModel : BaseViewModel
 
             if (result.IsFailure)
             {
-                ErrorMessage = result.Errors.FirstOrDefault() ?? result.Message;
+                ErrorMessage = FormatResultErrors(result);
                 return false;
             }
 
             _roleOptions = result.Data ?? new();
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = $"Error loading roles: {ex.Message}";
+            ErrorMessage = "Unable to load roles. Please try again.";
             return false;
         }
         finally
@@ -625,6 +625,13 @@ public sealed class UserManagementViewModel : BaseViewModel
     {
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
+    }
+
+    private static string FormatResultErrors(ServiceResult result)
+    {
+        return result.Errors.Count > 0
+            ? string.Join(Environment.NewLine, result.Errors)
+            : result.Message;
     }
 
     private void RaiseAllCommandStates()

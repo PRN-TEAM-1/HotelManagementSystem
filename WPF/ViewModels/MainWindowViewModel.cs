@@ -118,7 +118,8 @@ public sealed class MainWindowViewModel : BaseViewModel
                 NavigationTargets.Workspace,
                 "Workspace",
                 "Overview and shared workspace",
-                "ViewDashboard"),
+                "ViewDashboard",
+                [RoleName.Admin, RoleName.Manager]),
             new NavigationItemViewModel(
                 NavigationTargets.Session,
                 "Session",
@@ -126,7 +127,7 @@ public sealed class MainWindowViewModel : BaseViewModel
                 "AccountCircle"),
             new NavigationItemViewModel(
                 NavigationTargets.Administration,
-                "Account Management",
+                "Account",
                 "Staff accounts and access",
                 "ShieldAccount",
                 [RoleName.Admin]),
@@ -184,7 +185,7 @@ public sealed class MainWindowViewModel : BaseViewModel
 
         if (!IsCurrentViewVisible())
         {
-            _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
+            _navigationService.Navigate(GetDefaultNavigationKey(), addToHistory: false);
         }
     }
 
@@ -213,8 +214,24 @@ public sealed class MainWindowViewModel : BaseViewModel
 
         if (!IsCurrentViewVisible() && _navigationService.CurrentKey is not null)
         {
-            _navigationService.Navigate(NavigationTargets.Workspace, addToHistory: false);
+            _navigationService.Navigate(GetDefaultNavigationKey(), addToHistory: false);
         }
+    }
+
+    private string GetDefaultNavigationKey()
+    {
+        if (_currentUserService.HasRole(RoleName.Receptionist)
+            && NavigationItems.Any(item => item.IsVisible && item.Key == NavigationTargets.Operations))
+        {
+            return NavigationTargets.Operations;
+        }
+
+        if (NavigationItems.Any(item => item.IsVisible && item.Key == NavigationTargets.Workspace))
+        {
+            return NavigationTargets.Workspace;
+        }
+
+        return NavigationItems.FirstOrDefault(item => item.IsVisible)?.Key ?? NavigationTargets.Session;
     }
 
     private bool IsCurrentViewVisible()

@@ -37,9 +37,11 @@ public sealed class UserDialogViewModel : BaseViewModel
 
     public string DialogDescription => IsCreateMode
         ? "Create staff access."
-        : "Update staff access.";
+        : "Update staff access. Enter a new password only when it needs to change.";
 
     public bool IsPasswordRequired => IsCreateMode;
+
+    public string PasswordHint => IsCreateMode ? "Password" : "New password (optional)";
 
     public ObservableCollection<LookupItemDto> RoleOptions { get; }
 
@@ -149,15 +151,15 @@ public sealed class UserDialogViewModel : BaseViewModel
             errors.Add($"Username must be {ValidationRules.UsernameMinLength}-{ValidationRules.UsernameMaxLength} characters.");
         }
 
-        if (IsCreateMode)
+        if (IsCreateMode || !string.IsNullOrWhiteSpace(Password))
         {
             if (string.IsNullOrWhiteSpace(Password))
             {
                 errors.Add("Password is required.");
             }
-            else if (Password.Length < ValidationRules.PasswordMinLength)
+            else if (!IsValidPassword(Password))
             {
-                errors.Add($"Password must be at least {ValidationRules.PasswordMinLength} characters.");
+                errors.Add($"Password must be at least {ValidationRules.PasswordMinLength} characters and include both letters and numbers.");
             }
         }
 
@@ -179,9 +181,13 @@ public sealed class UserDialogViewModel : BaseViewModel
             errors.Add("Email is not valid.");
         }
 
-        if (!string.IsNullOrWhiteSpace(phoneNumber) && phoneNumber.Length > ValidationRules.PhoneNumberMaxLength)
+        if (string.IsNullOrWhiteSpace(phoneNumber))
         {
-            errors.Add($"Phone number cannot exceed {ValidationRules.PhoneNumberMaxLength} characters.");
+            errors.Add("Phone number is required.");
+        }
+        else if (!IsExactlyDigits(phoneNumber, ValidationRules.PhoneNumberLength))
+        {
+            errors.Add($"Phone number must contain exactly {ValidationRules.PhoneNumberLength} digits.");
         }
 
         if (SelectedRole?.Id is null or <= 0)
@@ -222,6 +228,7 @@ public sealed class UserDialogViewModel : BaseViewModel
             FullName = FullName.Trim(),
             Email = Email.Trim(),
             PhoneNumber = NormalizeOptional(PhoneNumber),
+            NewPassword = NormalizeOptional(Password),
             Status = GetSelectedStatusOrDefault()
         };
     }
@@ -254,5 +261,17 @@ public sealed class UserDialogViewModel : BaseViewModel
         {
             return false;
         }
+    }
+
+    private static bool IsValidPassword(string password)
+    {
+        return password.Length >= ValidationRules.PasswordMinLength
+            && password.Any(char.IsLetter)
+            && password.Any(char.IsDigit);
+    }
+
+    private static bool IsExactlyDigits(string value, int length)
+    {
+        return value.Length == length && value.All(char.IsDigit);
     }
 }

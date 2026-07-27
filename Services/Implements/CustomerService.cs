@@ -2,6 +2,7 @@ using BusinessObjects.Constants;
 using BusinessObjects.DTOs;
 using BusinessObjects.Entities;
 using BusinessObjects.Enums;
+using System.Net.Mail;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -49,9 +50,12 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName))
+        var validationErrors = ValidateCustomerFields(fullName, identityCard, phoneNumber, email, address);
+        if (validationErrors.Count > 0)
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
+            return ServiceResult<CustomerListItemDto>.Failure(
+                ErrorMessages.ValidationFailed,
+                validationErrors.ToArray());
         }
 
         if (!string.IsNullOrWhiteSpace(identityCard))
@@ -111,9 +115,12 @@ public sealed class CustomerService : ICustomerService
         var email = NormalizeOptional(request.Email);
         var address = NormalizeOptional(request.Address);
 
-        if (string.IsNullOrWhiteSpace(fullName))
+        var validationErrors = ValidateCustomerFields(fullName, identityCard, phoneNumber, email, address);
+        if (validationErrors.Count > 0)
         {
-            return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.ValidationFailed, "Full name is required.");
+            return ServiceResult<CustomerListItemDto>.Failure(
+                ErrorMessages.ValidationFailed,
+                validationErrors.ToArray());
         }
 
         if (!string.IsNullOrWhiteSpace(identityCard))
@@ -218,4 +225,74 @@ public sealed class CustomerService : ICustomerService
     private static string NormalizeRequired(string? value) => string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
 
     private static string? NormalizeOptional(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static List<string> ValidateCustomerFields(
+        string fullName,
+        string? identityCard,
+        string? phoneNumber,
+        string? email,
+        string? address)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            errors.Add("Full name is required.");
+        }
+        else if (fullName.Length > ValidationRules.FullNameMaxLength)
+        {
+            errors.Add($"Full name cannot exceed {ValidationRules.FullNameMaxLength} characters.");
+        }
+
+        if (string.IsNullOrWhiteSpace(identityCard))
+        {
+            errors.Add("Identity card is required.");
+        }
+        else if (!IsExactlyDigits(identityCard, ValidationRules.IdentityCardLength))
+        {
+            errors.Add($"Identity card must contain exactly {ValidationRules.IdentityCardLength} digits.");
+        }
+
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            errors.Add("Phone number is required.");
+        }
+        else if (!IsExactlyDigits(phoneNumber, ValidationRules.PhoneNumberLength))
+        {
+            errors.Add($"Phone number must contain exactly {ValidationRules.PhoneNumberLength} digits.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            if (email.Length > ValidationRules.EmailMaxLength || !IsValidEmail(email))
+            {
+                errors.Add("Email is not valid.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(address) && address.Length > ValidationRules.AddressMaxLength)
+        {
+            errors.Add($"Address cannot exceed {ValidationRules.AddressMaxLength} characters.");
+        }
+
+        return errors;
+    }
+
+    private static bool IsValidEmail(string email)
+    {
+        try
+        {
+            var address = new MailAddress(email);
+            return string.Equals(address.Address, email, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool IsExactlyDigits(string value, int length)
+    {
+        return value.Length == length && value.All(char.IsDigit);
+    }
 }

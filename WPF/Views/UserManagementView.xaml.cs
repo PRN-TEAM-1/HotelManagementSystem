@@ -23,10 +23,10 @@ public partial class UserManagementView : UserControl
         {
             await viewModel.InitializeAsync();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             MessageBox.Show(
-                $"Unable to load user management data:{Environment.NewLine}{ex.Message}",
+                "Unable to load account data. Please try again.",
                 "User Management",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);

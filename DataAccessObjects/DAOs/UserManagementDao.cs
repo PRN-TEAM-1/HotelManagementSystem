@@ -82,6 +82,7 @@ public sealed class UserManagementDao
         existingUser.FullName = user.FullName;
         existingUser.Email = user.Email;
         existingUser.PhoneNumber = user.PhoneNumber;
+        existingUser.PasswordHash = user.PasswordHash;
         existingUser.Status = user.Status;
         existingUser.UpdatedAt = DateTime.Now;
 
