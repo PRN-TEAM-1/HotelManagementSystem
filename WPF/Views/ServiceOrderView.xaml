@@ -168,7 +168,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <TextBlock Text="Chưa có dịch vụ nào khác, thêm mới ở bên phải"
+                        <TextBlock Text="No services yet, add new on the right"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}">
@@ -238,7 +238,7 @@
                                       Margin="0,0,0,4"
                                       materialDesign:HintAssist.Hint="Service" />
                                       
-                            <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}Giá: {0:N0} VND'}"
+                            <TextBlock Text="{Binding SelectedService.Price, StringFormat='{}Price: {0:N0} VND'}"
                                        Foreground="{StaticResource TextSecondaryBrush}"
                                        Margin="4,0,0,16">
                                 <TextBlock.Style>
@@ -368,7 +368,7 @@
                                     <Setter Property="ToolTip" Value="Add service order" />
                                     <Style.Triggers>
                                         <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="ToolTip" Value="Vui lòng chọn Phòng, Dịch vụ và nhập Số lượng" />
+                                            <Setter Property="ToolTip" Value="Please select Room, Service and enter Quantity" />
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
