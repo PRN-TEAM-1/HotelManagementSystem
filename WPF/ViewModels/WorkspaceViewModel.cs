@@ -1,5 +1,6 @@
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.Reports;
+using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using Services.Interfaces;
 using WPF.Commands;
@@ -130,9 +131,9 @@ public sealed class WorkspaceViewModel : BaseViewModel
                 LoadManagerSummaries();
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Message = $"Unable to load workspace dashboard: {ex.Message}";
+            Message = ErrorMessages.DatabaseConnectionRequired;
         }
         finally
         {

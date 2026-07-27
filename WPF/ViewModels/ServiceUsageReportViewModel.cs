@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using BusinessObjects.Constants;
 using BusinessObjects.DTOs.Reports;
 using Microsoft.Win32;
 using Repositories.Implements;
@@ -69,8 +70,12 @@ public sealed class ServiceUsageReportViewModel : BaseViewModel
 
         FilterCommand = new RelayCommand(LoadData);
         ExportCommand = new RelayCommand(ExportCsv);
+    }
 
+    public override Task InitializeAsync()
+    {
         LoadData();
+        return Task.CompletedTask;
     }
 
     private void LoadData()
@@ -92,7 +97,17 @@ public sealed class ServiceUsageReportViewModel : BaseViewModel
             EndDate = EndDate.Date
         };
 
-        var result = _service.GetServiceUsageReport(filter);
+        List<ServiceUsageReportDto> result;
+
+        try
+        {
+            result = _service.GetServiceUsageReport(filter);
+        }
+        catch
+        {
+            Message = ErrorMessages.DatabaseConnectionRequired;
+            return;
+        }
 
         foreach (var item in result)
         {
