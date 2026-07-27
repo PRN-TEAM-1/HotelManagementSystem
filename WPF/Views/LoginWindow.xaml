@@ -47,7 +47,7 @@
 
                     <Border Width="72"
                             Height="72"
-                            CornerRadius="16"
+                            CornerRadius="8"
                             Background="#22FFFFFF"
                             VerticalAlignment="Top">
                         <materialDesign:PackIcon Kind="OfficeBuilding"
@@ -120,19 +120,19 @@
                                   Height="32"
                                   ToolTip="Show / Hide password">
                         <ToggleButton.Content>
-                            <materialDesign:PackIcon Kind="EyeOff" Width="20" Height="20" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <materialDesign:PackIcon Kind="Eye" Width="20" Height="20" Foreground="{StaticResource TextSecondaryBrush}" />
                         </ToggleButton.Content>
                         <materialDesign:ToggleButtonAssist.OnContent>
-                            <materialDesign:PackIcon Kind="Eye" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" />
+                            <materialDesign:PackIcon Kind="EyeOff" Width="20" Height="20" Foreground="{StaticResource AccentBrush}" />
                         </materialDesign:ToggleButtonAssist.OnContent>
                     </ToggleButton>
                 </Grid>
 
-                <CheckBox Content="Ghi nhớ?"
+                <CheckBox Content="Remember me"
                           IsChecked="{Binding RememberMe, Mode=TwoWay}"
                           IsEnabled="{Binding CanEdit}"
                           Margin="0,4,0,0"
-                          ToolTip="Lưu phiên đăng nhập trong 3 ngày" />
+                          ToolTip="Keep this session signed in for 3 days" />
 
                 <TextBlock Text="{Binding ErrorMessage}"
                            Margin="0,8,0,0"

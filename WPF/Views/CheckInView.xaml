@@ -122,7 +122,7 @@
                             <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="80" />
                             <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" MinWidth="160" />
                             <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="Auto" MinWidth="110" />
-                            <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="Auto" MinWidth="100" />
+                            <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="Auto" MinWidth="100" />
                             <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="Auto" MinWidth="80" />
                             <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
                             <DataGridTextColumn Header="Status" Binding="{Binding RoomStatus}" Width="Auto" MinWidth="110" />
@@ -189,7 +189,7 @@
                             <TextBlock Text="Check-in"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedCandidate.CheckInDate, StringFormat='{}{0:dd/MM/yyyy}', TargetNullValue=-}"
+                            <TextBlock Text="{Binding SelectedCandidate.CheckInDate, StringFormat='{}{0:yyyy-MM-dd}', TargetNullValue=-}"
                                        Style="{StaticResource MaterialDesignBody2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
@@ -198,7 +198,7 @@
                             <TextBlock Text="Check-out"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedCandidate.CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}', TargetNullValue=-}"
+                            <TextBlock Text="{Binding SelectedCandidate.CheckOutDate, StringFormat='{}{0:yyyy-MM-dd}', TargetNullValue=-}"
                                        Style="{StaticResource MaterialDesignBody2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>

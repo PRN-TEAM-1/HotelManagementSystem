@@ -559,8 +559,8 @@
                                     <DataGridTextColumn Header="Booking" Binding="{Binding BookingId}" Width="Auto" MinWidth="76" />
                                     <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="1.4*" />
                                     <DataGridTextColumn Header="Rooms" Binding="{Binding RoomNumbers}" Width="*" />
-                                    <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
-                                    <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+                                    <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="*" />
+                                    <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="*" />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
                                     <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 </DataGrid.Columns>
@@ -598,10 +598,10 @@
                                     <DataGridTextColumn Header="Booking ID" Binding="{Binding BookingId}" Width="Auto" MinWidth="80" />
                                     <DataGridTextColumn Header="Guest Name" Binding="{Binding CustomerName}" Width="1.4*" />
                                     <DataGridTextColumn Header="Booked Rooms" Binding="{Binding RoomNumbers}" Width="*" />
-                                    <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
-                                    <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+                                    <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="*" />
+                                    <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="*" />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                                    <DataGridTextColumn Header="Total Amount" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VNĐ'}" Width="*" />
+                                    <DataGridTextColumn Header="Total Amount" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

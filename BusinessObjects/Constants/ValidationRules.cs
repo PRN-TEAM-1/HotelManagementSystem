@@ -1,6 +1,6 @@
 namespace BusinessObjects.Constants;
 
-//Ae trong quá trình làm có thể bổ sung thêm chớ đừng xóa nhé
+// Shared validation limits; add new constants as needed.
 
 public static class ValidationRules
 {

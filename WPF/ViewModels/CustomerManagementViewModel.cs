@@ -349,7 +349,7 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
         var confirmMessage = $"Are you sure you want to create this booking?\n\n" +
                              $"• Guest Name: {SelectedCustomer.FullName}\n" +
-                             $"• Identity Card (CCCD): {SelectedCustomer.IdentityCard}\n" +
+                             $"• Identity card: {SelectedCustomer.IdentityCard}\n" +
                              $"• Room: {SelectedRoom.RoomNumber} ({SelectedRoom.RoomTypeName})\n" +
                              $"• Check-in: {CheckInDate:yyyy-MM-dd}\n" +
                              $"• Check-out: {CheckOutDate:yyyy-MM-dd}";
@@ -455,7 +455,6 @@ public sealed class CustomerManagementViewModel : BaseViewModel
             return;
         }
 
-        // Giữ lại câu hỏi xác nhận chi tiết có tên khách hàng của bạn
         var confirmResult = System.Windows.MessageBox.Show(
             $"Are you sure you want to cancel Booking #{SelectedBooking.BookingId} for customer '{SelectedBooking.CustomerName}'?",
             "Confirm Cancel Booking",
@@ -474,7 +473,6 @@ public sealed class CustomerManagementViewModel : BaseViewModel
 
             if (result.IsSuccess)
             {
-                // Gộp cả 2: Vừa gán SuccessMessage, vừa hiện popup
                 SuccessMessage = result.Message;
                 System.Windows.MessageBox.Show(result.Message, "Booking Cancelled", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
 

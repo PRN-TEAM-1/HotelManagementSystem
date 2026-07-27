@@ -163,7 +163,7 @@
                                 <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="64" />
                                 <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
                                 <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
-                                <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Width="Auto" MinWidth="130" />
+                                <DataGridTextColumn Header="Ordered" Binding="{Binding OrderDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Width="Auto" MinWidth="130" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
                             </DataGrid.Columns>
                         </DataGrid>

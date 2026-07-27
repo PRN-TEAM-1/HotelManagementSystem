@@ -166,8 +166,8 @@ public sealed class WorkspaceViewModel : BaseViewModel
         {
             Label = label,
             DateRange = startDate == endDate
-                ? startDate.ToString("dd/MM/yyyy")
-                : $"{startDate:dd/MM} – {endDate:dd/MM/yyyy}",
+                ? startDate.ToString("yyyy-MM-dd")
+                : $"{startDate:yyyy-MM-dd} - {endDate:yyyy-MM-dd}",
             Revenue = revenue.Sum(x => x.TotalRevenue),
             PaymentCount = revenue.Sum(x => x.PaymentCount),
             ServiceQuantity = services.Sum(x => x.QuantityOrdered),

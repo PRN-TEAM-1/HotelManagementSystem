@@ -59,7 +59,7 @@ public sealed class SessionViewModel : BaseViewModel
     public string LoggedInAtDisplay =>
         _currentUserService.User is null
             ? "Waiting for login"
-            : _currentUserService.User.LoggedInAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+            : _currentUserService.User.LoggedInAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
 
     public string LoginSessionIdDisplay => _currentUserService.User?.LoginSessionId?.ToString() ?? "Not tracked";
 

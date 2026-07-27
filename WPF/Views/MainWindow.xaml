@@ -147,12 +147,15 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <materialDesign:Card Grid.Row="0"
-                                 Margin="0"
-                                 Padding="16"
-                                 materialDesign:ElevationAssist.Elevation="Dp1">
+            <Border Grid.Row="0"
+                    Margin="0"
+                    Padding="16"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource SurfaceBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
                 <ContentControl Content="{Binding CurrentViewModel}" />
-            </materialDesign:Card>
+            </Border>
         </Grid>
     </Grid>
 </Window>
