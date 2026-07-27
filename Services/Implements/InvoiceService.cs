@@ -142,7 +142,7 @@ public sealed class InvoiceService : IInvoiceService
             {
                 return ServiceResult<InvoiceDetailDto>.Failure(
                     ErrorMessages.BusinessRuleViolation,
-                    "Invoice can only be created when every booking room is CheckedOut or Cancelled.");
+                    "Invoice can only be created for non-cancelled bookings with at least one checked-out room, and every other room must be CheckedOut or Cancelled.");
             }
 
             var subtotalAmount = candidate.RoomAmount + candidate.ServiceAmount;
@@ -235,6 +235,11 @@ public sealed class InvoiceService : IInvoiceService
         if (request.TaxPercent < 0)
         {
             errors.Add("Tax percentage cannot be negative.");
+        }
+
+        if (request.TaxPercent > 100m)
+        {
+            errors.Add("Tax percentage cannot exceed 100%.");
         }
 
         return errors;

@@ -17,4 +17,10 @@ public sealed class BillingViewModel : BaseViewModel
     {
         return InvoiceFlow.InitializeAsync();
     }
+
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        InvoiceFlow.OnNavigatedTo();
+    }
 }

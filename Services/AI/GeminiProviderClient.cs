@@ -69,14 +69,18 @@ internal sealed class GeminiProviderClient : IAiProviderClient
 
     private static string BuildEndpoint(AiProviderRequestOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.EndpointUrl))
-        {
-            return $"https://generativelanguage.googleapis.com/v1beta/models/{Uri.EscapeDataString(options.ModelName)}:generateContent?key={Uri.EscapeDataString(options.ApiKey)}";
-        }
+        var endpoint = string.IsNullOrWhiteSpace(options.EndpointUrl)
+            ? AiProviderDefaults.GeminiBaseEndpointUrl
+            : options.EndpointUrl.Trim();
 
-        var endpoint = options.EndpointUrl.Trim()
+        endpoint = endpoint
             .Replace("{model}", Uri.EscapeDataString(options.ModelName), StringComparison.OrdinalIgnoreCase)
             .Replace("{apiKey}", Uri.EscapeDataString(options.ApiKey), StringComparison.OrdinalIgnoreCase);
+
+        if (!endpoint.Contains(":generateContent", StringComparison.OrdinalIgnoreCase))
+        {
+            endpoint = BuildGenerateContentEndpoint(endpoint, options.ModelName);
+        }
 
         if (endpoint.Contains("key=", StringComparison.OrdinalIgnoreCase)
             || endpoint.Contains(options.ApiKey, StringComparison.Ordinal))
@@ -86,6 +90,26 @@ internal sealed class GeminiProviderClient : IAiProviderClient
 
         var separator = endpoint.Contains('?') ? "&" : "?";
         return $"{endpoint}{separator}key={Uri.EscapeDataString(options.ApiKey)}";
+    }
+
+    private static string BuildGenerateContentEndpoint(string endpoint, string modelName)
+    {
+        var queryIndex = endpoint.IndexOf('?');
+        var query = queryIndex >= 0 ? endpoint[queryIndex..] : string.Empty;
+        var baseEndpoint = queryIndex >= 0 ? endpoint[..queryIndex] : endpoint;
+        baseEndpoint = baseEndpoint.TrimEnd('/');
+
+        if (baseEndpoint.EndsWith("/models", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{baseEndpoint}/{Uri.EscapeDataString(modelName)}:generateContent{query}";
+        }
+
+        if (baseEndpoint.Contains("/models/", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{baseEndpoint}:generateContent{query}";
+        }
+
+        return $"{baseEndpoint}/{Uri.EscapeDataString(modelName)}:generateContent{query}";
     }
 
     private static string TrimForMessage(string value)

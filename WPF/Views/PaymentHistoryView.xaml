@@ -35,15 +35,17 @@
             </Border>
 
             <Grid Grid.Row="2" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding Payments}">
+                <DataGrid ItemsSource="{Binding Payments}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Method" Binding="{Binding PaymentMethod}" Width="Auto" MinWidth="100" />
-                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='{}{0:N0} VND'}" Width="*" />
+                        <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='{}{0:N0} VND'}" Width="130" MinWidth="120" />
                         <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="132" />
-                        <DataGridTextColumn Header="Receiver" Binding="{Binding ReceivedByUserName}" Width="*" />
+                        <DataGridTextColumn Header="Receiver" Binding="{Binding ReceivedByUserName}" Width="170" MinWidth="150" />
                         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="80" />
-                        <DataGridTextColumn Header="Transaction" Binding="{Binding TransactionCode}" Width="*" />
-                        <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="1.2*" />
+                        <DataGridTextColumn Header="Transaction" Binding="{Binding TransactionCode}" Width="150" MinWidth="130" />
+                        <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="220" MinWidth="180" />
                     </DataGrid.Columns>
                 </DataGrid>
 

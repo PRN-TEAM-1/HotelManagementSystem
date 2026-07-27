@@ -23,11 +23,13 @@ public sealed class LoginViewModel : BaseViewModel
     public LoginViewModel(
         IAuthService authService,
         ICurrentUserService currentUserService,
-        RememberedLoginStore? rememberedLoginStore = null)
+        RememberedLoginStore? rememberedLoginStore = null,
+        string? initialErrorMessage = null)
     {
         _authService = authService ?? throw new ArgumentNullException(nameof(authService));
         _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _rememberedLoginStore = rememberedLoginStore ?? new RememberedLoginStore();
+        _errorMessage = initialErrorMessage?.Trim() ?? string.Empty;
 
         LoginCommand = new AsyncRelayCommand(LoginAsync, CanLogin);
     }
@@ -132,6 +134,10 @@ public sealed class LoginViewModel : BaseViewModel
             }
 
             _currentUserService.Set(result.Data.CurrentSession);
+        }
+        catch
+        {
+            ErrorMessage = BusinessObjects.Constants.ErrorMessages.DatabaseConnectionRequired;
         }
         finally
         {

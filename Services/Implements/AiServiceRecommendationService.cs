@@ -104,11 +104,18 @@ public sealed class AiServiceRecommendationService : IAiServiceRecommendationSer
 
     private static AiProviderRequestOptions CreateRequestOptions(AiProviderSetting setting)
     {
+        var modelName = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiModelName(setting.ModelName)
+            : setting.ModelName;
+        var endpointUrl = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiEndpointUrl(setting.EndpointUrl)
+            : setting.EndpointUrl;
+
         return new AiProviderRequestOptions(
             setting.ProviderName,
-            setting.ModelName,
+            modelName,
             AiSecretProtector.Unprotect(setting.EncryptedApiKey),
-            setting.EndpointUrl,
+            endpointUrl,
             setting.Temperature,
             setting.MaxOutputTokens,
             setting.TimeoutSeconds);
@@ -270,7 +277,9 @@ public sealed class AiServiceRecommendationService : IAiServiceRecommendationSer
         return new AiServiceRecommendationResponseDto
         {
             ProviderName = setting.ProviderName.ToString(),
-            ModelName = setting.ModelName,
+            ModelName = setting.ProviderName == AiProviderName.Gemini
+                ? AiProviderDefaults.NormalizeGeminiModelName(setting.ModelName)
+                : setting.ModelName,
             Summary = Limit(summary, 260),
             Recommendations = recommendations
         };

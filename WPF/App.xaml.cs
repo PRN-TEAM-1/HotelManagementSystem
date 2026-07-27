@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using BusinessObjects.Constants;
 using BusinessObjects.DTOs;
 using BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +28,13 @@ public partial class App : Application
     private DispatcherTimer? _sessionValidationTimer;
     private bool _isTransitioningWindows;
     private bool _isCheckingSession;
+    private string _startupLoginMessage = string.Empty;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         ConfigureEnglishCulture();
         base.OnStartup(e);
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
 
         try
         {
@@ -193,7 +196,7 @@ public partial class App : Application
         }
         catch
         {
-            // Ignore if database is not initialized yet
+            _startupLoginMessage = ErrorMessages.DatabaseConnectionRequired;
         }
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -347,7 +350,10 @@ public partial class App : Application
         var loginViewModel = new LoginViewModel(
             _authService,
             _currentUserService,
-            _rememberedLoginStore);
+            _rememberedLoginStore,
+            _startupLoginMessage);
+        _startupLoginMessage = string.Empty;
+
         _loginWindow = new LoginWindow
         {
             DataContext = loginViewModel
@@ -365,23 +371,75 @@ public partial class App : Application
             return false;
         }
 
-        var result = await _authService.RestoreRememberedSessionAsync(
-            new RememberedLoginRequestDto
-            {
-                UserId = rememberedLogin.UserId,
-                Username = rememberedLogin.Username,
-                UserUpdatedAtTicks = rememberedLogin.UserUpdatedAtTicks,
-                ExpiresAtUtc = rememberedLogin.ExpiresAtUtc,
-                ClientEnvironment = ClientEnvironmentProvider.Capture()
-            });
-
-        if (result.IsSuccess && result.Data?.CurrentSession is not null)
+        try
         {
-            _currentUserService.Set(result.Data.CurrentSession);
-            return true;
+            var result = await _authService.RestoreRememberedSessionAsync(
+                new RememberedLoginRequestDto
+                {
+                    UserId = rememberedLogin.UserId,
+                    Username = rememberedLogin.Username,
+                    UserUpdatedAtTicks = rememberedLogin.UserUpdatedAtTicks,
+                    ExpiresAtUtc = rememberedLogin.ExpiresAtUtc,
+                    ClientEnvironment = ClientEnvironmentProvider.Capture()
+                });
+
+            if (result.IsSuccess && result.Data?.CurrentSession is not null)
+            {
+                _currentUserService.Set(result.Data.CurrentSession);
+                return true;
+            }
+
+            if (string.Equals(result.Message, ErrorMessages.DatabaseConnectionRequired, StringComparison.Ordinal)
+                || result.Errors.Contains(ErrorMessages.DatabaseConnectionRequired))
+            {
+                _startupLoginMessage = ErrorMessages.DatabaseConnectionRequired;
+            }
+        }
+        catch
+        {
+            _startupLoginMessage = ErrorMessages.DatabaseConnectionRequired;
         }
 
         _rememberedLoginStore.Clear();
+        return false;
+    }
+
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        var isDatabaseConnectionException = IsLikelyDatabaseConnectionException(e.Exception);
+        var message = isDatabaseConnectionException
+            ? ErrorMessages.DatabaseConnectionRequired
+            : ErrorMessages.UnexpectedError;
+
+        MessageBox.Show(
+            message,
+            isDatabaseConnectionException
+                ? "Database Connection Required"
+                : "Unexpected Error",
+            MessageBoxButton.OK,
+            isDatabaseConnectionException
+                ? MessageBoxImage.Warning
+                : MessageBoxImage.Error);
+
+        e.Handled = true;
+    }
+
+    private static bool IsLikelyDatabaseConnectionException(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            var message = current.Message;
+            if (message.Contains("appsettings.json", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("connection string", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("database", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("sql server", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("network-related", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("login failed", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
