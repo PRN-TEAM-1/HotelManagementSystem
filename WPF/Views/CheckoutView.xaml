@@ -122,8 +122,8 @@
                             <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="80" />
                             <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" MinWidth="160" />
                             <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="Auto" MinWidth="110" />
-                            <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="Auto" MinWidth="100" />
-                            <DataGridTextColumn Header="Expected Out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="Auto" MinWidth="100" />
+                            <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="Auto" MinWidth="100" />
+                            <DataGridTextColumn Header="Expected Out" Binding="{Binding CheckOutDate, StringFormat='{}{0:yyyy-MM-dd}'}" Width="Auto" MinWidth="100" />
                             <DataGridTextColumn Header="Services" Binding="{Binding ServiceOrderCount}" Width="Auto" MinWidth="80" />
                             <DataGridTextColumn Header="Service Total" Binding="{Binding ServiceOrderTotal, StringFormat='{}{0:N0} VND'}" Width="Auto" MinWidth="120" />
                             <DataGridTextColumn Header="Status" Binding="{Binding BookingDetailStatus}" Width="Auto" MinWidth="100" />
@@ -207,7 +207,7 @@
                             <TextBlock Text="Actual Check-in"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedCandidate.ActualCheckInDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}', TargetNullValue=-}"
+                            <TextBlock Text="{Binding SelectedCandidate.ActualCheckInDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}', TargetNullValue=-}"
                                        Style="{StaticResource MaterialDesignBody2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>

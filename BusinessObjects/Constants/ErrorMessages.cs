@@ -1,6 +1,6 @@
 namespace BusinessObjects.Constants;
 
-//Error message demo, ae trong quá trình làm có thể bổ sung thêm chớ đừng xóa nhé
+// Demo error messages; add new constants as needed.
 
 public static class ErrorMessages
 {

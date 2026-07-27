@@ -58,7 +58,7 @@ public sealed class CustomerService : ICustomerService
         {
             if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, cancellationToken: cancellationToken))
             {
-                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this identity card already exists.");
             }
         }
 
@@ -120,7 +120,7 @@ public sealed class CustomerService : ICustomerService
         {
             if (await _customerRepository.ExistsByIdentityCardAsync(identityCard, request.CustomerId, cancellationToken))
             {
-                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this Identity Card (CCCD) already exists.");
+                return ServiceResult<CustomerListItemDto>.Failure(ErrorMessages.DuplicateRecord, "A customer with this identity card already exists.");
             }
         }
 

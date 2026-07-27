@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Windows;
+using System.Windows.Markup;
 using System.Windows.Threading;
 using BusinessObjects.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,7 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        ConfigureEnglishCulture();
         base.OnStartup(e);
 
         try
@@ -210,6 +213,19 @@ public partial class App : Application
         {
             ShowLoginWindow();
         }
+    }
+
+    private static void ConfigureEnglishCulture()
+    {
+        var culture = CultureInfo.GetCultureInfo("en-CA");
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        Thread.CurrentThread.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+
+        FrameworkElement.LanguageProperty.OverrideMetadata(
+            typeof(FrameworkElement),
+            new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
     }
 
     private void BuildShellWindow()
