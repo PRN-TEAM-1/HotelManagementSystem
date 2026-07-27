@@ -11,7 +11,7 @@
         <StackPanel Grid.Row="0">
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,8"
-                                 Background="#FFF3D6"
+                                 Background="{StaticResource WarningSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -30,7 +30,7 @@
                                Text="{Binding ErrorMessage}"
                                Margin="8,0,8,0"
                                Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="#856404"
+                               Foreground="{StaticResource WarningBrush}"
                                TextWrapping="Wrap" />
                     <Button Grid.Column="2"
                             Command="{Binding ClearMessagesCommand}"
@@ -43,7 +43,7 @@
 
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,8"
-                                 Background="#DFF3E7"
+                                 Background="{StaticResource SuccessSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -421,7 +421,7 @@
             </materialDesign:Card>
 
             <Border Grid.RowSpan="3"
-                    Background="#66000000"
+                    Background="{StaticResource OverlaySoftBrush}"
                     Panel.ZIndex="10"
                     Visibility="{Binding IsInvoiceWorkspaceOpen, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Grid Width="680"
@@ -434,8 +434,8 @@
                     </Grid.RowDefinitions>
 
                     <Border Padding="16"
-                            Background="White"
-                            BorderBrush="#E0E4EA"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource SurfaceBorderBrush}"
                             BorderThickness="0,0,0,1">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -483,7 +483,7 @@
             </Border>
 
             <Border Grid.RowSpan="3"
-                    Background="#80000000"
+                    Background="{StaticResource OverlayBrush}"
                     Panel.ZIndex="20"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

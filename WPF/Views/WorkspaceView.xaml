@@ -36,12 +36,12 @@
                 <StackPanel>
                     <Border Padding="12"
                             Margin="0,0,0,12"
-                            Background="#FFF3D6"
+                            Background="{StaticResource WarningSoftBrush}"
                             CornerRadius="8"
                             Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
                         <TextBlock Text="{Binding Message}"
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                   Foreground="#856404"
+                                   Foreground="{StaticResource WarningBrush}"
                                    TextWrapping="Wrap" />
                     </Border>
 
@@ -175,7 +175,7 @@
             </ScrollViewer>
 
             <Border Grid.RowSpan="2"
-                    Background="#80000000"
+                    Background="{StaticResource OverlayBrush}"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <ProgressBar Width="180"
@@ -217,9 +217,9 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
                     <Border Padding="12" Margin="0,0,0,12"
-                            Background="#FFF3D6" CornerRadius="8"
+                            Background="{StaticResource WarningSoftBrush}" CornerRadius="8"
                             Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
-                        <TextBlock Text="{Binding Message}" Foreground="#856404" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Message}" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" />
                     </Border>
 
                     <ItemsControl ItemsSource="{Binding ManagerSummaries}">
@@ -287,7 +287,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <Border Grid.RowSpan="2" Background="#80000000"
+            <Border Grid.RowSpan="2" Background="{StaticResource OverlayBrush}"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <ProgressBar Width="180" Height="4" IsIndeterminate="True" />

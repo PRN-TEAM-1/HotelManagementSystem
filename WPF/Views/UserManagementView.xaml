@@ -13,7 +13,7 @@
         <StackPanel Grid.Row="0">
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,8"
-                                 Background="#FFF3D6"
+                                 Background="{StaticResource WarningSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -32,7 +32,7 @@
                                Text="{Binding ErrorMessage}"
                                Margin="8,0,8,0"
                                Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="#856404"
+                               Foreground="{StaticResource WarningBrush}"
                                TextWrapping="Wrap" />
                     <Button Grid.Column="2"
                             Command="{Binding ClearMessagesCommand}"
@@ -45,7 +45,7 @@
 
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,8"
-                                 Background="#DFF3E7"
+                                 Background="{StaticResource SuccessSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -187,7 +187,7 @@
                 </StackPanel>
             </materialDesign:Card>
 
-            <Border Background="#80000000"
+            <Border Background="{StaticResource OverlayBrush}"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <ProgressBar Width="180"

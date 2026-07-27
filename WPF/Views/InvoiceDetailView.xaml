@@ -23,8 +23,7 @@
 
                             <StackPanel>
                                 <TextBlock Text="{Binding Invoice.InvoiceId, StringFormat='{}Invoice #{0}'}"
-                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                           Style="{StaticResource SectionTitleTextStyle}" />
                                 <TextBlock Text="{Binding Invoice.CustomerName}"
                                            Margin="0,2,0,0"
                                            Style="{StaticResource MaterialDesignBody2TextBlock}"
@@ -33,9 +32,7 @@
 
                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Text="{Binding Invoice.Status}"
-                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource AccentBrush}"
+                                           Style="{StaticResource StatusPillTextStyle}"
                                            HorizontalAlignment="Right" />
                                 <TextBlock Text="{Binding Invoice.CreateDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
                                            Margin="0,2,0,0"
@@ -97,8 +94,7 @@
                     <UniformGrid Columns="4">
                         <StackPanel>
                             <TextBlock Text="Room"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                       Style="{StaticResource CaptionTextStyle}" />
                             <TextBlock Text="{Binding Invoice.RoomAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
@@ -106,8 +102,7 @@
 
                         <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Service"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                       Style="{StaticResource CaptionTextStyle}" />
                             <TextBlock Text="{Binding Invoice.ServiceAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
@@ -115,8 +110,7 @@
 
                         <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Total"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                       Style="{StaticResource CaptionTextStyle}" />
                             <TextBlock Text="{Binding Invoice.TotalAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
@@ -124,8 +118,7 @@
 
                         <StackPanel Margin="12,0,0,0">
                             <TextBlock Text="Remaining"
-                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                       Style="{StaticResource CaptionTextStyle}" />
                             <TextBlock Text="{Binding Invoice.RemainingAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                        Foreground="{StaticResource DangerBrush}" />
@@ -143,8 +136,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Rooms"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}" />
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Invoice.RoomLines}"
                                   Margin="0,8,0,0">
@@ -171,8 +163,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Services"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}" />
                         <DataGrid Grid.Row="1"
                                   ItemsSource="{Binding Invoice.ServiceLines}"
                                   Margin="0,8,0,0">

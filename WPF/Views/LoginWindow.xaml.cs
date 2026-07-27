@@ -1,10 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using WPF.ViewModels;
+using FluentWindow = Wpf.Ui.Controls.FluentWindow;
 
 namespace WPF.Views;
 
-public partial class LoginWindow : Window
+public partial class LoginWindow : FluentWindow
 {
     public LoginWindow()
     {

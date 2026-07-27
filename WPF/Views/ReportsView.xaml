@@ -125,7 +125,7 @@
             <Border Grid.Row="1"
                     Padding="12"
                     Margin="0,0,0,12"
-                    Background="#FFF3D6"
+                    Background="{StaticResource WarningSoftBrush}"
                     CornerRadius="8"
                     Visibility="{Binding ReportMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -143,7 +143,7 @@
                                Text="{Binding ReportMessage}"
                                Margin="8,0,0,0"
                                Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="#856404"
+                               Foreground="{StaticResource WarningBrush}"
                                TextWrapping="Wrap" />
                 </Grid>
             </Border>

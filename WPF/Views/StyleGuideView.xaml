@@ -3,10 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <Style x:Key="StyleGuideCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource SurfaceBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="CornerRadius" Value="{StaticResource AppCornerRadius}" />
         </Style>
     </UserControl.Resources>
 
@@ -15,13 +15,11 @@
             <Border Style="{StaticResource StyleGuideCardStyle}" Padding="24">
                 <StackPanel>
                     <TextBlock Text="Dialog buttons"
-                               FontFamily="{StaticResource AppDisplayFont}"
-                               FontSize="22"
-                               Foreground="{StaticResource TextPrimaryBrush}" />
+                               Style="{StaticResource SectionTitleTextStyle}"
+                               FontSize="22" />
                     <TextBlock Text="Use these actions to preview the shared button hierarchy and DialogService message patterns."
                                Margin="0,10,0,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               TextWrapping="Wrap" />
+                               Style="{StaticResource CaptionTextStyle}" />
                     <WrapPanel Margin="0,22,0,0">
                         <Button Content="Info Dialog"
                                 Command="{Binding ShowInfoDialogCommand}"
@@ -46,21 +44,20 @@
                 <Border Style="{StaticResource StyleGuideCardStyle}" Padding="24" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="Input preview"
-                                   FontFamily="{StaticResource AppDisplayFont}"
-                                   FontSize="22"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}"
+                                   FontSize="22" />
 
-                        <TextBlock Text="Search keyword" Margin="0,18,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="Search keyword" Margin="0,18,0,0" Style="{StaticResource CaptionTextStyle}" />
                         <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Text="Room status" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="Room status" Margin="0,16,0,0" Style="{StaticResource CaptionTextStyle}" />
                         <ComboBox ItemsSource="{Binding RoomStatuses}"
                                   SelectedItem="{Binding SelectedRoomStatus}" />
 
-                        <TextBlock Text="Planned check-in" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="Planned check-in" Margin="0,16,0,0" Style="{StaticResource CaptionTextStyle}" />
                         <DatePicker SelectedDate="{Binding PlannedCheckIn}" />
 
-                        <TextBlock Text="Notes" Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="Notes" Margin="0,16,0,0" Style="{StaticResource CaptionTextStyle}" />
                         <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
                                  AcceptsReturn="True"
                                  Height="110"
@@ -77,13 +74,11 @@
                 <Border Grid.Column="1" Style="{StaticResource StyleGuideCardStyle}" Padding="24" Margin="12,0,0,0">
                     <StackPanel>
                         <TextBlock Text="Shared table style"
-                                   FontFamily="{StaticResource AppDisplayFont}"
-                                   FontSize="22"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}"
+                                   FontSize="22" />
                         <TextBlock Text="Preview rows that later booking, room and billing screens can reuse."
                                    Margin="0,10,0,0"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   TextWrapping="Wrap" />
+                                   Style="{StaticResource CaptionTextStyle}" />
 
                         <DataGrid ItemsSource="{Binding PreviewRows}" Margin="0,22,0,0" Height="300">
                             <DataGrid.Columns>

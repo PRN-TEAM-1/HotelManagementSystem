@@ -31,7 +31,7 @@
 
                     <Border Width="52"
                             Height="52"
-                            CornerRadius="12"
+                            CornerRadius="8"
                             Background="{StaticResource AccentSoftBrush}">
                         <materialDesign:PackIcon Kind="AccountCircle"
                                                  Width="30"
@@ -43,8 +43,7 @@
 
                     <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding DisplayName}"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}" />
                         <TextBlock Text="{Binding RoleDisplay}"
                                    Margin="0,2,0,0"
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
@@ -171,8 +170,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Access"
-                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                           Foreground="{StaticResource TextPrimaryBrush}" />
+                           Style="{StaticResource SectionTitleTextStyle}" />
 
                 <ItemsControl Grid.Row="1"
                               ItemsSource="{Binding AccessibleAreas}"
@@ -227,8 +225,7 @@
                                                  Foreground="{StaticResource AccentBrush}"
                                                  Margin="0,0,8,0" />
                         <TextBlock Text="Login and Activity History"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                   Style="{StaticResource SectionTitleTextStyle}" />
                     </StackPanel>
                 </DockPanel>
 

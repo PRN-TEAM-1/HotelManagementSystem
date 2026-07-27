@@ -74,7 +74,7 @@
 
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <materialDesign:Card Width="170" MinHeight="115" Margin="0,0,12,12" Padding="12" materialDesign:ElevationAssist.Elevation="Dp1" Background="#FAFAFA">
+                                            <materialDesign:Card Width="170" MinHeight="115" Margin="0,0,12,12" Padding="12" materialDesign:ElevationAssist.Elevation="Dp1" Background="{StaticResource SurfaceBrush}">
                                                 <Grid>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto" />
@@ -95,7 +95,7 @@
 
                                                     <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,4,0,4">
                                                         <TextBlock Text="{Binding RoomTypeName}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VNĐ/đêm'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding BasePrice, StringFormat='{}{0:N0} VND/night'}" FontSize="11" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" />
                                                     </StackPanel>
 
                                                     <DockPanel Grid.Row="2" Margin="0,4,0,0">
@@ -124,7 +124,7 @@
         </ScrollViewer>
 
         <!-- Loading Overlay -->
-        <Border Grid.RowSpan="3" Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Border Grid.RowSpan="3" Background="{StaticResource OverlayBrush}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ProgressBar Width="160" Height="4" IsIndeterminate="True" Style="{StaticResource MaterialDesignLinearProgressBar}" />
                 <TextBlock Text="Loading Room Map..." Margin="0,8,0,0" Style="{StaticResource MaterialDesignBody2TextBlock}" Foreground="White" />

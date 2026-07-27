@@ -11,7 +11,7 @@
         <StackPanel>
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,12"
-                                 Background="#FFF3D6"
+                                 Background="{StaticResource WarningSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -30,7 +30,7 @@
                                Text="{Binding ErrorMessage}"
                                Margin="8,0,8,0"
                                Style="{StaticResource MaterialDesignBody2TextBlock}"
-                               Foreground="#856404"
+                               Foreground="{StaticResource WarningBrush}"
                                TextWrapping="Wrap" />
                     <Button Grid.Column="2"
                             Command="{Binding ClearMessagesCommand}"
@@ -43,7 +43,7 @@
 
             <materialDesign:Card Padding="12"
                                  Margin="0,0,0,12"
-                                 Background="#DFF3E7"
+                                 Background="{StaticResource SuccessSoftBrush}"
                                  materialDesign:ElevationAssist.Elevation="Dp1"
                                  Visibility="{Binding SuccessMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <Grid>
@@ -601,7 +601,7 @@
                                     <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
                                     <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="92" />
-                                    <DataGridTextColumn Header="Total Amount" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VNĐ'}" Width="*" />
+                                    <DataGridTextColumn Header="Total Amount" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -610,7 +610,7 @@
             </TabControl>
 
 
-            <Border Background="#80000000"
+            <Border Background="{StaticResource OverlayBrush}"
                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <ProgressBar Width="160"

@@ -4,15 +4,19 @@
              xmlns:viewModels="clr-namespace:WPF.ViewModels"
              xmlns:views="clr-namespace:WPF.Views"
              xmlns:converters="clr-namespace:WPF.Converters"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Light" />
+                <ui:ControlsDictionary />
                 <materialDesign:BundledTheme BaseTheme="Light"
                                              PrimaryColor="Teal"
                                              SecondaryColor="Amber" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                 <ResourceDictionary Source="Resources/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Fluent.xaml" />
                 <ResourceDictionary Source="Resources/Buttons.xaml" />
                 <ResourceDictionary Source="Resources/TextBoxes.xaml" />
                 <ResourceDictionary Source="Resources/Tables.xaml" />

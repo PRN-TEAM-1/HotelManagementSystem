@@ -3,24 +3,39 @@
     <FontFamily x:Key="AppDisplayFont">Bahnschrift SemiCondensed</FontFamily>
     <FontFamily x:Key="AppBodyFont">Segoe UI</FontFamily>
 
-    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F4F7FB" />
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F5F7FA" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#F8FBFF" />
-    <SolidColorBrush x:Key="SurfaceBorderBrush" Color="#D8E2EE" />
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#102033" />
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5A6B7E" />
-    <SolidColorBrush x:Key="TextInverseBrush" Color="#F7FBFF" />
-    <SolidColorBrush x:Key="AccentBrush" Color="#1E8BA5" />
-    <SolidColorBrush x:Key="AccentHoverBrush" Color="#16768E" />
-    <SolidColorBrush x:Key="AccentPressedBrush" Color="#125E73" />
-    <SolidColorBrush x:Key="AccentSoftBrush" Color="#D8F1F5" />
-    <SolidColorBrush x:Key="ButtonPrimaryBrush" Color="#1E8BA5" />
-    <SolidColorBrush x:Key="SuccessBrush" Color="#237A57" />
-    <SolidColorBrush x:Key="WarningBrush" Color="#B5701B" />
-    <SolidColorBrush x:Key="DangerBrush" Color="#B24E56" />
-    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#17364E" />
-    <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#1A4666" />
-    <SolidColorBrush x:Key="TableHeaderBrush" Color="#EAF1F7" />
+    <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#F7F9FC" />
+    <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#FBFCFE" />
+    <SolidColorBrush x:Key="SurfaceBorderBrush" Color="#DDE4EE" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5F6B7A" />
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#7B8794" />
+    <SolidColorBrush x:Key="TextInverseBrush" Color="#FAFCFF" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#0078D4" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#106EBE" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#005A9E" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#E7F2FC" />
+    <SolidColorBrush x:Key="ButtonPrimaryBrush" Color="#0078D4" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#107C41" />
+    <SolidColorBrush x:Key="SuccessSoftBrush" Color="#E7F6EC" />
+    <SolidColorBrush x:Key="SuccessBorderBrush" Color="#B7E3C7" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#9D5D00" />
+    <SolidColorBrush x:Key="WarningSoftBrush" Color="#FFF4CE" />
+    <SolidColorBrush x:Key="WarningBorderBrush" Color="#F3D98A" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#C42B1C" />
+    <SolidColorBrush x:Key="DangerSoftBrush" Color="#FDE7E9" />
+    <SolidColorBrush x:Key="DangerBorderBrush" Color="#F3B7BD" />
+    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#E7F2FC" />
+    <SolidColorBrush x:Key="SidebarSelectedBrush" Color="#D8ECFA" />
+    <SolidColorBrush x:Key="TableHeaderBrush" Color="#F3F6FA" />
+    <SolidColorBrush x:Key="OverlayBrush" Color="#80000000" />
+    <SolidColorBrush x:Key="OverlaySoftBrush" Color="#66000000" />
+    <SolidColorBrush x:Key="HeroTextMutedBrush" Color="#DDECF3" />
+    <SolidColorBrush x:Key="HeroTextSoftBrush" Color="#E3F1F7" />
+    <SolidColorBrush x:Key="HeroTextSubtleBrush" Color="#C4DAE5" />
+    <SolidColorBrush x:Key="HeroGlassBrush" Color="#22FFFFFF" />
+    <SolidColorBrush x:Key="HeroBorderBrush" Color="#22000000" />
 
     <!-- Aliases used by Checkout / ServiceManagement / ServiceOrder / RoomMap views -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#1E8BA5" />
@@ -28,13 +43,10 @@
     <SolidColorBrush x:Key="ButtonSecondaryBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="ButtonSuccessBrush" Color="#237A57" />
 
-    <LinearGradientBrush x:Key="SidebarBrush" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#0E1C2F" Offset="0" />
-        <GradientStop Color="#173A55" Offset="1" />
-    </LinearGradientBrush>
+    <SolidColorBrush x:Key="SidebarBrush" Color="#F8FAFD" />
 
     <LinearGradientBrush x:Key="HeroBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#184B6B" Offset="0" />
-        <GradientStop Color="#2E7A8F" Offset="1" />
+        <GradientStop Color="#0078D4" Offset="0" />
+        <GradientStop Color="#0E3A5B" Offset="1" />
     </LinearGradientBrush>
 </ResourceDictionary>

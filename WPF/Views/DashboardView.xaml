@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:WPF.Controls"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -32,9 +33,9 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <materialDesign:Card Padding="16"
-                                     Margin="0,0,0,12"
-                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                <ui:Card Padding="16"
+                         Margin="0,0,0,12"
+                         Style="{StaticResource FluentUiCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -48,8 +49,7 @@
                                                      Foreground="{StaticResource AccentBrush}"
                                                      Margin="0,0,8,0" />
                             <TextBlock Text="Room Summary"
-                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                       Style="{StaticResource SectionTitleTextStyle}" />
                         </StackPanel>
 
                         <UniformGrid Grid.Row="1"
@@ -69,10 +69,10 @@
                                                            Value="{Binding Dashboard.RoomSummary.MaintenanceRooms}" />
                         </UniformGrid>
                     </Grid>
-                </materialDesign:Card>
+                </ui:Card>
 
-                <materialDesign:Card Padding="16"
-                                     materialDesign:ElevationAssist.Elevation="Dp2">
+                <ui:Card Padding="16"
+                         Style="{StaticResource FluentUiCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -86,8 +86,7 @@
                                                      Foreground="{StaticResource AccentBrush}"
                                                      Margin="0,0,8,0" />
                             <TextBlock Text="Operations"
-                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                       Style="{StaticResource SectionTitleTextStyle}" />
                         </StackPanel>
 
                         <UniformGrid Grid.Row="1"
@@ -107,7 +106,7 @@
                                                            Value="{Binding Dashboard.TodayOperation.TodayCheckOuts}" />
                         </UniformGrid>
                     </Grid>
-                </materialDesign:Card>
+                </ui:Card>
             </StackPanel>
         </ScrollViewer>
     </Grid>

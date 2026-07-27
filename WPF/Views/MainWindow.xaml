@@ -1,158 +1,190 @@
-<Window x:Class="WPF.Views.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d"
-        Title="Hotel Management System"
-        Width="1400"
-        Height="860"
-        MinWidth="1120"
-        MinHeight="700"
-        WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackgroundBrush}"
-        Style="{StaticResource MaterialDesignWindow}">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+<ui:FluentWindow x:Class="WPF.Views.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 mc:Ignorable="d"
+                 Title="Hotel Management System"
+                 Width="1400"
+                 Height="860"
+                 MinWidth="1120"
+                 MinHeight="700"
+                 WindowStartupLocation="CenterScreen"
+                 Background="{StaticResource WindowBackgroundBrush}"
+                 FontFamily="{StaticResource AppBodyFont}"
+                 Foreground="{StaticResource TextPrimaryBrush}"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round">
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" Padding="20">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel>
+        <ui:TitleBar Grid.Row="0"
+                     Title="Hotel Management System"
+                     Background="Transparent"
+                     ButtonsBackground="{StaticResource SurfaceMutedBrush}">
+            <ui:TitleBar.Header>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="28"
+                            Height="28"
+                            Background="{StaticResource AccentSoftBrush}"
+                            CornerRadius="6">
+                        <materialDesign:PackIcon Kind="OfficeBuilding"
+                                                 Width="17"
+                                                 Height="17"
+                                                 Foreground="{StaticResource AccentBrush}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center" />
+                    </Border>
                     <TextBlock Text="{Binding AppTitle}"
-                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
-                               FontFamily="{StaticResource AppDisplayFont}"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource TextInverseBrush}" />
-                    <TextBlock Text="{Binding AppSubtitle}"
-                               Margin="0,4,0,0"
-                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="#C2D5E6" />
+                               Margin="10,0,0,0"
+                               FontFamily="{StaticResource AppBodyFont}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" />
                 </StackPanel>
+            </ui:TitleBar.Header>
+        </ui:TitleBar>
 
-                <ScrollViewer Grid.Row="1"
-                              Margin="0,24,0,0"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding NavigationItems}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        CommandParameter="{Binding}"
-                                        Tag="{Binding IsSelected}"
-                                        Style="{StaticResource NavigationButtonStyle}"
-                                        ToolTip="{Binding Caption}"
-                                        Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="248" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                                        <materialDesign:PackIcon Kind="{Binding IconKind}"
-                                                                 Width="20"
-                                                                 Height="20"
-                                                                 Foreground="{StaticResource TextInverseBrush}"
-                                                                 VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding TitleText}"
-                                                   Margin="12,0,0,0"
-                                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextInverseBrush}"
-                                                   VerticalAlignment="Center" />
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+            <Border Grid.Column="0"
+                    Background="{StaticResource SidebarBrush}"
+                    BorderBrush="{StaticResource SurfaceBorderBrush}"
+                    BorderThickness="0,1,1,0"
+                    Padding="18,18,16,18">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <materialDesign:Card Grid.Row="2"
-                                     Margin="0,20,0,0"
-                                     Padding="16"
-                                     Background="#102A40"
-                                     materialDesign:ElevationAssist.Elevation="Dp1">
                     <StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding AppTitle}"
+                                   Style="{StaticResource PageTitleTextStyle}"
+                                   FontSize="22" />
+                        <TextBlock Text="{Binding AppSubtitle}"
+                                   Margin="0,4,0,0"
+                                   Style="{StaticResource CaptionTextStyle}" />
+                    </StackPanel>
 
-                            <materialDesign:PackIcon Kind="AccountCircle"
-                                                     Width="28"
-                                                     Height="28"
-                                                     Foreground="{StaticResource TextInverseBrush}"
-                                                     VerticalAlignment="Center" />
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                <TextBlock Text="{Binding SessionDisplayName}"
-                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextInverseBrush}"
-                                           TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{Binding SessionRoleDisplay}"
-                                           Margin="0,2,0,0"
-                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                           Foreground="#A9C4D9" />
-                            </StackPanel>
-                        </Grid>
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="0,22,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding NavigationItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Tag="{Binding IsSelected}"
+                                            Style="{StaticResource NavigationButtonStyle}"
+                                            ToolTip="{Binding Caption}"
+                                            Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="{Binding AuthenticationState}"
-                                   Margin="0,10,0,0"
-                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                   Foreground="#C2D5E6" />
+                                            <materialDesign:PackIcon Kind="{Binding IconKind}"
+                                                                     Width="19"
+                                                                     Height="19"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                     VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding TitleText}"
+                                                       Margin="12,0,0,0"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
 
-                        <Button Command="{Binding LogoutCommand}"
-                                Style="{StaticResource NavigationButtonStyle}"
-                                Margin="0,12,0,0"
-                                Padding="10,8"
-                                ToolTip="Logout">
+                    <Border Grid.Row="2"
+                            Margin="0,18,0,0"
+                            Padding="14"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource SurfaceBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <materialDesign:PackIcon Kind="Logout"
-                                                         Width="18"
-                                                         Height="18"
-                                                         Foreground="{StaticResource TextInverseBrush}"
-                                                         VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1"
-                                           Text="Logout"
-                                           Margin="10,0,0,0"
-                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextInverseBrush}"
-                                           VerticalAlignment="Center" />
+                                <Border Width="36"
+                                        Height="36"
+                                        Background="{StaticResource AccentSoftBrush}"
+                                        CornerRadius="18">
+                                    <materialDesign:PackIcon Kind="AccountCircle"
+                                                             Width="22"
+                                                             Height="22"
+                                                             Foreground="{StaticResource AccentBrush}"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center" />
+                                </Border>
+
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                    <TextBlock Text="{Binding SessionDisplayName}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding SessionRoleDisplay}"
+                                               Margin="0,2,0,0"
+                                               Style="{StaticResource CaptionTextStyle}" />
+                                </StackPanel>
                             </Grid>
-                        </Button>
-                    </StackPanel>
-                </materialDesign:Card>
-            </Grid>
-        </Border>
 
-        <Grid Grid.Column="1" Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding AuthenticationState}"
+                                       Margin="0,10,0,0"
+                                       Style="{StaticResource CaptionTextStyle}" />
 
-            <materialDesign:Card Grid.Row="0"
-                                 Margin="0"
-                                 Padding="16"
-                                 materialDesign:ElevationAssist.Elevation="Dp1">
+                            <Button Command="{Binding LogoutCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    Margin="0,12,0,0"
+                                    MinWidth="0"
+                                    ToolTip="Sign out">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Logout"
+                                                             Width="17"
+                                                             Height="17"
+                                                             Margin="0,0,8,0"
+                                                             VerticalAlignment="Center" />
+                                    <TextBlock Text="Sign out" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1"
+                  Margin="22,18,22,22">
                 <ContentControl Content="{Binding CurrentViewModel}" />
-            </materialDesign:Card>
+            </Grid>
         </Grid>
     </Grid>
-</Window>
+</ui:FluentWindow>
