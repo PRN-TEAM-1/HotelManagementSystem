@@ -172,7 +172,7 @@ public sealed class AiConfigurationService : IAiConfigurationService
                 {
                     IsConnected = connected,
                     ProviderName = setting.ProviderName.ToString(),
-                    ModelName = setting.ModelName,
+                    ModelName = options.ModelName,
                     Message = status,
                     TestedAt = testedAt
                 }, status);
@@ -195,7 +195,7 @@ public sealed class AiConfigurationService : IAiConfigurationService
                 {
                     IsConnected = false,
                     ProviderName = setting.ProviderName.ToString(),
-                    ModelName = setting.ModelName,
+                    ModelName = options.ModelName,
                     Message = status,
                     TestedAt = testedAt
                 }, status);
@@ -209,11 +209,18 @@ public sealed class AiConfigurationService : IAiConfigurationService
 
     private static AiProviderRequestOptions CreateRequestOptions(AiProviderSetting setting)
     {
+        var modelName = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiModelName(setting.ModelName)
+            : setting.ModelName;
+        var endpointUrl = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiEndpointUrl(setting.EndpointUrl)
+            : setting.EndpointUrl;
+
         return new AiProviderRequestOptions(
             setting.ProviderName,
-            setting.ModelName,
+            modelName,
             AiSecretProtector.Unprotect(setting.EncryptedApiKey),
-            setting.EndpointUrl,
+            endpointUrl,
             setting.Temperature,
             setting.MaxOutputTokens,
             setting.TimeoutSeconds);
@@ -263,13 +270,20 @@ public sealed class AiConfigurationService : IAiConfigurationService
 
     private static AiProviderSettingDto MapToDto(AiProviderSetting setting)
     {
+        var modelName = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiModelName(setting.ModelName)
+            : setting.ModelName;
+        var endpointUrl = setting.ProviderName == AiProviderName.Gemini
+            ? AiProviderDefaults.NormalizeGeminiEndpointUrl(setting.EndpointUrl)
+            : setting.EndpointUrl;
+
         return new AiProviderSettingDto
         {
             AiProviderSettingId = setting.AiProviderSettingId,
             ProviderName = setting.ProviderName,
-            ModelName = setting.ModelName,
+            ModelName = modelName,
             HasApiKey = !string.IsNullOrWhiteSpace(setting.EncryptedApiKey),
-            EndpointUrl = setting.EndpointUrl,
+            EndpointUrl = endpointUrl,
             Temperature = setting.Temperature,
             MaxOutputTokens = setting.MaxOutputTokens,
             TimeoutSeconds = setting.TimeoutSeconds,
@@ -284,11 +298,11 @@ public sealed class AiConfigurationService : IAiConfigurationService
         return new AiProviderSettingDto
         {
             ProviderName = providerName,
-            ModelName = providerName == AiProviderName.OpenAI ? "gpt-4o-mini" : "gemini-1.5-flash",
+            ModelName = providerName == AiProviderName.OpenAI ? "gpt-4o-mini" : AiProviderDefaults.GeminiModelName,
             HasApiKey = false,
             EndpointUrl = providerName == AiProviderName.OpenAI
                 ? "https://api.openai.com/v1/chat/completions"
-                : "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                : AiProviderDefaults.GeminiBaseEndpointUrl,
             Temperature = DefaultTemperature,
             MaxOutputTokens = DefaultMaxOutputTokens,
             TimeoutSeconds = DefaultTimeoutSeconds,

@@ -94,7 +94,7 @@
                 <materialDesign:Card Padding="16"
                                      Margin="0,0,0,12"
                                      materialDesign:ElevationAssist.Elevation="Dp1">
-                    <UniformGrid Columns="4">
+                    <UniformGrid Columns="3">
                         <StackPanel>
                             <TextBlock Text="Room"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
@@ -110,19 +110,37 @@
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.ServiceAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
 
                         <StackPanel Margin="12,0,0,0">
+                            <TextBlock Text="Discount"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Text="{Binding Invoice.DiscountAmount, StringFormat='{}{0:N0} VND'}"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,12,0,0">
+                            <TextBlock Text="Tax"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Text="{Binding Invoice.TaxAmount, StringFormat='{}{0:N0} VND'}"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="12,12,0,0">
                             <TextBlock Text="Total"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Invoice.TotalAmount, StringFormat='{}{0:N0} VND'}"
                                        Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
 
-                        <StackPanel Margin="12,0,0,0">
+                        <StackPanel Margin="12,12,0,0">
                             <TextBlock Text="Remaining"
                                        Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                        Foreground="{StaticResource TextSecondaryBrush}" />
@@ -145,20 +163,22 @@
                         <TextBlock Text="Rooms"
                                    Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
-                        <DataGrid Grid.Row="1"
-                                  ItemsSource="{Binding Invoice.RoomLines}"
-                                  Margin="0,8,0,0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
-                                <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="*" />
-                                <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
-                                <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
-                                <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="Auto" MinWidth="64" />
-                                <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="90" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                         <DataGrid Grid.Row="1"
+                                   ItemsSource="{Binding Invoice.RoomLines}"
+                                   Margin="0,8,0,0"
+                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                   ScrollViewer.VerticalScrollBarVisibility="Auto">
+                             <DataGrid.Columns>
+                                 <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
+                                 <DataGridTextColumn Header="Type" Binding="{Binding RoomType}" Width="160" MinWidth="140" />
+                                 <DataGridTextColumn Header="Check-in" Binding="{Binding CheckInDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
+                                 <DataGridTextColumn Header="Check-out" Binding="{Binding CheckOutDate, StringFormat='yyyy-MM-dd'}" Width="Auto" MinWidth="96" />
+                                 <DataGridTextColumn Header="Nights" Binding="{Binding NumberOfNights}" Width="Auto" MinWidth="64" />
+                                 <DataGridTextColumn Header="Price" Binding="{Binding RoomPrice, StringFormat='{}{0:N0} VND'}" Width="130" MinWidth="120" />
+                                 <DataGridTextColumn Header="Total" Binding="{Binding RoomTotal, StringFormat='{}{0:N0} VND'}" Width="130" MinWidth="120" />
+                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" MinWidth="90" />
+                             </DataGrid.Columns>
+                         </DataGrid>
                     </Grid>
                 </materialDesign:Card>
 
@@ -173,18 +193,20 @@
                         <TextBlock Text="Services"
                                    Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
                                    Foreground="{StaticResource TextPrimaryBrush}" />
-                        <DataGrid Grid.Row="1"
-                                  ItemsSource="{Binding Invoice.ServiceLines}"
-                                  Margin="0,8,0,0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
-                                <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="1.4*" />
-                                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="56" />
-                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="*" />
-                                <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="124" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                         <DataGrid Grid.Row="1"
+                                   ItemsSource="{Binding Invoice.ServiceLines}"
+                                   Margin="0,8,0,0"
+                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                   ScrollViewer.VerticalScrollBarVisibility="Auto">
+                             <DataGrid.Columns>
+                                 <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="Auto" MinWidth="70" />
+                                 <DataGridTextColumn Header="Service" Binding="{Binding ServiceName}" Width="200" MinWidth="160" />
+                                 <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto" MinWidth="56" />
+                                 <DataGridTextColumn Header="Unit" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} VND'}" Width="130" MinWidth="120" />
+                                 <DataGridTextColumn Header="Total" Binding="{Binding TotalPrice, StringFormat='{}{0:N0} VND'}" Width="130" MinWidth="120" />
+                                 <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="Auto" MinWidth="124" />
+                             </DataGrid.Columns>
+                         </DataGrid>
                     </Grid>
                 </materialDesign:Card>
             </StackPanel>

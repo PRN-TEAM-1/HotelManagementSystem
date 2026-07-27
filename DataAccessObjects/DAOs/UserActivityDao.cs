@@ -132,6 +132,46 @@ public sealed class UserActivityDao
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<LoginLockoutStatusDto> GetLoginLockoutStatusAsync(
+        string attemptedUsername,
+        int? userId,
+        DateTime windowStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedUsername = attemptedUsername.Trim();
+        await using var context = DbContextFactory.CreateDbContext();
+
+        DateTime? lastSuccessfulLoginAtUtc = null;
+        if (userId is > 0)
+        {
+            lastSuccessfulLoginAtUtc = await context.UserActivityLogs
+                .AsNoTracking()
+                .Where(log =>
+                    log.ActionType == "LoginSuccess"
+                    && log.Result == "Success"
+                    && log.OccurredAtUtc >= windowStartUtc
+                    && (log.ActorUserId == userId.Value || log.TargetUserId == userId.Value))
+                .MaxAsync(log => (DateTime?)log.OccurredAtUtc, cancellationToken);
+        }
+
+        var effectiveWindowStartUtc = lastSuccessfulLoginAtUtc ?? windowStartUtc;
+        var failedLogins = context.UserActivityLogs
+            .AsNoTracking()
+            .Where(log =>
+                log.ActionType == "LoginFailed"
+                && log.OccurredAtUtc >= effectiveWindowStartUtc
+                && (log.AttemptedUsername == normalizedUsername
+                    || (userId.HasValue
+                        && (log.ActorUserId == userId.Value || log.TargetUserId == userId.Value))));
+
+        return new LoginLockoutStatusDto
+        {
+            FailedAttemptCount = await failedLogins.CountAsync(cancellationToken),
+            LatestFailedAttemptAtUtc = await failedLogins
+                .MaxAsync(log => (DateTime?)log.OccurredAtUtc, cancellationToken)
+        };
+    }
+
     public async Task<ActivityDashboardDto> GetActivityDashboardAsync(
         CancellationToken cancellationToken = default)
     {

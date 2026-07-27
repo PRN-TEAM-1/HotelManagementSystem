@@ -241,7 +241,8 @@ public sealed class InvoiceViewModel : BaseViewModel
     {
         get
         {
-            return TryParsePercent(DiscountPercentText, out var discountPercent) && discountPercent >= 0m
+            return TryParsePercent(DiscountPercentText, out var discountPercent)
+                && discountPercent is >= 0m and <= 100m
                 ? RoundMoney(PreviewSubtotalAmount * discountPercent / 100m)
                 : 0m;
         }
@@ -257,7 +258,8 @@ public sealed class InvoiceViewModel : BaseViewModel
                 return 0m;
             }
 
-            return TryParsePercent(TaxPercentText, out var taxPercent) && taxPercent >= 0m
+            return TryParsePercent(TaxPercentText, out var taxPercent)
+                && taxPercent is >= 0m and <= 100m
                 ? RoundMoney(taxableAmount * taxPercent / 100m)
                 : 0m;
         }
@@ -324,6 +326,15 @@ public sealed class InvoiceViewModel : BaseViewModel
         _isInitialized = true;
     }
 
+    public override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        if (!IsBusy)
+        {
+            _ = RefreshAsync();
+        }
+    }
+
     private bool CanExecuteWhenIdle()
     {
         return !IsBusy;
@@ -346,7 +357,7 @@ public sealed class InvoiceViewModel : BaseViewModel
             && TryParsePercent(DiscountPercentText, out var discount)
             && TryParsePercent(TaxPercentText, out var tax)
             && discount is >= 0m and <= 100m
-            && tax >= 0m
+            && tax is >= 0m and <= 100m
             && PreviewTotalAmount >= 0m;
     }
 
@@ -474,9 +485,9 @@ public sealed class InvoiceViewModel : BaseViewModel
             return;
         }
 
-        if (discountPercent is < 0m or > 100m || taxPercent < 0m)
+        if (discountPercent is < 0m or > 100m || taxPercent is < 0m or > 100m)
         {
-            ErrorMessage = "Discount must be between 0% and 100%, and tax cannot be negative.";
+            ErrorMessage = "Discount and tax must be between 0% and 100%.";
             return;
         }
 

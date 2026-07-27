@@ -44,6 +44,28 @@ public sealed class AuthService : IAuthService
         try
         {
             var user = await _userRepository.GetByUsernameAsync(username, cancellationToken);
+            var nowUtc = DateTime.UtcNow;
+            var lockoutWindowStartUtc = nowUtc.AddMinutes(-ValidationRules.LoginBanMinutes);
+            var lockoutStatusResult = await _userActivityService.GetLoginLockoutStatusAsync(
+                username,
+                user?.UserId,
+                lockoutWindowStartUtc,
+                cancellationToken);
+
+            if (lockoutStatusResult.IsFailure)
+            {
+                return ServiceResult<LoginResultDto>.Failure(
+                    ErrorMessages.DatabaseConnectionRequired);
+            }
+
+            var lockoutResult = BuildLockoutResult(
+                lockoutStatusResult.Data,
+                nowUtc);
+
+            if (lockoutResult is not null)
+            {
+                return lockoutResult;
+            }
 
             if (user is null || !PasswordHasher.Verify(password, user.PasswordHash))
             {
@@ -53,6 +75,12 @@ public sealed class AuthService : IAuthService
                     request.ClientEnvironment,
                     ErrorMessages.InvalidCredentials,
                     cancellationToken);
+
+                var failedAttemptCount = (lockoutStatusResult.Data?.FailedAttemptCount ?? 0) + 1;
+                if (failedAttemptCount >= ValidationRules.MaxFailedLoginAttempts)
+                {
+                    return CreateLockoutFailure(nowUtc.AddMinutes(ValidationRules.LoginBanMinutes), nowUtc);
+                }
 
                 return ServiceResult<LoginResultDto>.Failure(ErrorMessages.InvalidCredentials);
             }
@@ -78,7 +106,7 @@ public sealed class AuthService : IAuthService
         }
         catch
         {
-            return ServiceResult<LoginResultDto>.Failure(ErrorMessages.UnexpectedError);
+            return ServiceResult<LoginResultDto>.Failure(ErrorMessages.DatabaseConnectionRequired);
         }
     }
 
@@ -118,7 +146,7 @@ public sealed class AuthService : IAuthService
         }
         catch
         {
-            return ServiceResult<LoginResultDto>.Failure(ErrorMessages.UnexpectedError);
+            return ServiceResult<LoginResultDto>.Failure(ErrorMessages.DatabaseConnectionRequired);
         }
     }
 
@@ -138,8 +166,42 @@ public sealed class AuthService : IAuthService
         }
         catch
         {
-            return ServiceResult<bool>.Failure(ErrorMessages.SystemError);
+            return ServiceResult<bool>.Failure(ErrorMessages.DatabaseConnectionRequired);
         }
+    }
+
+    private static ServiceResult<LoginResultDto>? BuildLockoutResult(
+        LoginLockoutStatusDto? lockoutStatus,
+        DateTime nowUtc)
+    {
+        if (lockoutStatus is null
+            || lockoutStatus.FailedAttemptCount < ValidationRules.MaxFailedLoginAttempts
+            || lockoutStatus.LatestFailedAttemptAtUtc is null)
+        {
+            return null;
+        }
+
+        var lockedUntilUtc = lockoutStatus.LatestFailedAttemptAtUtc.Value
+            .AddMinutes(ValidationRules.LoginBanMinutes);
+
+        return lockedUntilUtc > nowUtc
+            ? CreateLockoutFailure(lockedUntilUtc, nowUtc)
+            : null;
+    }
+
+    private static ServiceResult<LoginResultDto> CreateLockoutFailure(
+        DateTime lockedUntilUtc,
+        DateTime nowUtc)
+    {
+        var remainingMinutes = Math.Max(
+            1,
+            (int)Math.Ceiling((lockedUntilUtc - nowUtc).TotalMinutes));
+
+        var message = string.Format(
+            ErrorMessages.AccountTemporarilyLocked,
+            remainingMinutes);
+
+        return ServiceResult<LoginResultDto>.Failure(message);
     }
 
     private async Task<ServiceResult<LoginResultDto>> BuildLoginResultAsync(

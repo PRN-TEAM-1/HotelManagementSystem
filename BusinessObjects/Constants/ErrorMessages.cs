@@ -13,6 +13,8 @@ public static class ErrorMessages
 
     public const string InvalidCredentials = "Username or password is incorrect.";
     public const string AccountInactive = "This account is inactive.";
+    public const string AccountTemporarilyLocked = "Too many failed login attempts. Please try again in {0} minute(s).";
+    public const string DatabaseConnectionRequired = "Cannot connect to the database. Please check the connection string in appsettings.json and make sure the SQL Server database is created or updated correctly.";
 
     public const string InvalidDateRange = "Check-out date must be later than check-in date.";
     public const string InvalidNumberOfNights = "Number of nights must be greater than zero.";

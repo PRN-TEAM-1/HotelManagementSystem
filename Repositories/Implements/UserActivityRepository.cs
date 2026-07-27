@@ -60,6 +60,19 @@ public sealed class UserActivityRepository : IUserActivityRepository
         return _dao.GetRecentSystemActivityAsync(take, cancellationToken);
     }
 
+    public Task<LoginLockoutStatusDto> GetLoginLockoutStatusAsync(
+        string attemptedUsername,
+        int? userId,
+        DateTime windowStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return _dao.GetLoginLockoutStatusAsync(
+            attemptedUsername,
+            userId,
+            windowStartUtc,
+            cancellationToken);
+    }
+
     public Task<ActivityDashboardDto> GetActivityDashboardAsync(
         CancellationToken cancellationToken = default)
     {

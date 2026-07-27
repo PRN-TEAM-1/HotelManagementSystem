@@ -52,6 +52,12 @@ public interface IUserActivityService
         int take = 100,
         CancellationToken cancellationToken = default);
 
+    Task<ServiceResult<LoginLockoutStatusDto>> GetLoginLockoutStatusAsync(
+        string attemptedUsername,
+        int? userId,
+        DateTime windowStartUtc,
+        CancellationToken cancellationToken = default);
+
     Task<ServiceResult<ActivityDashboardDto>> GetActivityDashboardAsync(
         CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default);

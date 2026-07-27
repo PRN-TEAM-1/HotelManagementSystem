@@ -11,6 +11,8 @@ public static class ValidationRules
     public const int UsernameMinLength = 4;
     public const int UsernameMaxLength = 50;
     public const int PasswordMinLength = 6;
+    public const int MaxFailedLoginAttempts = 5;
+    public const int LoginBanMinutes = 15;
 
     public const int FullNameMaxLength = 150;
     public const int EmailMaxLength = 255;

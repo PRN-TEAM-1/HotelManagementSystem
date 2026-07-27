@@ -282,6 +282,33 @@ public sealed class UserActivityService : IUserActivityService
         }
     }
 
+    public async Task<ServiceResult<LoginLockoutStatusDto>> GetLoginLockoutStatusAsync(
+        string attemptedUsername,
+        int? userId,
+        DateTime windowStartUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(attemptedUsername))
+        {
+            return ServiceResult<LoginLockoutStatusDto>.Success(new LoginLockoutStatusDto());
+        }
+
+        try
+        {
+            var status = await _activityRepository.GetLoginLockoutStatusAsync(
+                attemptedUsername.Trim(),
+                userId,
+                windowStartUtc,
+                cancellationToken);
+
+            return ServiceResult<LoginLockoutStatusDto>.Success(status);
+        }
+        catch
+        {
+            return ServiceResult<LoginLockoutStatusDto>.Failure(ErrorMessages.DatabaseConnectionRequired);
+        }
+    }
+
     public async Task<ServiceResult<ActivityDashboardDto>> GetActivityDashboardAsync(
         CurrentSessionDto? currentUser,
         CancellationToken cancellationToken = default)

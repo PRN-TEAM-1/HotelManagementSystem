@@ -13,7 +13,9 @@ public sealed class InvoiceCalculationDao
 
         var bookings = await context.Bookings
             .AsNoTracking()
-            .Where(booking => !context.Invoices.Any(invoice => invoice.BookingId == booking.BookingId))
+            .Where(booking =>
+                booking.Status != BookingStatus.Cancelled
+                && !context.Invoices.Any(invoice => invoice.BookingId == booking.BookingId))
             .Join(
                 context.Customers.AsNoTracking(),
                 booking => booking.CustomerId,
@@ -36,7 +38,7 @@ public sealed class InvoiceCalculationDao
                 booking.BookingId,
                 booking.CustomerName,
                 booking.BookingDate,
-                booking.BookingStatus.ToString(),
+                booking.BookingStatus,
                 cancellationToken);
 
             if (candidate is not null)
@@ -70,7 +72,7 @@ public sealed class InvoiceCalculationDao
                 })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (booking is null)
+        if (booking is null || booking.BookingStatus == BookingStatus.Cancelled)
         {
             return null;
         }
@@ -88,7 +90,7 @@ public sealed class InvoiceCalculationDao
             booking.BookingId,
             booking.CustomerName,
             booking.BookingDate,
-            booking.BookingStatus.ToString(),
+            booking.BookingStatus,
             cancellationToken);
     }
 
@@ -105,9 +107,14 @@ public sealed class InvoiceCalculationDao
         int bookingId,
         string customerName,
         DateTime bookingDate,
-        string bookingStatus,
+        BookingStatus bookingStatus,
         CancellationToken cancellationToken)
     {
+        if (bookingStatus == BookingStatus.Cancelled)
+        {
+            return null;
+        }
+
         await using var context = DbContextFactory.CreateDbContext();
 
         var bookingDetails = await context.BookingDetails
@@ -132,6 +139,11 @@ public sealed class InvoiceCalculationDao
             .Where(detail => detail.Status == BookingDetailStatus.CheckedOut)
             .ToList();
 
+        if (billableBookingDetails.Count == 0)
+        {
+            return null;
+        }
+
         var bookingDetailIds = billableBookingDetails
             .Select(detail => detail.BookingDetailId)
             .ToArray();
@@ -149,7 +161,7 @@ public sealed class InvoiceCalculationDao
             BookingId = bookingId,
             CustomerName = customerName,
             BookingDate = bookingDate,
-            BookingStatus = bookingStatus,
+            BookingStatus = bookingStatus.ToString(),
             RoomCount = billableBookingDetails.Count,
             RoomAmount = roomAmount,
             ServiceAmount = serviceAmount,
