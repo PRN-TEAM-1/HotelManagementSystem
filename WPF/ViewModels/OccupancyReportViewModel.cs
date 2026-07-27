@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using BusinessObjects.Constants;
 using BusinessObjects.DTOs.Reports;
 using Microsoft.Win32;
 using Services.Interfaces;
@@ -82,7 +83,17 @@ public sealed class OccupancyReportViewModel : BaseViewModel
             EndDate = EndDate.Date
         };
 
-        var result = _occupancyReportService.GetOccupancyReport(filter);
+        List<OccupancyReportDto> result;
+
+        try
+        {
+            result = _occupancyReportService.GetOccupancyReport(filter);
+        }
+        catch
+        {
+            Message = ErrorMessages.DatabaseConnectionRequired;
+            return;
+        }
 
         foreach (var item in result)
         {

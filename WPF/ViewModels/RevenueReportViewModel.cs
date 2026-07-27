@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using BusinessObjects.Constants;
 using System.Windows.Media;
 using BusinessObjects.DTOs.Reports;
 using Microsoft.Win32;
@@ -65,8 +66,12 @@ public sealed class RevenueReportViewModel : BaseViewModel
 
         FilterCommand = new RelayCommand(LoadData);
         ExportCommand = new RelayCommand(ExportCsv);
+    }
 
+    public override Task InitializeAsync()
+    {
         LoadData();
+        return Task.CompletedTask;
     }
 
     private void LoadData()
@@ -89,9 +94,21 @@ public sealed class RevenueReportViewModel : BaseViewModel
             EndDate = EndDate.Date
         };
 
-        var revenues = _service.GetRevenueReport(filter);
-        var paymentMethods = _service.GetRevenueByPaymentMethod(filter);
-        var serviceRevenues = _service.GetRevenueByService(filter);
+        List<RevenueReportDto> revenues;
+        List<PaymentRevenueDto> paymentMethods;
+        List<ServiceRevenueDto> serviceRevenues;
+
+        try
+        {
+            revenues = _service.GetRevenueReport(filter);
+            paymentMethods = _service.GetRevenueByPaymentMethod(filter);
+            serviceRevenues = _service.GetRevenueByService(filter);
+        }
+        catch
+        {
+            Message = ErrorMessages.DatabaseConnectionRequired;
+            return;
+        }
 
         foreach (var item in revenues)
         {
